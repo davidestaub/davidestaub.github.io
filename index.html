@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Your Name - Personal Website</title>
+  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+  <header>
+    <h1>Your Name</h1>
+  </header>
+  <main>
+    <section id="bio">
+      <h2>Bio</h2>
+      <div class="bio-content">
+        <!-- Replace profile.png with your own photo later -->
+        <img src="profile.png" alt="Profile Picture" class="profile-pic">
+        <p>This is my short bio. You can update this text later with your own story and accomplishments.</p>
+      </div>
+    </section>
+    <section id="teaching">
+      <h2 onclick="toggleSection('teaching-content')" class="toggle">Teaching &#9654;</h2>
+      <div id="teaching-content" class="content hidden">
+        <p>Teaching content goes here. This section can be expanded later with details about your courses, lectures, or educational materials.</p>
+      </div>
+    </section>
+    <section id="research">
+      <h2 onclick="toggleSection('research-content')" class="toggle">Research &#9654;</h2>
+      <div id="research-content" class="content hidden">
+        <p>Research content goes here. You can fill this section later with information about your research interests, publications, and projects.</p>
+      </div>
+    </section>
+  </main>
+  <footer>
+    <p>&copy; 2025 Your Name. All rights reserved.</p>
+  </footer>
+  <script>
+    function toggleSection(id) {
+      const section = document.getElementById(id);
+      section.classList.toggle('hidden');
+    }
+  </script>
+</body>
+</html>
