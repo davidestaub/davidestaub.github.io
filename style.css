@@ -93,6 +93,15 @@ figure {
 figcaption {
   font-size: 0.9em;
   margin-top: 5px;
+  color: #eee;
+}
+
+/* Improve readability of captions by adding a semi‑transparent background */
+figure figcaption {
+  background-color: rgba(0, 0, 0, 0.6);
+  padding: 5px 8px;
+  border-radius: 4px;
+  display: inline-block;
 }
 
 .content {

@@ -39,7 +39,25 @@
     <section id="teaching">
       <h2 onclick="toggleSection('teaching-content')" class="toggle">Teaching &#9654;</h2>
       <div id="teaching-content" class="content hidden">
-        <p>Teaching content goes here. This section can be expanded later with details about your courses, lectures, or educational materials.</p>
+        <p>
+          <strong>Graduate Teaching Assistant, Imperial College London:</strong> I help deliver the MSc Deep Learning
+          course at Imperial College London.  This involves running tutorials, answering students’ questions
+          and supporting practical exercises on topics such as neural network fundamentals, optimisation
+          and modern architectures.
+        </p>
+        <p>
+          <strong>Lecturer, ETH Zürich – Space Data:</strong> I teach the final third of the
+          <a href="https://eaps.ethz.ch/en/studies/master/space-systems.html" target="_blank">Space&nbsp;Data course</a>
+          in the Master in Space Systems programme at ETH Zürich.  My block introduces convolutional neural
+          networks and U‑Net architectures for denoising images of the Moon’s permanently shadowed regions (PSRs).
+          These techniques build on the HORUS framework developed by Ben Moseley and Valentin Bickel, and are key to
+          reliable resource mapping and landing‑site planning.  Students learn the basics of deep learning (MLPs,
+          CNNs, U‑Nets, etc.) and then apply them to clean up PSR images using real training data.
+        </p>
+        <figure>
+          <img src="psr_crater.png" alt="Image of a lunar crater with a dark permanently shadowed region used in teaching about lunar resource mapping" class="research-img">
+          <figcaption>Permanently shadowed regions on the Moon, which require machine‑learning denoising for resource mapping and landing‑site planning.</figcaption>
+        </figure>
       </div>
     </section>
     <section id="research">
@@ -60,20 +78,18 @@
         </p>
         <h3>Previous work</h3>
         <p>
-          While working at the HomanLab in Zürich, I studied how the brain tracks
-          the flow of meaning during natural story listening.  We derived two
-          annotation‑free signals from a large language model: a <em>drift</em>
-          index that captures gradual semantic accumulation and a <em>shift</em>
-          index that marks discrete event boundaries.  These
-          signals were fit to high‑resolution fMRI data from a participant
-          listening to crime stories.  The shift predictions were robust in the
-          peri‑Sylvian auditory–language cortex (e.g., Heschl’s gyrus, planum
-          temporale/polare and superior temporal gyrus), whereas the drift
-          responses were comparatively weaker there but stronger in higher‑order
-          hubs such as the angular gyrus, precuneus and posterior cingulate.  This
-          dissociation suggests that auditory‑language regions are dominated by
-          boundary signals, while default‑mode network hubs preferentially track
-          slow context integration.
+          At the HomanLab in Zürich I explored how our brains follow the flow of stories.  Working with a
+          language model, we distilled two simple signals: a <em>drift</em> signal that
+          captures the gradual build‑up of meaning as a narrative unfolds, and a
+          <em>shift</em> signal that spikes when the story moves to a new event or scene.
+          When we compared these signals to high‑resolution fMRI recordings from a
+          volunteer listening to crime stories, we found that the burst‑like
+          shift signal lit up the brain’s speech and hearing centres, whereas the
+          slow drift signal was strongest in the so‑called default‑mode network –
+          regions like the angular gyrus, precuneus and posterior cingulate that
+          support memory and imagination.  This pattern suggests that auditory
+          areas mark event boundaries while broader networks follow the slow evolution
+          of context.
         </p>
         <p>
           Below are brain maps showing where each signal explained neural
@@ -93,6 +109,28 @@
           <img src="method_diagram.png" alt="Diagram summarising the model‑driven approach for deriving drift and shift signals from a language model and mapping them to brain activity" class="research-img">
           <figcaption>Method: converting stories into drift and shift signals via a large language model and mapping them to brain responses.</figcaption>
         </figure>
+        <h3>Master’s thesis: Physics‑informed neural networks for seismology</h3>
+        <p>
+          During my master’s studies at ETH Zürich I investigated Physics‑Informed Neural
+          Networks (PINNs) as a way to solve the elastic wave equation, which describes
+          how seismic waves propagate through the Earth.  By embedding wave physics
+          directly into the network architecture – for example using custom wavelet or
+          plane‑wave layers along with encoder and decoder components – I achieved
+          solutions that were roughly twice as accurate as standard PINNs【368441837662758†L26-L34】.  I also conditioned the networks on the location of the seismic source, allowing them to infer the
+          wavefield for countless source locations in a single forward pass and dramatically
+          speeding up simulations compared with traditional finite‑difference methods【368441837662758†L39-L49】.
+        </p>
+        <p>
+          I presented this work at the 2024 British Seismology Meeting, and it was later summarised in
+          <em>Astronomy &amp; Geophysics</em>.  The report notes that incorporating wave physics improves
+          accuracy and that once trained these networks are much faster than standard numerical solvers【256197482918217†L340-L353】.
+        </p>
+        <div class="image-row">
+          <figure>
+            <img src="wavefield.png" alt="Simulation of radial wavefields propagating outward (red and blue rings) generated by physics-informed neural networks" class="research-img">
+            <figcaption>Simulated elastic wavefields produced by a physics‑informed neural network.</figcaption>
+          </figure>
+        </div>
       </div>
     </section>
   </main>
