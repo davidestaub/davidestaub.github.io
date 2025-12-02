@@ -2,21 +2,38 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Your Name - Personal Website</title>
+<title>Davide Staub - Personal Website</title>
   <link rel="stylesheet" href="style.css">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
   <header>
-    <h1>Your Name</h1>
+    <div class="header-content">
+      <h1>Davide Staub</h1>
+      <!-- Lab icon placed next to your name -->
+      <img src="ssml-icon.webp" alt="Scalable Scientific Machine Learning Lab icon" class="lab-icon">
+    </div>
   </header>
   <main>
     <section id="bio">
       <h2>Bio</h2>
       <div class="bio-content">
-        <!-- Replace profile.png with your own photo later -->
-        <img src="profile.png" alt="Profile Picture" class="profile-pic">
-        <p>This is my short bio. You can update this text later with your own story and accomplishments.</p>
+        <!-- Profile photo -->
+        <img src="profile.jpg" alt="Profile photo" class="profile-pic">
+        <p>
+          I am Davide Staub, a PhD student at Imperial College London working in the
+          <a href="https://scalable-sciml-lab.org/" target="_blank">Scalable Scientific Machine Learning Lab</a>
+          under the supervision of Dr.&nbsp;Ben Moseley. My research focuses on
+          harnessing machine learning and physics to build differentiable tools for
+          reconstructing the three‑dimensional structure of exoplanet atmospheres from
+          JWST observations.
+          Before starting my PhD, I spent a year at the HomanLab within the
+          Psychiatric University Hospital of Zürich, where we combined brain imaging
+          and large language models to understand how the brain processes
+          narratives.  
+          <br>
+          <a href="https://www.linkedin.com/in/davide-staub/" target="_blank">LinkedIn</a>
+        </p>
       </div>
     </section>
     <section id="teaching">
@@ -28,12 +45,59 @@
     <section id="research">
       <h2 onclick="toggleSection('research-content')" class="toggle">Research &#9654;</h2>
       <div id="research-content" class="content hidden">
-        <p>Research content goes here. You can fill this section later with information about your research interests, publications, and projects.</p>
+        <h3>Current research</h3>
+        <p>
+          My PhD project aims to develop a single, differentiable pipeline that
+          converts all available JWST observations of a hot Jupiter—thermal
+          emission spectra, phase curves, eclipses and transmission spectra—into a
+          unified three‑dimensional temperature field \(T(\lambda, \phi, p)\). The
+          map uses a low‑dimensional spherical‑harmonics basis for horizontal
+          structure and smooth vertical modes, and the inversion is regularised
+          using physically motivated terms such as energy balance, global
+          radiative closure and hydrostatic consistency【350444532363578†L0-L24】【350444532363578†L26-L33】.  This
+          framework treats the atmosphere as a shared state that must
+          simultaneously explain observations across multiple viewing geometries【350444532363578†L107-L123】.
+        </p>
+        <h3>Previous work</h3>
+        <p>
+          While working at the HomanLab in Zürich, I studied how the brain tracks
+          the flow of meaning during natural story listening.  We derived two
+          annotation‑free signals from a large language model: a <em>drift</em>
+          index that captures gradual semantic accumulation and a <em>shift</em>
+          index that marks discrete event boundaries【763409208097992†L10-L33】.  These
+          signals were fit to high‑resolution fMRI data from a participant
+          listening to crime stories.  The shift predictions were robust in the
+          peri‑Sylvian auditory–language cortex (e.g., Heschl’s gyrus, planum
+          temporale/polare and superior temporal gyrus), whereas the drift
+          responses were comparatively weaker there but stronger in higher‑order
+          hubs such as the angular gyrus, precuneus and posterior cingulate【763409208097992†L36-L47】.  This
+          dissociation suggests that auditory‑language regions are dominated by
+          boundary signals, while default‑mode network hubs preferentially track
+          slow context integration【763409208097992†L52-L58】.
+        </p>
+        <p>
+          Below are brain maps showing where each signal explained neural
+          responses.  Bright colours indicate regions with stronger effects.
+        </p>
+        <div class="image-row">
+          <figure>
+            <img src="shift_map.png" alt="Brain map showing robust shift responses in peri‑Sylvian regions" class="research-img">
+            <figcaption>Shift: strong event‑boundary responses in auditory–language cortex.</figcaption>
+          </figure>
+          <figure>
+            <img src="drift_map.png" alt="Brain map highlighting drift responses in higher‑order default‑mode regions" class="research-img">
+            <figcaption>Drift: slow accumulation responses in higher‑order default‑mode regions.</figcaption>
+          </figure>
+        </div>
+        <figure>
+          <img src="method_diagram.png" alt="Diagram summarising the model‑driven approach for deriving drift and shift signals from a language model and mapping them to brain activity" class="research-img">
+          <figcaption>Method: converting stories into drift and shift signals via a large language model and mapping them to brain responses.</figcaption>
+        </figure>
       </div>
     </section>
   </main>
   <footer>
-    <p>&copy; 2025 Your Name. All rights reserved.</p>
+    <p>&copy; 2025 Davide Staub. All rights reserved.</p>
   </footer>
   <script>
     function toggleSection(id) {
