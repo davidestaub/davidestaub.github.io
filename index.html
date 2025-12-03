@@ -165,5 +165,154 @@
       section.classList.toggle('hidden');
     }
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.159.0/build/three.min.js"></script>
+<script>
+  (function() {
+    const container = document.getElementById('planet-container');
+    if (!container || !window.THREE) return;
+
+    const width  = container.clientWidth;
+    const height = container.clientHeight || width * 0.6;
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(window.devicePixelRatio || 1);
+    container.appendChild(renderer.domElement);
+
+    const scene = new THREE.Scene();
+
+    const camera = new THREE.PerspectiveCamera(35, width / height, 0.1, 100);
+    camera.position.set(0, 0, 3.2);
+
+    // Lights
+    const ambient = new THREE.AmbientLight(0xffffff, 0.35);
+    scene.add(ambient);
+
+    const keyLight = new THREE.DirectionalLight(0xffffff, 1.1);
+    keyLight.position.set(3, 2, 4);
+    scene.add(keyLight);
+
+    const rimLight = new THREE.DirectionalLight(0x88aaff, 0.5);
+    rimLight.position.set(-3, -1, -4);
+    scene.add(rimLight);
+
+    // Helper: create a procedural texture in a <canvas>
+    function makePlanetTexture(size, baseColor, accentColor) {
+      const canvas = document.createElement('canvas');
+      canvas.width = canvas.height = size;
+      const ctx = canvas.getContext('2d');
+
+      // radial gradient for day/night + hotspots
+      const grad = ctx.createRadialGradient(
+        size * 0.25, size * 0.3, size * 0.1,
+        size * 0.55, size * 0.6, size * 0.7
+      );
+      grad.addColorStop(0, accentColor);
+      grad.addColorStop(0.4, baseColor);
+      grad.addColorStop(1, '#050509');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, size, size);
+
+      // add noisy bands (winds / clouds / chemistry)
+      const img = ctx.getImageData(0, 0, size, size);
+      const data = img.data;
+      const bandCount = 12 + Math.floor(Math.random() * 8);
+
+      for (let y = 0; y < size; y++) {
+        const band = Math.floor((y / size) * bandCount);
+        const bandPhase = band / bandCount;
+        for (let x = 0; x < size; x++) {
+          const i = (y * size + x) * 4;
+          const noise =
+            (Math.random() - 0.5) * 25 +
+            Math.sin((x / size) * Math.PI * 4 + bandPhase * Math.PI * 2) * 18;
+
+          for (let c = 0; c < 3; c++) {
+            let v = data[i + c] + noise;
+            data[i + c] = v < 0 ? 0 : v > 255 ? 255 : v;
+          }
+
+          // occasional bright storms
+          if (Math.random() < 0.002) {
+            data[i]     = 255;
+            data[i + 1] = 240;
+            data[i + 2] = 200;
+          }
+        }
+      }
+      ctx.putImageData(img, 0, 0);
+
+      const tex = new THREE.CanvasTexture(canvas);
+      tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+      tex.repeat.set(2, 1);
+      tex.needsUpdate = true;
+      return tex;
+    }
+
+    function hex(r, g, b) {
+      return '#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join('');
+    }
+
+    // Random hot-Jupiter palette
+    const baseHue = 0.02 + Math.random() * 0.08; // orange / red range
+    const toRGB = (h, s, l) => {
+      // tiny HSL -> RGB helper
+      const f = (n, k = (n + h * 12) % 12) =>
+        l - s * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+      const r = Math.round(f(0) * 255);
+      const g = Math.round(f(8) * 255);
+      const b = Math.round(f(4) * 255);
+      return hex(r, g, b);
+    };
+    const baseCol   = toRGB(baseHue, 0.7, 0.25);
+    const accentCol = toRGB(baseHue + 0.02, 0.9, 0.6);
+
+    const planetTex = makePlanetTexture(1024, baseCol, accentCol);
+
+    // Main planet
+    const planetGeo = new THREE.SphereGeometry(1, 96, 96);
+    const planetMat = new THREE.MeshStandardMaterial({
+      map: planetTex,
+      roughness: 0.65,
+      metalness: 0.1
+    });
+    const planet = new THREE.Mesh(planetGeo, planetMat);
+    scene.add(planet);
+
+    // Thin, semi-transparent cloud layer that moves at a different speed
+    const cloudsGeo = new THREE.SphereGeometry(1.015, 64, 64);
+    const cloudsTex = makePlanetTexture(512, '#ffffff', '#ffffff');
+    cloudsTex.offset.set(Math.random(), 0);
+    const cloudsMat = new THREE.MeshStandardMaterial({
+      map: cloudsTex,
+      transparent: true,
+      opacity: 0.35,
+      depthWrite: false
+    });
+    const clouds = new THREE.Mesh(cloudsGeo, cloudsMat);
+    scene.add(clouds);
+
+    // Animation loop
+    function animate() {
+      requestAnimationFrame(animate);
+      planet.rotation.y += 0.002;
+      clouds.rotation.y += 0.0027;
+      // tiny rocking for a more “alive” feel
+      planet.rotation.x = Math.sin(Date.now() * 0.0001) * 0.05;
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    // Handle resize
+    window.addEventListener('resize', () => {
+      const w = container.clientWidth;
+      const h = container.clientHeight || w * 0.6;
+      renderer.setSize(w, h);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    });
+  })();
+</script>
+
 </body>
 </html>
