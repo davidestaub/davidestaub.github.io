@@ -319,22 +319,41 @@
         return tex;
       }
 
-      // Load a high‑resolution map of Jupiter to serve as the base texture for
-      // our gas‑giant exoplanet.  Using a real map adds convincing banded
-      // structure and storms.  We tint the map with a random hue so that
-      // successive page loads produce planets with different colour palettes.
+      // Prepare an array of pre‑generated planetary textures.  Each image is a
+      // colour‑shifted version of Jupiter's cloud bands.  Choosing randomly
+      // from this list on each page load makes the exoplanet look different
+      // every time while maintaining realistic structure.
+      const textureNames = [
+        'exoplanet_var1.jpg',
+        'exoplanet_var2.jpg',
+        'exoplanet_var3.jpg',
+        'exoplanet_var4.jpg',
+        'exoplanet_var5.jpg'
+      ];
       const textureLoader = new THREE.TextureLoader();
-      const baseTexture = textureLoader.load('jupiter_map.jpg');
+      const chosenName = textureNames[Math.floor(Math.random() * textureNames.length)];
+      const baseTexture = textureLoader.load(chosenName);
+      // Repeat horizontally and clamp vertically to avoid seams
+      baseTexture.wrapS = THREE.RepeatWrapping;
+      baseTexture.wrapT = THREE.ClampToEdgeWrapping;
+      // Randomise the longitudinal offset so the great red spot appears at
+      // different positions on each load
+      baseTexture.offset.set(Math.random(), 0);
 
-      // Choose a random tint colour by sampling the entire HSL hue range.
+      // Choose a random tint colour by sampling the entire HSL hue range.  A
+      // modest saturation and mid‑level lightness ensure the banded structure
+      // remains visible while giving the planet a unique hue.
       const tintHue = Math.random();
       const tintColor = new THREE.Color();
-      tintColor.setHSL(tintHue, 0.4, 0.5);
+      tintColor.setHSL(tintHue, 0.4 + Math.random() * 0.2, 0.5 + Math.random() * 0.2);
 
-      // Create the planet mesh.  The map provides detailed banding while the
-      // colour tint adds variety across visits.  Slightly lower the radius so
-      // the planet appears comfortably within the smaller container.
-      const planetGeo = new THREE.SphereGeometry(0.8, 96, 96);
+      // Create the planet mesh.  Reduce the radius to 0.5 to further decrease
+      // the planet's apparent size.  Apply the chosen texture and tint.
+      // Reduce the sphere radius further so the planet comfortably fits
+      // within the now smaller container.  A radius of 0.4 provides a
+      // roughly three‑fold reduction in apparent size compared with the
+      // original version.
+      const planetGeo = new THREE.SphereGeometry(0.4, 96, 96);
       const planetMat = new THREE.MeshStandardMaterial({
         map: baseTexture,
         color: tintColor,
@@ -344,24 +363,17 @@
       const planet = new THREE.Mesh(planetGeo, planetMat);
       scene.add(planet);
 
-      // Thin cloud layer with its own rotation
-      const cloudGeo = new THREE.SphereGeometry(1.015, 64, 64);
-      const cloudTex = makePlanetTexture(512, '#ffffff', '#ffffff');
-      cloudTex.offset.set(Math.random(), 0);
-      const cloudMat = new THREE.MeshStandardMaterial({
-        map: cloudTex,
-        transparent: true,
-        opacity: 0.35,
-        depthWrite: false
-      });
-      const clouds = new THREE.Mesh(cloudGeo, cloudMat);
-      scene.add(clouds);
+      // Remove the separate cloud layer entirely.  A prior version added a
+      // very thin, semi‑transparent sphere around the planet to simulate
+      // clouds, but this created an undesirable "secondary hull".  We now
+      // omit the cloud mesh so that only the main planet sphere renders.
 
       // Animate the planet and clouds
       function animate() {
         requestAnimationFrame(animate);
         planet.rotation.y += 0.002;
-        clouds.rotation.y += 0.0027;
+        // Without clouds, only rotate the planet.  Retain a slight wobble
+        // around the x‑axis for a more natural feel.
         planet.rotation.x = Math.sin(Date.now() * 0.0001) * 0.05;
         renderer.render(scene, camera);
       }
