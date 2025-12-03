@@ -60,7 +60,7 @@ h2 {
 
 .bio-content {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   flex-wrap: wrap;
 }
 
@@ -130,18 +130,21 @@ footer {
 
 /* Container for the WebGL canvas */
 #planet-container {
-  /* Keep the container responsive but much smaller than before. Reducing
-     max-width to 150px helps the planet sit nicely on the page without
-     dominating the layout. */
+  /* Position the exoplanet container alongside the profile photo and allow it
+     to grow slightly larger so the planet is more visible.  A square aspect
+     keeps the planet undistorted, and margin-left pushes it to the right
+     within the flex row. */
   width: 100%;
-  /* Shrink the visualisation container further so the exoplanet appears much smaller. */
-  max-width: 100px;
+  max-width: 160px;
   aspect-ratio: 1 / 1;
-  margin: 20px auto;
+  margin-left: auto;
   border-radius: 0;
-  background-color: #000;
+  /* Use the same colour as the page background to make the container blend
+     seamlessly into the layout.  If your page background changes, this
+     should be updated accordingly. */
+  background-color: #111;
   overflow: hidden;
-  box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
 }
 
 /* Ensure the Three.js canvas fills the container */
@@ -156,4 +159,38 @@ footer {
   text-align: center;
   font-size: 0.9em;
   color: #aaa;
+}
+
+/* --- Transit detection game styles --- */
+#exoplanet-game {
+  margin-top: 40px;
+  padding: 15px;
+  background-color: #222;
+  border-radius: 5px;
+  color: #ccc;
+}
+
+#exoplanet-game h3 {
+  margin-top: 0;
+  color: #fff;
+}
+
+#transit-canvas {
+  width: 100%;
+  max-width: 600px;
+  height: 150px;
+  display: block;
+  margin: 10px 0;
+  background-color: #111;
+  border: 1px solid #444;
+  border-radius: 4px;
+}
+
+#game-score,
+#game-message,
+.game-instructions {
+  margin: 5px 0;
+  font-size: 0.9em;
+  text-align: left;
+  color: #bbb;
 }
