@@ -319,18 +319,26 @@
         return tex;
       }
 
-      // Random palette selection for a hot Jupiter
-      const baseHue = 0.02 + Math.random() * 0.08;
-      // Use a darker base and a much brighter accent to emphasise structure
-      const baseCol = hslToHex(baseHue, 0.8, 0.2);
-      const accentCol = hslToHex(baseHue + 0.03, 0.95, 0.75);
-      const planetTexture = makePlanetTexture(1024, baseCol, accentCol);
+      // Load a high‑resolution map of Jupiter to serve as the base texture for
+      // our gas‑giant exoplanet.  Using a real map adds convincing banded
+      // structure and storms.  We tint the map with a random hue so that
+      // successive page loads produce planets with different colour palettes.
+      const textureLoader = new THREE.TextureLoader();
+      const baseTexture = textureLoader.load('jupiter_map.jpg');
 
-      // Create the planet mesh
-      const planetGeo = new THREE.SphereGeometry(1, 96, 96);
+      // Choose a random tint colour by sampling the entire HSL hue range.
+      const tintHue = Math.random();
+      const tintColor = new THREE.Color();
+      tintColor.setHSL(tintHue, 0.4, 0.5);
+
+      // Create the planet mesh.  The map provides detailed banding while the
+      // colour tint adds variety across visits.  Slightly lower the radius so
+      // the planet appears comfortably within the smaller container.
+      const planetGeo = new THREE.SphereGeometry(0.8, 96, 96);
       const planetMat = new THREE.MeshStandardMaterial({
-        map: planetTexture,
-        roughness: 0.65,
+        map: baseTexture,
+        color: tintColor,
+        roughness: 0.6,
         metalness: 0.1
       });
       const planet = new THREE.Mesh(planetGeo, planetMat);

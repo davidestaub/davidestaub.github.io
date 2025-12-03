@@ -130,10 +130,12 @@ footer {
 
 /* Container for the WebGL canvas */
 #planet-container {
+  /* Keep the container responsive but significantly smaller than the full page width.
+     Limiting the max-width to 200px ensures the planet appears roughly three
+     times smaller than before. */
   width: 100%;
-  max-width: 600px;
-  /* Maintain aspect ratio for the canvas */
-  /* Make the container square so the planet fits fully without clipping */
+  max-width: 200px;
+  /* Maintain a square aspect ratio so the sphere never gets cropped */
   aspect-ratio: 1 / 1;
   margin: 20px auto;
   /* Remove border radius so the sphere isn't visually clipped */
