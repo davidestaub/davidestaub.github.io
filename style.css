@@ -28,6 +28,16 @@ header {
   margin-left: 15px;
 }
 
+main {
+  max-width: 1000px;
+  margin: 20px auto;
+  padding: 0 20px;
+}
+
+section {
+  margin-bottom: 30px;
+}
+
 /* Headings */
 h2 {
   color: #fff;
@@ -37,17 +47,6 @@ h2 {
 
 h3 {
   color: #fff;
-}
-
-/* Main container */
-main {
-  max-width: 1000px;
-  margin: 20px auto;
-  padding: 0 20px;
-}
-
-section {
-  margin-bottom: 30px;
 }
 
 /* Bio section layout */
@@ -72,7 +71,7 @@ section {
   width: 150px;
   height: 150px;
   border-radius: 50%;
-  overflow: hidden;        /* mask to circle */
+  overflow: hidden;         /* mask content to circle */
   flex-shrink: 0;
 }
 
@@ -125,7 +124,7 @@ section {
   left: 50%;
   transform: translateX(-50%);
   top: 0;
-  background-color: rgba(0,0,0,0.85);
+  background-color: rgba(0, 0, 0, 0.85);
   color: #eee;
   padding: 10px;
   border-radius: 8px;
@@ -199,7 +198,11 @@ footer {
   padding: 20px 0;
 }
 
-/* Responsive tweaks */
+/* Mobile controls (hidden on desktop) */
+.mobile-controls {
+  display: none;
+}
+
 @media (max-width: 600px) {
   .bio-content {
     align-items: flex-start;
@@ -219,5 +222,34 @@ footer {
 
   #explorer-canvas {
     height: 250px;
+  }
+
+  .mobile-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    margin-top: 10px;
+  }
+
+  .mobile-controls .middle-row {
+    display: flex;
+    gap: 6px;
+  }
+
+  .mobile-controls button {
+    width: 48px;
+    height: 48px;
+    border-radius: 6px;
+    border: 1px solid #555;
+    background: #333;
+    color: #fff;
+    font-size: 22px;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  .mobile-controls button:active {
+    background: #555;
   }
 }
