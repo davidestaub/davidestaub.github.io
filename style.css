@@ -53,8 +53,15 @@ h3 {
 .bio-content {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
+  justify-content: flex-start;
   gap: 20px;
+  flex-wrap: nowrap;   /* keep one row on desktop */
+}
+
+/* Make the text take the remaining width */
+.bio-content p {
+  flex: 1;
+  margin: 0;
 }
 
 /* Profile picture */
@@ -123,13 +130,13 @@ h3 {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  top: 0;
+  top: 10px;
   background-color: rgba(0, 0, 0, 0.85);
   color: #eee;
   padding: 10px;
   border-radius: 8px;
   border: 1px solid #444;
-  max-width: 300px;
+  max-width: min(300px, 90vw);  /* prevent cut-off on mobile */
   z-index: 10;
 }
 
@@ -203,21 +210,17 @@ footer {
   display: none;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 700px) {
+  /* Let things wrap on small screens */
   .bio-content {
-    align-items: flex-start;
+    flex-wrap: wrap;
+    align-items: center;  /* keep profile + planet aligned vertically */
   }
 
-  .profile-pic {
-    width: 130px;
-    height: 130px;
-    margin-bottom: 10px;
-  }
-
+  .profile-pic,
   #planet-container {
     width: 130px;
     height: 130px;
-    margin-top: 10px;
   }
 
   #explorer-canvas {
