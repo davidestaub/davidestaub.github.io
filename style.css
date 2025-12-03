@@ -49,22 +49,27 @@ h3 {
   color: #fff;
 }
 
-/* Bio section layout */
+/* ========================= */
+/* BIO SECTION – DESKTOP     */
+/* ========================= */
+
 .bio-content {
   display: flex;
   align-items: center;
   justify-content: flex-start;
   gap: 20px;
-  flex-wrap: nowrap;   /* keep one row on desktop */
+  flex-wrap: nowrap;        /* keep a single row on desktop */
+  position: relative;       /* so we can absolutely position the planet inside */
+  padding-right: 180px;     /* reserve space for 150px planet + a bit of gap */
 }
 
-/* Make the text take the remaining width */
+/* Text should fill the space between profile and planet */
 .bio-content p {
   flex: 1;
   margin: 0;
 }
 
-/* Profile picture */
+/* Profile picture on the left */
 .profile-pic {
   width: 150px;
   height: 150px;
@@ -73,13 +78,18 @@ h3 {
   flex-shrink: 0;
 }
 
-/* Planet container – sized and clipped to a circle */
+/* Planet – pinned in the right corner on desktop */
 #planet-container {
   width: 150px;
   height: 150px;
   border-radius: 50%;
-  overflow: hidden;         /* mask content to circle */
+  overflow: hidden;          /* mask content to circle */
   flex-shrink: 0;
+
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);  /* vertical center in the bio row */
 }
 
 /* Ensure the Three.js canvas fills the circle */
@@ -89,7 +99,10 @@ h3 {
   display: block;
 }
 
-/* Game section styles */
+/* ========================= */
+/* EXOPLANET GAME            */
+/* ========================= */
+
 #explorer-game {
   margin-top: 30px;
   background-color: #222;
@@ -136,7 +149,7 @@ h3 {
   padding: 10px;
   border-radius: 8px;
   border: 1px solid #444;
-  max-width: min(300px, 90vw);  /* prevent cut-off on mobile */
+  max-width: min(300px, 90vw);  /* avoid being cut off on mobile */
   z-index: 10;
 }
 
@@ -144,7 +157,10 @@ h3 {
   display: none;
 }
 
-/* Generic content box (teaching / research sections) */
+/* ========================= */
+/* CONTENT SECTIONS          */
+/* ========================= */
+
 .content {
   background-color: #222;
   padding: 15px;
@@ -152,7 +168,7 @@ h3 {
   color: #ccc;
 }
 
-/* Research images */
+/* Research images layout */
 .image-row {
   display: flex;
   flex-wrap: wrap;
@@ -192,7 +208,7 @@ a {
   text-decoration: underline;
 }
 
-/* Utility classes */
+/* Utility */
 .hidden {
   display: none;
 }
@@ -205,22 +221,46 @@ footer {
   padding: 20px 0;
 }
 
-/* Mobile controls (hidden on desktop) */
+/* ========================= */
+/* MOBILE CONTROLS FOR GAME  */
+/* ========================= */
+
 .mobile-controls {
-  display: none;
+  display: none;  /* hidden on desktop */
 }
 
+/* ========================= */
+/* MOBILE LAYOUT             */
+/* ========================= */
+
 @media (max-width: 700px) {
-  /* Let things wrap on small screens */
+  /* In bio: allow wrapping and align items nicely */
   .bio-content {
     flex-wrap: wrap;
-    align-items: center;  /* keep profile + planet aligned vertically */
+    align-items: center;
+    padding-right: 0;           /* no reserved right space on mobile */
   }
 
-  .profile-pic,
-  #planet-container {
+  /* On mobile: profile (1), planet (2) on first row, text (3) below */
+  .bio-content .profile-pic {
+    order: 1;
     width: 130px;
     height: 130px;
+  }
+
+  #planet-container {
+    order: 2;
+    position: static;           /* back into normal flex flow */
+    width: 130px;
+    height: 130px;
+    transform: none;
+    margin-top: 0;
+  }
+
+  .bio-content p {
+    order: 3;
+    width: 100%;
+    margin-top: 10px;
   }
 
   #explorer-canvas {
