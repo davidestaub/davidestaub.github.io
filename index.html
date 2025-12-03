@@ -2,33 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-<title>Davide Staub - Personal Website</title>
-  <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="style.css">
+  <title>Davide Staub - Personal Website</title>
 
-  <!-- Inline overrides to make the planet a circular “sphere” -->
-  <style>
-    .bio-content {
-      display: flex;
-      align-items: center;
-      gap: 2rem;
-      flex-wrap: wrap;
-    }
-
-    #planet-container {
-      width: 150px;
-      height: 150px;
-      border-radius: 50%;
-      overflow: hidden;      /* crop to circle */
-      flex-shrink: 0;
-    }
-
-    #planet-container canvas {
-      width: 100%;
-      height: 100%;
-      display: block;        /* remove extra whitespace */
-    }
-  </style>
+  <!-- Main stylesheet (version query helps bust old cache) -->
+  <link rel="stylesheet" href="style.css?v=3">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
@@ -40,25 +17,29 @@
       <img src="ssml-icon.webp" alt="Scalable Scientific Machine Learning Lab icon" class="lab-icon">
     </div>
   </header>
+
   <main>
+    <!-- Bio section with rotating planet -->
     <section id="bio">
       <h2>Bio</h2>
       <div class="bio-content">
         <!-- Profile photo -->
         <img src="profile.jpg" alt="Profile photo" class="profile-pic">
-        <!-- Exoplanet visualization container for rotating gas‑giant -->
+
+        <!-- Exoplanet visualization container for rotating gas-giant -->
         <div id="planet-container"></div>
+
         <p>
           I am Davide Staub, a PhD student at Imperial College London working in the
           <a href="https://scalable-sciml-lab.org/" target="_blank">Scalable Scientific Machine Learning Lab</a>
           under the supervision of Dr.&nbsp;Ben Moseley. My research focuses on
           harnessing machine learning and physics to build differentiable tools for
-          reconstructing the three‑dimensional structure of exoplanet atmospheres from
+          reconstructing the three-dimensional structure of exoplanet atmospheres from
           JWST observations.
           Before starting my PhD, I spent a year at the HomanLab within the
           Psychiatric University Hospital of Zürich, where we combined brain imaging
           and large language models to understand how the brain processes
-          narratives.  
+          narratives.
           <br>
           <a href="https://www.linkedin.com/in/davide-staub/" target="_blank">LinkedIn</a>
           <br>
@@ -69,11 +50,15 @@
         </p>
       </div>
     </section>
+
     <!-- Interactive exoplanet explorer game sits below the bio -->
     <section id="explorer-game">
       <h3>Exoplanet explorer</h3>
-      <p class="game-instructions">Use the arrow keys to pilot the JWST through a star field. Fly over an exoplanet to learn about its properties.</p>
-      <div id="explorer-wrapper" style="position: relative;">
+      <p class="game-instructions">
+        Use the arrow keys to pilot the JWST through a star field.
+        Fly over an exoplanet to learn about its properties.
+      </p>
+      <div id="explorer-wrapper">
         <canvas id="explorer-canvas"></canvas>
         <div id="planet-info" class="info-popup hidden"></div>
       </div>
@@ -81,30 +66,35 @@
         Visited planets: <span id="visited-count">0</span> / 6
       </div>
     </section>
+
     <section id="teaching">
       <h2 onclick="toggleSection('teaching-content')" class="toggle">Teaching &#9654;</h2>
       <div id="teaching-content" class="content hidden">
         <p>
           <strong>Graduate Teaching Assistant, Imperial College London:</strong> I help deliver the MSc Deep Learning
-          course at Imperial College London.  This involves running tutorials, answering students’ questions
+          course at Imperial College London. This involves running tutorials, answering students’ questions
           and supporting practical exercises on topics such as neural network fundamentals, optimisation
           and modern architectures.
         </p>
         <p>
           <strong>Lecturer, ETH Zürich – Space Data:</strong> I teach the final third of the
           <a href="https://eaps.ethz.ch/en/studies/master/space-systems.html" target="_blank">Space&nbsp;Data course</a>
-          in the Master in Space Systems programme at ETH Zürich.  My block introduces convolutional neural
-          networks and U‑Net architectures for denoising images of the Moon’s permanently shadowed regions (PSRs).
+          in the Master in Space Systems programme at ETH Zürich. My block introduces convolutional neural
+          networks and U-Net architectures for denoising images of the Moon’s permanently shadowed regions (PSRs).
           These techniques build on the HORUS framework developed by Ben Moseley and Valentin Bickel, and are key to
-          reliable resource mapping and landing‑site planning.  Students learn the basics of deep learning (MLPs,
-          CNNs, U‑Nets, etc.) and then apply them to clean up PSR images using real training data.
+          reliable resource mapping and landing-site planning. Students learn the basics of deep learning (MLPs,
+          CNNs, U-Nets, etc.) and then apply them to clean up PSR images using real training data.
         </p>
         <figure>
           <img src="psr_crater.png" alt="Image of a lunar crater with a dark permanently shadowed region used in teaching about lunar resource mapping" class="research-img">
-          <figcaption>Permanently shadowed regions on the Moon, which require machine‑learning denoising for resource mapping and landing‑site planning.</figcaption>
+          <figcaption>
+            Permanently shadowed regions on the Moon, which require machine-learning denoising for resource mapping
+            and landing-site planning.
+          </figcaption>
         </figure>
       </div>
     </section>
+
     <section id="research">
       <h2 onclick="toggleSection('research-content')" class="toggle">Research &#9654;</h2>
       <div id="research-content" class="content hidden">
@@ -113,11 +103,11 @@
           My PhD project aims to develop a single, differentiable pipeline that
           converts all available JWST observations of a hot Jupiter—thermal
           emission spectra, phase curves, eclipses and transmission spectra—into a
-          unified three‑dimensional temperature field. The
-          map uses a low‑dimensional spherical‑harmonics basis for horizontal
+          unified three-dimensional temperature field. The
+          map uses a low-dimensional spherical-harmonics basis for horizontal
           structure and smooth vertical modes, and the inversion is regularised
           using physically motivated terms such as energy balance, global
-          radiative closure and hydrostatic consistency.  This
+          radiative closure and hydrostatic consistency. This
           framework treats the atmosphere as a shared state that must
           simultaneously explain observations across multiple viewing geometries.
         </p>
@@ -126,170 +116,218 @@
         <div class="image-row">
           <figure>
             <img src="current_research.png" alt="Artist’s illustration of a hot Jupiter exoplanet orbiting close to its host star" class="research-img">
-            <figcaption>Artist’s impression of a hot Jupiter exoplanet, showing how these giant planets orbit very close to their stars and face extreme atmospheric conditions.</figcaption>
+            <figcaption>
+              Artist’s impression of a hot Jupiter exoplanet, showing how these
+              giant planets orbit very close to their stars and face extreme atmospheric conditions.
+            </figcaption>
           </figure>
         </div>
+
         <h3>Previous work</h3>
         <p>
-          At the HomanLab in Zürich I explored how our brains follow the flow of stories.  Working with a
+          At the HomanLab in Zürich I explored how our brains follow the flow of stories. Working with a
           language model, we distilled two simple signals: a <em>drift</em> signal that
-          captures the gradual build‑up of meaning as a narrative unfolds, and a
+          captures the gradual build-up of meaning as a narrative unfolds, and a
           <em>shift</em> signal that spikes when the story moves to a new event or scene.
-          When we compared these signals to high‑resolution fMRI recordings from a
-          volunteer listening to crime stories, we found that the burst‑like
+          When we compared these signals to high-resolution fMRI recordings from a
+          volunteer listening to crime stories, we found that the burst-like
           shift signal lit up the brain’s speech and hearing centres, whereas the
-          slow drift signal was strongest in the so‑called default‑mode network –
+          slow drift signal was strongest in the so-called default-mode network –
           regions like the angular gyrus, precuneus and posterior cingulate that
-          support memory and imagination.  This pattern suggests that auditory
+          support memory and imagination. This pattern suggests that auditory
           areas mark event boundaries while broader networks follow the slow evolution
           of context.
         </p>
         <p>
           Below are brain maps showing where each signal explained neural
-          responses.  Bright colours indicate regions with stronger effects.
+          responses. Bright colours indicate regions with stronger effects.
         </p>
+
         <div class="image-row">
           <figure>
-            <img src="shift_map.png" alt="Brain map showing robust shift responses in peri‑Sylvian regions" class="research-img">
-            <figcaption>Shift: strong event‑boundary responses in auditory–language cortex.</figcaption>
+            <img src="shift_map.png" alt="Brain map showing robust shift responses in peri-Sylvian regions" class="research-img">
+            <figcaption>Shift: strong event-boundary responses in auditory–language cortex.</figcaption>
           </figure>
           <figure>
-            <img src="drift_map.png" alt="Brain map highlighting drift responses in higher‑order default‑mode regions" class="research-img">
-            <figcaption>Drift: slow accumulation responses in higher‑order default‑mode regions.</figcaption>
+            <img src="drift_map.png" alt="Brain map highlighting drift responses in higher-order default-mode regions" class="research-img">
+            <figcaption>Drift: slow accumulation responses in higher-order default-mode regions.</figcaption>
           </figure>
         </div>
+
         <figure>
-          <!-- Using the white‑background version of the method diagram to improve contrast on dark pages -->
-          <img src="method_diagram_white.png" alt="Diagram summarising the model‑driven approach for deriving drift and shift signals from a language model and mapping them to brain activity" class="research-img">
-          <figcaption>Method: converting stories into drift and shift signals via a large language model and mapping them to brain responses.</figcaption>
+          <!-- Using the white-background version of the method diagram to improve contrast on dark pages -->
+          <img src="method_diagram_white.png" alt="Diagram summarising the model-driven approach for deriving drift and shift signals from a language model and mapping them to brain activity" class="research-img">
+          <figcaption>
+            Method: converting stories into drift and shift signals via a large language
+            model and mapping them to brain responses.
+          </figcaption>
         </figure>
-        <h3>Master’s thesis: Physics‑informed neural networks for seismology</h3>
+
+        <h3>Master’s thesis: Physics-informed neural networks for seismology</h3>
         <p>
-          During my master’s studies at ETH Zürich I investigated Physics‑Informed Neural
+          During my master’s studies at ETH Zürich I investigated Physics-Informed Neural
           Networks (PINNs) as a way to solve the elastic wave equation, which describes
-          how seismic waves propagate through the Earth.  By embedding wave physics
+          how seismic waves propagate through the Earth. By embedding wave physics
           directly into the network architecture – for example using custom wavelet or
-          plane‑wave layers along with encoder and decoder components – I achieved
-          solutions that were roughly twice as accurate as standard PINNs.  I also conditioned the networks on the location of the seismic source, allowing them to infer the
+          plane-wave layers along with encoder and decoder components – I achieved
+          solutions that were roughly twice as accurate as standard PINNs. I also conditioned the networks on the location of the seismic source, allowing them to infer the
           wavefield for countless source locations in a single forward pass and dramatically
-          speeding up simulations compared with traditional finite‑difference methods.
+          speeding up simulations compared with traditional finite-difference methods.
         </p>
         <p>
-          
-          <a href="https://academic.oup.com/astrogeo/article-abstract/66/3/3.29/8154308?redirectedFrom=fulltext" target="_blank"><em>Astronomy &amp; Geophysics</em></a>.  The report notes that incorporating wave physics improves
-          accuracy and that once trained these networks are much faster than standard numerical solvers.  You can access the full thesis online via its DOI:
-          <a href="https://doi.org/10.3929/ethz-b-000668359" target="_blank">10.3929/ethz‑b‑000668359</a>.
+          <a href="https://academic.oup.com/astrogeo/article-abstract/66/3/3.29/8154308?redirectedFrom=fulltext" target="_blank">
+            <em>Astronomy &amp; Geophysics</em>
+          </a>.
+          The report notes that incorporating wave physics improves
+          accuracy and that once trained these networks are much faster than standard numerical solvers.
+          You can access the full thesis online via its DOI:
+          <a href="https://doi.org/10.3929/ethz-b-000668359" target="_blank">10.3929/ethz-b-000668359</a>.
         </p>
         <div class="image-row">
           <figure>
             <img src="wavefield.png" alt="Simulation of radial wavefields propagating outward (red and blue rings) generated by physics-informed neural networks" class="research-img">
-            <figcaption>Simulated elastic wavefields produced by a physics‑informed neural network.</figcaption>
+            <figcaption>Simulated elastic wavefields produced by a physics-informed neural network.</figcaption>
           </figure>
         </div>
       </div>
     </section>
   </main>
+
   <footer>
     <p>&copy; 2025 Davide Staub. All rights reserved.</p>
   </footer>
+
+  <!-- Section toggle helper -->
   <script>
     function toggleSection(id) {
       const section = document.getElementById(id);
       section.classList.toggle('hidden');
     }
   </script>
+
   <!-- Include Three.js from CDN for the rotating exoplanet -->
-  
-    <script src="https://unpkg.com/three@0.159.0/build/three.min.js"></script>
+  <script src="https://unpkg.com/three@0.159.0/build/three.min.js"></script>
+
   <!-- Rotating exoplanet with orbiting satellite -->
   <script>
-    (function() {
+    (function () {
       const container = document.getElementById('planet-container');
       if (!container || !window.THREE) return;
+
       // Determine size based on container width; keep square
       const width  = container.clientWidth || 200;
       const height = width;
+
       const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
       renderer.setSize(width, height);
-      
+
       // Ensure the WebGL background is fully transparent so it blends with the page
       renderer.setClearColor(0x000000, 0);
       container.appendChild(renderer.domElement);
-      const scene = new THREE.Scene();
+
+      const scene  = new THREE.Scene();
       const camera = new THREE.PerspectiveCamera(35, width / height, 0.1, 100);
       camera.position.set(0, 0, 3.2);
+
       // Lighting
       const ambient = new THREE.AmbientLight(0xffffff, 0.5);
       scene.add(ambient);
       const keyLight = new THREE.DirectionalLight(0xffffff, 1.2);
       keyLight.position.set(3, 2, 4);
       scene.add(keyLight);
+
       // Load a random tinted Jupiter texture
-      const textureNames = ['exoplanet_var1.jpg','exoplanet_var2.jpg','exoplanet_var3.jpg','exoplanet_var4.jpg','exoplanet_var5.jpg'];
-      const texIndex = Math.floor(Math.random() * textureNames.length);
-      const texLoader = new THREE.TextureLoader();
-      const planetMap = texLoader.load(textureNames[texIndex]);
+      const textureNames = [
+        'exoplanet_var1.jpg',
+        'exoplanet_var2.jpg',
+        'exoplanet_var3.jpg',
+        'exoplanet_var4.jpg',
+        'exoplanet_var5.jpg'
+      ];
+      const texIndex   = Math.floor(Math.random() * textureNames.length);
+      const texLoader  = new THREE.TextureLoader();
+      const planetMap  = texLoader.load(textureNames[texIndex]);
+
       planetMap.wrapS = THREE.RepeatWrapping;
       planetMap.wrapT = THREE.ClampToEdgeWrapping;
       planetMap.offset.x = Math.random();
+
       const planetMat = new THREE.MeshStandardMaterial({
         map: planetMap,
         roughness: 1.0,
         metalness: 0.0
       });
-      // Increase the planet radius for a more prominent appearance
+
+      // Slightly larger radius for a more prominent appearance
       const planetGeo = new THREE.SphereGeometry(1.3, 64, 64);
-      const planet = new THREE.Mesh(planetGeo, planetMat);
+      const planet    = new THREE.Mesh(planetGeo, planetMat);
       scene.add(planet);
+
       // Orbiting satellite
       const satelliteGeo = new THREE.SphereGeometry(0.06, 32, 32);
       const satelliteMat = new THREE.MeshStandardMaterial({ color: 0xffffff });
-      const satellite = new THREE.Mesh(satelliteGeo, satelliteMat);
+      const satellite    = new THREE.Mesh(satelliteGeo, satelliteMat);
       scene.add(satellite);
+
       let orbitRadius = 1.3;
-      let orbitSpeed = 0.01;
-      let orbitTilt = 0.4;
+      let orbitSpeed  = 0.01;
+      let orbitTilt   = 0.4;
+
       container.addEventListener('click', () => {
         orbitRadius = 1.2 + Math.random() * 0.6;
         orbitSpeed  = 0.005 + Math.random() * 0.015;
         orbitTilt   = Math.random() * Math.PI * 0.5;
       });
+
       let angle = 0;
+
       function animate() {
         requestAnimationFrame(animate);
+
         planet.rotation.y += 0.003;
         angle += orbitSpeed;
+
         const x = orbitRadius * Math.cos(angle);
         const z = orbitRadius * Math.sin(angle);
         const y = Math.sin(angle * 2) * Math.sin(orbitTilt) * 0.3;
+
         satellite.position.set(x, y, z);
         renderer.render(scene, camera);
       }
+
       animate();
+
       window.addEventListener('resize', () => {
         const newWidth  = container.clientWidth || 200;
         const newHeight = newWidth;
+
         renderer.setSize(newWidth, newHeight);
         camera.aspect = newWidth / newHeight;
         camera.updateProjectionMatrix();
       });
     })();
   </script>
+
   <!-- Exoplanet explorer game script -->
   <script>
-    (function() {
-      const canvas = document.getElementById('explorer-canvas');
-      const infoPopup = document.getElementById('planet-info');
+    (function () {
+      const canvas           = document.getElementById('explorer-canvas');
+      const infoPopup        = document.getElementById('planet-info');
       const visitedCountSpan = document.getElementById('visited-count');
+
       if (!canvas) return;
+
       const ctx = canvas.getContext('2d');
+
       function resizeCanvas() {
         const parentWidth = canvas.parentElement.clientWidth;
-        canvas.width = parentWidth;
+        canvas.width  = parentWidth;
         canvas.height = 350;
       }
+
       resizeCanvas();
       window.addEventListener('resize', resizeCanvas);
+
       const planetsData = [
         {
           name: 'HD 209458 b',
@@ -340,10 +378,12 @@
           description: 'A scorching hot gas giant whose extreme proximity to its star causes it to be stretched into an egg shape.'
         }
       ];
-      const colours = ['#ff6f61','#f5b041','#7fb3d5','#af7ac5','#48c9b0','#e74c3c'];
+
+      const colours = ['#ff6f61', '#f5b041', '#7fb3d5', '#af7ac5', '#48c9b0', '#e74c3c'];
+
       const planets = planetsData.map((p, i) => {
         const padding = 40;
-        const radius = 18;
+        const radius  = 18;
         return {
           data: p,
           x: padding + Math.random() * (canvas.width - 2 * padding),
@@ -353,6 +393,7 @@
           visited: false
         };
       });
+
       const stars = [];
       for (let i = 0; i < 100; i++) {
         stars.push({
@@ -362,6 +403,7 @@
           alpha: Math.random() * 0.8 + 0.2
         });
       }
+
       const ship = {
         x: canvas.width / 2,
         y: canvas.height / 2,
@@ -370,43 +412,53 @@
         dirY: 0,
         size: 12
       };
+
       const keys = {};
+
       document.addEventListener('keydown', (e) => {
         keys[e.code] = true;
         if (infoPopup && !infoPopup.classList.contains('hidden')) {
           infoPopup.classList.add('hidden');
         }
       });
+
       document.addEventListener('keyup', (e) => {
         keys[e.code] = false;
       });
+
       function update() {
         ship.dirX = 0;
         ship.dirY = 0;
-        if (keys['ArrowLeft'] || keys['KeyA']) ship.dirX = -1;
-        if (keys['ArrowRight'] || keys['KeyD']) ship.dirX = 1;
-        if (keys['ArrowUp'] || keys['KeyW']) ship.dirY = -1;
-        if (keys['ArrowDown'] || keys['KeyS']) ship.dirY = 1;
+
+        if (keys['ArrowLeft']  || keys['KeyA']) ship.dirX = -1;
+        if (keys['ArrowRight'] || keys['KeyD']) ship.dirX =  1;
+        if (keys['ArrowUp']    || keys['KeyW']) ship.dirY = -1;
+        if (keys['ArrowDown']  || keys['KeyS']) ship.dirY =  1;
+
         if (ship.dirX !== 0 && ship.dirY !== 0) {
           const norm = Math.sqrt(2);
           ship.dirX /= norm;
           ship.dirY /= norm;
         }
+
         ship.x += ship.dirX * ship.speed;
         ship.y += ship.dirY * ship.speed;
-        if (ship.x < 0) ship.x = 0;
-        if (ship.y < 0) ship.y = 0;
-        if (ship.x > canvas.width) ship.x = canvas.width;
-        if (ship.y > canvas.height) ship.y = canvas.height;
+
+        ship.x = Math.max(0, Math.min(canvas.width,  ship.x));
+        ship.y = Math.max(0, Math.min(canvas.height, ship.y));
+
         let visitedCount = 0;
+
         planets.forEach((planet) => {
-          const dx = ship.x - planet.x;
-          const dy = ship.y - planet.y;
+          const dx   = ship.x - planet.x;
+          const dy   = ship.y - planet.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
+
           if (dist < planet.r + ship.size) {
             if (!planet.visited) {
               planet.visited = true;
-              infoPopup.innerHTML = '<strong>' + planet.data.name + '</strong><br>' +
+              infoPopup.innerHTML =
+                '<strong>' + planet.data.name + '</strong><br>' +
                 'Mass: ' + planet.data.mass + '<br>' +
                 'Radius: ' + planet.data.radius + '<br>' +
                 'Orbital period: ' + planet.data.period + '<br>' +
@@ -414,48 +466,62 @@
                 '<em>' + planet.data.description + '</em>';
               infoPopup.classList.remove('hidden');
             }
-            infoPopup.style.top = (planet.y - planet.r - 110) + 'px';
+
+            infoPopup.style.top  = (planet.y - planet.r - 110) + 'px';
             infoPopup.style.left = (planet.x - 100) + 'px';
           }
+
           if (planet.visited) visitedCount++;
         });
+
         visitedCountSpan.textContent = visitedCount.toString();
       }
+
       function draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+
         ctx.fillStyle = '#000';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
+
         stars.forEach(star => {
           ctx.fillStyle = 'rgba(255,255,255,' + star.alpha + ')';
           ctx.beginPath();
           ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
           ctx.fill();
         });
+
         planets.forEach(planet => {
           ctx.fillStyle = planet.colour;
           ctx.beginPath();
           ctx.arc(planet.x, planet.y, planet.r, 0, Math.PI * 2);
           ctx.fill();
+
           ctx.fillStyle = 'rgba(0,0,0,0.2)';
           ctx.beginPath();
           ctx.arc(planet.x - planet.r * 0.3, planet.y - planet.r * 0.3, planet.r, 0, Math.PI * 2);
           ctx.fill();
         });
+
         const s = ship.size;
         ctx.fillStyle = '#f7dc6f';
         ctx.beginPath();
         ctx.moveTo(ship.x + s * Math.cos(0), ship.y + s * Math.sin(0));
         for (let i = 1; i < 6; i++) {
-          ctx.lineTo(ship.x + s * Math.cos((i * Math.PI) / 3), ship.y + s * Math.sin((i * Math.PI) / 3));
+          ctx.lineTo(
+            ship.x + s * Math.cos((i * Math.PI) / 3),
+            ship.y + s * Math.sin((i * Math.PI) / 3)
+          );
         }
         ctx.closePath();
         ctx.fill();
       }
+
       function loop() {
         update();
         draw();
         requestAnimationFrame(loop);
       }
+
       loop();
     })();
   </script>
