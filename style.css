@@ -133,11 +133,13 @@ footer {
   width: 100%;
   max-width: 600px;
   /* Maintain aspect ratio for the canvas */
-  aspect-ratio: 16 / 9;
+  /* Make the container square so the planet fits fully without clipping */
+  aspect-ratio: 1 / 1;
   margin: 20px auto;
-  border-radius: 12px;
-  /* Subtle radial gradient so the edges blend with the dark page */
-  background: radial-gradient(circle at 20% 20%, #222 0, #000 60%);
+  /* Remove border radius so the sphere isn't visually clipped */
+  border-radius: 0;
+  /* Solid black background for seamless integration */
+  background-color: #000;
   overflow: hidden;
   box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
 }

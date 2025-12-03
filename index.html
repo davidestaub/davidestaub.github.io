@@ -176,7 +176,8 @@
       if (!container || typeof THREE === 'undefined') return;
 
       let width = container.clientWidth;
-      let height = container.clientHeight || width * 0.6;
+      // Use the container's computed height when available; otherwise fall back to a square
+      let height = container.clientHeight || width;
 
       const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
       renderer.setSize(width, height);
@@ -186,7 +187,7 @@
       const scene = new THREE.Scene();
       const camera = new THREE.PerspectiveCamera(35, width / height, 0.1, 100);
       // Position the camera a bit farther out to ensure the full planet fits in the square container
-      camera.position.set(0, 0, 3.0);
+      camera.position.set(0, 0, 3.4);
 
       // Ambient and directional lights for realistic shading
       const ambient = new THREE.AmbientLight(0xffffff, 0.35);
@@ -216,10 +217,11 @@
         const ctx = canvas.getContext('2d');
 
         /*
-         * Generate a richly textured gas giant with swirling clouds, storms,
-         * lightning and rain.  We paint directly into the pixel data for
-         * maximum control.  The texture is horizontally tiled to give the
-         * impression of banding and winds.
+         * Generate a gas giant texture with convincing swirling clouds and storms.
+         * We combine multiple sine waves to create turbulent bands and then
+         * sprinkle storms for variety.  A small amount of noise breaks up
+         * uniform regions.  The texture is horizontally tiled to simulate
+         * planetary rotation.
          */
         const imgData = ctx.createImageData(size, size);
         const data = imgData.data;
@@ -237,59 +239,51 @@
         const baseRGB = hexToRgb(baseColor);
         const accentRGB = hexToRgb(accentColor);
 
-        // Parameters controlling features
-        const swirlFreq = 3 + Math.random() * 3;      // number of swirling arms
-        const swirlStrength = 0.5 + Math.random() * 0.5;
-        const stormCount = 3 + Math.floor(Math.random() * 5);
-        const lightningBolts = 2 + Math.floor(Math.random() * 3);
-        const rainDensity = 0.0005 + Math.random() * 0.001;
+        // Frequencies and phases for sine wave patterns
+        const freqX = 4 + Math.random() * 4;
+        const freqY = 3 + Math.random() * 3;
+        const freqDiag = 5 + Math.random() * 3;
+        const phaseX = Math.random() * Math.PI * 2;
+        const phaseY = Math.random() * Math.PI * 2;
+        const phaseDiag = Math.random() * Math.PI * 2;
+        const swirlStrength = 2 + Math.random() * 2;
 
-        // Pre-generate storm centres
+        // Storms
+        const stormCount = 2 + Math.floor(Math.random() * 4);
         const storms = [];
         for (let s = 0; s < stormCount; s++) {
           const cx = Math.random() * size;
           const cy = Math.random() * size;
-          const radius = size * (0.02 + Math.random() * 0.05);
+          const radius = size * (0.04 + Math.random() * 0.06);
           storms.push({ cx, cy, radius });
         }
 
-        // Pre-generate lightning bolts as random line segments
-        const bolts = [];
-        for (let b = 0; b < lightningBolts; b++) {
-          const x0 = Math.random() * size;
-          const y0 = Math.random() * size;
-          const x1 = Math.random() * size;
-          const y1 = Math.random() * size;
-          bolts.push({ x0, y0, x1, y1 });
-        }
-
-        // For each pixel, compute patterns
         for (let y = 0; y < size; y++) {
-          // Normalized vertical coordinate for rain bands
           const ny = y / size;
           for (let x = 0; x < size; x++) {
+            const nx = x / size;
             const idx = (y * size + x) * 4;
-            // Normalized coordinates in [-1,1]
-            const nx = (x / size) * 2 - 1;
-            const ny2 = (y / size) * 2 - 1;
-            const r = Math.sqrt(nx * nx + ny2 * ny2);
-            // Swirling pattern based on angle and radius
-            let angle = Math.atan2(ny2, nx);
-            let swirl = Math.sin((angle + r * swirlFreq) * Math.PI * swirlStrength);
-             
-            // Base colour blend between base and accent using swirl
-            const mix = 0.4 + 0.5 * swirl;
+            // Sine-based turbulent pattern
+            const v =
+              Math.sin(nx * freqX * Math.PI * 2 + phaseX) +
+              Math.sin(ny * freqY * Math.PI * 2 + phaseY) +
+              Math.sin((nx + ny) * freqDiag * Math.PI * 2 + phaseDiag);
+            // Normalise v to 0..1
+            const mix = 0.5 + 0.5 * Math.sin(v * swirlStrength);
             let rCol = baseRGB[0] * (1 - mix) + accentRGB[0] * mix;
             let gCol = baseRGB[1] * (1 - mix) + accentRGB[1] * mix;
             let bCol = baseRGB[2] * (1 - mix) + accentRGB[2] * mix;
 
-            // Modulate brightness by radial falloff to hint at limb darkening
-            const limb = 1 - Math.min(1, r * 0.7);
+            // Limb darkening: fade colours near the edge
+            const cxNorm = (nx - 0.5) * 2;
+            const cyNorm = (ny - 0.5) * 2;
+            const dist = Math.sqrt(cxNorm * cxNorm + cyNorm * cyNorm);
+            const limb = 1 - Math.min(1, dist * 0.8);
             rCol *= limb;
             gCol *= limb;
             bCol *= limb;
 
-            // Add storms: brighten centre and adjust hue
+            // Add storms: brighten towards the centre with accent colours
             for (const st of storms) {
               const dx = x - st.cx;
               const dy = y - st.cy;
@@ -303,46 +297,13 @@
               }
             }
 
-            // Add lightning: brighten pixels near random line segments
-            for (const bolt of bolts) {
-              // Distance from point to line segment
-              const px = x;
-              const py = y;
-              const x0 = bolt.x0;
-              const y0 = bolt.y0;
-              const x1 = bolt.x1;
-              const y1 = bolt.y1;
-              const dx = x1 - x0;
-              const dy = y1 - y0;
-              const len2 = dx * dx + dy * dy;
-              let t = ((px - x0) * dx + (py - y0) * dy) / len2;
-              t = Math.max(0, Math.min(1, t));
-              const projX = x0 + t * dx;
-              const projY = y0 + t * dy;
-              const dist = Math.hypot(px - projX, py - projY);
-              if (dist < 2) {
-                const spark = 1 - dist / 2;
-                rCol += spark * 200;
-                gCol += spark * 200;
-                bCol += spark * 200;
-              }
-            }
+            // Add moderate random noise for realism
+            const noise = (Math.random() - 0.5) * 30;
+            rCol += noise;
+            gCol += noise;
+            bCol += noise;
 
-            // Add rain as faint vertical streaks
-            if (Math.random() < rainDensity) {
-              const rainLength = 5 + Math.floor(Math.random() * 10);
-              for (let ry = 0; ry < rainLength; ry++) {
-                const ryi = y + ry;
-                if (ryi >= size) break;
-                const ridx = (ryi * size + x) * 4;
-                data[ridx] = 220;
-                data[ridx + 1] = 220;
-                data[ridx + 2] = 255;
-                data[ridx + 3] = 255;
-              }
-            }
-
-            // Clamp values and assign to pixel data
+            // Clamp values
             data[idx] = Math.min(255, Math.max(0, Math.round(rCol)));
             data[idx + 1] = Math.min(255, Math.max(0, Math.round(gCol)));
             data[idx + 2] = Math.min(255, Math.max(0, Math.round(bCol)));
@@ -360,8 +321,9 @@
 
       // Random palette selection for a hot Jupiter
       const baseHue = 0.02 + Math.random() * 0.08;
-      const baseCol = hslToHex(baseHue, 0.7, 0.25);
-      const accentCol = hslToHex(baseHue + 0.02, 0.9, 0.6);
+      // Use a darker base and a much brighter accent to emphasise structure
+      const baseCol = hslToHex(baseHue, 0.8, 0.2);
+      const accentCol = hslToHex(baseHue + 0.03, 0.95, 0.75);
       const planetTexture = makePlanetTexture(1024, baseCol, accentCol);
 
       // Create the planet mesh
