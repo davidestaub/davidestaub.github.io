@@ -61,7 +61,7 @@ h2 {
 /* Layout for the bio section: keep items in a single row with top alignment */
 .bio-content {
   display: flex;
-  align-items: flex-start;
+  centercentert;
   flex-wrap: nowrap;
   gap: 20px;
 }
@@ -211,4 +211,25 @@ footer {
   color: #777;
   text-align: center;
   padding: 20px 0;
+}
+/* Overrides for bio content and planet container */
+.bio-content {
+  align-items: center !important;
+}
+
+#planet-container {
+  width: 150px !important;
+  height: 150px !important;
+  max-width: none !important;
+  aspect-ratio: unset !important;
+  align-self: center !important;
+}
+
+@media (max-width: 600px) {
+  #planet-container {
+    width: 130px !important;
+    height: 130px !important;
+    margin-left: 0 !important;
+    margin-top: 10px !important;
+  }
 }
