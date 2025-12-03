@@ -5,7 +5,7 @@
   <title>Davide Staub - Personal Website</title>
 
   <!-- Main stylesheet with version to bust cache -->
-  <link rel="stylesheet" href="style.css?v=4">
+  <link rel="stylesheet" href="style.css?v=5">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
@@ -509,7 +509,7 @@
         ship.x = Math.max(0, Math.min(canvas.width,  ship.x));
         ship.y = Math.max(0, Math.min(canvas.height, ship.y));
 
-        let visitedCount     = 0;
+        let visitedCount      = 0;
         let overlappingPlanet = null;
 
         planets.forEach((planet) => {
@@ -544,8 +544,8 @@
           infoPopup.style.left = (p.x - 100) + 'px';
           infoPopup.classList.remove('hidden');
         } else {
-          // Optional: auto-hide popup when not over any planet
-          // infoPopup.classList.add('hidden');
+          // Auto-hide when not over any planet (ensures re-appear works consistently)
+          infoPopup.classList.add('hidden');
         }
       }
 
