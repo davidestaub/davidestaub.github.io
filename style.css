@@ -58,22 +58,25 @@ h2 {
   margin-right: 20px;
 }
 
+/* Layout for the bio section: keep items in a single row with top alignment */
 .bio-content {
   display: flex;
   align-items: flex-start;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 20px;
 }
 
 /* Exoplanet container within the bio section */
+/* Position the rotating planet on the right-hand side and allow it to grow larger. */
 #planet-container {
   width: 100%;
-  max-width: 220px;
+  max-width: 300px;
   aspect-ratio: 1;
   margin-left: auto;
   align-self: flex-start;
-  /* Inherit page background so the container blends seamlessly */
+  /* Transparent background so the WebGL canvas merges with the page background */
   background-color: transparent;
+  flex-shrink: 0;
 }
 
 /* Game section styles */
@@ -131,17 +134,21 @@ h2 {
 }
 
 @media (max-width: 600px) {
+  /* On small screens, keep items in a row but allow wrapping if necessary */
   .bio-content {
-    flex-direction: column;
-    align-items: center;
+    flex-wrap: wrap;
+    align-items: flex-start;
   }
   .bio-content .profile-pic {
-    margin-right: 0;
+    margin-right: 10px;
     margin-bottom: 10px;
+    width: 130px;
+    height: 130px;
   }
   #planet-container {
     margin-left: 0;
     margin-top: 10px;
+    max-width: 220px;
   }
   #explorer-canvas {
     height: 250px;
