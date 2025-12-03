@@ -189,15 +189,15 @@
       // Position the camera a bit farther out to ensure the full planet fits in the square container
       camera.position.set(0, 0, 3.4);
 
-      // Ambient and directional lights for realistic shading
-      const ambient = new THREE.AmbientLight(0xffffff, 0.35);
+      // Lighting setup: use a slightly brighter ambient light and a single key
+      // light.  Removing the rim light prevents an outer halo and reduces
+      // reflections that can be mistaken for a secondary hull.  Increasing
+      // ambient intensity softens the shading for a more cohesive look.
+      const ambient = new THREE.AmbientLight(0xffffff, 0.45);
       scene.add(ambient);
-      const keyLight = new THREE.DirectionalLight(0xffffff, 1.1);
+      const keyLight = new THREE.DirectionalLight(0xffffff, 0.9);
       keyLight.position.set(3, 2, 4);
       scene.add(keyLight);
-      const rimLight = new THREE.DirectionalLight(0x88aaff, 0.5);
-      rimLight.position.set(-3, -1, -4);
-      scene.add(rimLight);
 
       // Helper to convert HSL to hex
       function hslToHex(h, s, l) {
@@ -353,12 +353,16 @@
       // within the now smaller container.  A radius of 0.4 provides a
       // roughly three‑fold reduction in apparent size compared with the
       // original version.
-      const planetGeo = new THREE.SphereGeometry(0.4, 96, 96);
+      // Create a smaller planet mesh.  A radius of 0.33 reduces the apparent
+      // diameter so the sphere occupies roughly one‑third of the container
+      // width.  Increasing roughness and setting metalness to zero removes
+      // glossy highlights that previously looked like a secondary hull.
+      const planetGeo = new THREE.SphereGeometry(0.33, 96, 96);
       const planetMat = new THREE.MeshStandardMaterial({
         map: baseTexture,
         color: tintColor,
-        roughness: 0.6,
-        metalness: 0.1
+        roughness: 1.0,
+        metalness: 0.0
       });
       const planet = new THREE.Mesh(planetGeo, planetMat);
       scene.add(planet);
