@@ -51,14 +51,14 @@
          detect it and earn a point.  The planets move continuously, and a
          countdown timer tracks how long you have to hunt.  When time runs
          out, the game ends and you can click again to start a new round. -->
-    <section id="planet-hunter">
-      <h3>Planet hunter game</h3>
-      <p class="game-instructions">Click on the tiny exoplanets orbiting distant stars to detect them! Try to
-        find as many as you can before time runs out.</p>
-      <canvas id="hunter-canvas" width="600" height="300"></canvas>
-      <p id="hunter-score">Score: 0</p>
-      <p id="hunter-timer">Time left: 60s</p>
-      <p id="hunter-message"></p>
+    <section id="orbit-game">
+      <h3>Orbit simulator game</h3>
+      <p class="game-instructions">Click and drag from the planet to launch a probe.  Adjust your aim and
+        speed to try to achieve a stable orbit.  Avoid crashing into the planet or
+        escaping into deep space!</p>
+      <canvas id="orbit-canvas" width="600" height="300"></canvas>
+      <p id="orbit-score">Successful orbits: 0</p>
+      <p id="orbit-message"></p>
     </section>
     <section id="teaching">
       <h2 onclick="toggleSection('teaching-content')" class="toggle">Teaching &#9654;</h2>
@@ -178,127 +178,146 @@
     }
   </script>
 
-  <!-- Interactive planet‑hunter game logic.  This script animates multiple
-       star–planet systems on a 2D canvas and allows the player to click on
-       the tiny planets to detect them.  Each successful detection awards a
-       point and respawns the planet.  A timer counts down; when time runs
-       out, the final score is displayed and clicking resets the game. -->
+  <!-- Orbit simulator game logic.  Players launch a probe from the planet
+       by clicking and dragging.  The probe moves under a simple gravity
+       law; achieve a stable orbit to score points.  Collisions or
+       escapes end an attempt.  Click again to reset and try a new
+       orbit. -->
   <script>
     (function() {
-      const canvas = document.getElementById('hunter-canvas');
+      const canvas = document.getElementById('orbit-canvas');
       if (!canvas) return;
       const ctx = canvas.getContext('2d');
-      let width = canvas.width;
-      let height = canvas.height;
-
-      // Store star–planet systems
-      const stars = [];
-      const numStars = 6;
-
-      // Function to (re)initialise all stars with random positions and orbit parameters
-      function resetStars() {
-        stars.length = 0;
-        for (let i = 0; i < numStars; i++) {
-          const starX = 50 + Math.random() * (width - 100);
-          const starY = 50 + Math.random() * (height - 100);
-          const orbitRadius = 20 + Math.random() * 40;
-          const speed = 0.01 + Math.random() * 0.02;
-          const angle = Math.random() * Math.PI * 2;
-          const planetRadius = 4 + Math.random() * 4;
-          const colorHue = Math.floor(Math.random() * 360);
-          const color = `hsl(${colorHue}, 80%, 50%)`;
-          stars.push({ x: starX, y: starY, r: orbitRadius, speed, angle, pr: planetRadius, color });
-        }
+      const width = canvas.width;
+      const height = canvas.height;
+      const centerX = width / 2;
+      const centerY = height / 2;
+      const planetRadius = 40;
+      const G = 2000; // gravitational constant (scaled)
+      let probe = null;
+      let path = [];
+      let dragging = false;
+      let startX, startY;
+      let successCount = 0;
+      const scoreEl = document.getElementById('orbit-score');
+      const messageEl = document.getElementById('orbit-message');
+      function resetProbe() {
+        probe = null;
+        path = [];
+        dragging = false;
+        messageEl.textContent = '';
       }
-      resetStars();
-
-      let score = 0;
-      let timeLeft = 60;
-      const scoreEl = document.getElementById('hunter-score');
-      const timerEl = document.getElementById('hunter-timer');
-      const messageEl = document.getElementById('hunter-message');
-
-      let lastTime = performance.now();
-      function animate(now) {
-        const dt = (now - lastTime) / 1000;
-        lastTime = now;
-        ctx.fillStyle = '#111';
-        ctx.fillRect(0, 0, width, height);
-        // Update timer
-        if (timeLeft > 0) {
-          timeLeft -= dt;
-          if (timeLeft <= 0) {
-            timeLeft = 0;
-            messageEl.textContent = `Time's up! Final score: ${score}`;
-          }
-        }
-        timerEl.textContent = 'Time left: ' + Math.floor(timeLeft) + 's';
-        // Draw each star and its orbiting planet
-        stars.forEach((s) => {
-          s.angle += s.speed;
-          const px = s.x + s.r * Math.cos(s.angle);
-          const py = s.y + s.r * Math.sin(s.angle);
-          // star
-          ctx.fillStyle = '#ffffff';
-          ctx.beginPath();
-          ctx.arc(s.x, s.y, 3, 0, Math.PI * 2);
-          ctx.fill();
-          // orbit path
-          ctx.strokeStyle = '#444';
-          ctx.lineWidth = 0.5;
-          ctx.beginPath();
-          ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-          ctx.stroke();
-          // planet
-          ctx.fillStyle = s.color;
-          ctx.beginPath();
-          ctx.arc(px, py, s.pr, 0, Math.PI * 2);
-          ctx.fill();
-        });
-        requestAnimationFrame(animate);
-      }
-      requestAnimationFrame((t) => { lastTime = t; animate(t); });
-
-      // Handle clicks on the canvas to detect planets
-      canvas.addEventListener('click', (e) => {
+      canvas.addEventListener('mousedown', (e) => {
         const rect = canvas.getBoundingClientRect();
-        const mx = e.clientX - rect.left;
-        const my = e.clientY - rect.top;
-        if (timeLeft <= 0) {
-          // Reset game when time is up
-          score = 0;
-          timeLeft = 60;
-          scoreEl.textContent = 'Score: ' + score;
-          messageEl.textContent = '';
-          resetStars();
-          return;
-        }
-        let found = false;
-        for (const s of stars) {
-          const px = s.x + s.r * Math.cos(s.angle);
-          const py = s.y + s.r * Math.sin(s.angle);
-          const dist = Math.hypot(mx - px, my - py);
-          if (dist <= s.pr + 2) {
-            score++;
-            scoreEl.textContent = 'Score: ' + score;
-            // Respawn this star–planet system
-            s.x = 50 + Math.random() * (width - 100);
-            s.y = 50 + Math.random() * (height - 100);
-            s.r = 20 + Math.random() * 40;
-            s.speed = 0.01 + Math.random() * 0.02;
-            s.angle = Math.random() * Math.PI * 2;
-            s.pr = 4 + Math.random() * 4;
-            const hue = Math.floor(Math.random() * 360);
-            s.color = `hsl(${hue}, 80%, 50%)`;
-            messageEl.textContent = 'Planet detected!';
-            found = true;
-            break;
-          }
-        }
-        if (!found) {
-          messageEl.textContent = 'Missed!';
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const dist = Math.hypot(x - centerX, y - centerY);
+        // Only allow launching from near the planet surface
+        if (dist <= planetRadius + 20) {
+          dragging = true;
+          startX = x;
+          startY = y;
+          path = [];
         }
       });
+      canvas.addEventListener('mousemove', (e) => {
+        if (!dragging) return;
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        // draw the arrow while dragging
+        render();
+        ctx.strokeStyle = '#00bfff';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.lineTo(x, y);
+        ctx.stroke();
+      });
+      canvas.addEventListener('mouseup', (e) => {
+        if (!dragging) return;
+        dragging = false;
+        const rect = canvas.getBoundingClientRect();
+        const endX = e.clientX - rect.left;
+        const endY = e.clientY - rect.top;
+        // initial velocity based on drag vector (scaled)
+        const vx = (endX - centerX) * 0.02;
+        const vy = (endY - centerY) * 0.02;
+        probe = { x: centerX, y: centerY, vx, vy };
+        path = [];
+        messageEl.textContent = '';
+      });
+      function update(dt) {
+        if (!probe) return;
+        const dx = probe.x - centerX;
+        const dy = probe.y - centerY;
+        const r2 = dx * dx + dy * dy;
+        const r = Math.sqrt(r2);
+        // gravitational acceleration toward center
+        const accel = -G / (r2 * r);
+        const ax = accel * dx;
+        const ay = accel * dy;
+        probe.vx += ax * dt;
+        probe.vy += ay * dt;
+        probe.x += probe.vx * dt;
+        probe.y += probe.vy * dt;
+        // record path
+        path.push({ x: probe.x, y: probe.y });
+        // collision with planet
+        if (r <= planetRadius) {
+          messageEl.textContent = 'Probe crashed! Click and drag to try again.';
+          resetProbe();
+        }
+        // escape condition (off canvas)
+        if (probe.x < 0 || probe.x > width || probe.y < 0 || probe.y > height) {
+          messageEl.textContent = 'Probe escaped! Click and drag to try again.';
+          resetProbe();
+        }
+        // success condition: if orbit for more than 8 seconds
+        if (path.length * dt > 8 && r > planetRadius + 10 && r < Math.min(width, height) / 2) {
+          successCount++;
+          scoreEl.textContent = 'Successful orbits: ' + successCount;
+          messageEl.textContent = 'Stable orbit achieved! Drag again for a new attempt.';
+          resetProbe();
+        }
+      }
+      function render() {
+        ctx.fillStyle = '#111';
+        ctx.fillRect(0, 0, width, height);
+        // draw planet
+        ctx.fillStyle = '#333';
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, planetRadius, 0, Math.PI * 2);
+        ctx.fill();
+        // draw probe path
+        if (path.length > 1) {
+          ctx.strokeStyle = '#00bfff';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(path[0].x, path[0].y);
+          for (let i = 1; i < path.length; i++) {
+            ctx.lineTo(path[i].x, path[i].y);
+          }
+          ctx.stroke();
+        }
+        // draw probe
+        if (probe) {
+          ctx.fillStyle = '#ffdd55';
+          ctx.beginPath();
+          ctx.arc(probe.x, probe.y, 4, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        // draw start arrow? Already drawn in mousemove
+      }
+      let last = performance.now();
+      function loop(now) {
+        const dt = (now - last) / 1000;
+        last = now;
+        update(dt);
+        render();
+        requestAnimationFrame(loop);
+      }
+      requestAnimationFrame(loop);
     })();
   </script>
 
@@ -497,7 +516,7 @@
       // three-dimensional feel while keeping the globe fully in view.
       // Increase the planet radius slightly so it appears more prominent within
       // the container.  A radius of 0.7 enhances its size without clipping.
-      const planetGeo = new THREE.SphereGeometry(0.7, 96, 96);
+      const planetGeo = new THREE.SphereGeometry(0.8, 96, 96);
       const planetMat = new THREE.MeshStandardMaterial({
         map: baseTexture,
         color: tintColor,
