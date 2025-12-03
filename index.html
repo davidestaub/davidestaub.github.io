@@ -20,9 +20,7 @@
       <div class="bio-content">
         <!-- Profile photo -->
         <img src="profile.jpg" alt="Profile photo" class="profile-pic">
-        <!-- Exoplanet visualisation container placed next to the profile photo.  This
-             will render the rotating planet with a satellite orbit in the top
-             right corner of the bio section. -->
+        <!-- Exoplanet visualization container for rotating gas‑giant -->
         <div id="planet-container"></div>
         <p>
           I am Davide Staub, a PhD student at Imperial College London working in the
@@ -45,20 +43,17 @@
         </p>
       </div>
     </section>
-
-    <!-- Interactive planet‑hunter game section.  Visitors must spot tiny
-         exoplanets orbiting distant stars.  Click on an orbiting planet to
-         detect it and earn a point.  The planets move continuously, and a
-         countdown timer tracks how long you have to hunt.  When time runs
-         out, the game ends and you can click again to start a new round. -->
-    <section id="orbit-game">
-      <h3>Orbit simulator game</h3>
-      <p class="game-instructions">Click and drag from the planet to launch a probe.  Adjust your aim and
-        speed to try to achieve a stable orbit.  Avoid crashing into the planet or
-        escaping into deep space!</p>
-      <canvas id="orbit-canvas" width="600" height="300"></canvas>
-      <p id="orbit-score">Successful orbits: 0</p>
-      <p id="orbit-message"></p>
+    <!-- Interactive exoplanet explorer game sits below the bio -->
+    <section id="explorer-game">
+      <h3>Exoplanet explorer</h3>
+      <p class="game-instructions">Use the arrow keys to pilot the JWST through a star field. Fly over an exoplanet to learn about its properties.</p>
+      <div id="explorer-wrapper" style="position: relative;">
+        <canvas id="explorer-canvas"></canvas>
+        <div id="planet-info" class="info-popup hidden"></div>
+      </div>
+      <div class="game-score">
+        Visited planets: <span id="visited-count">0</span> / 6
+      </div>
     </section>
     <section id="teaching">
       <h2 onclick="toggleSection('teaching-content')" class="toggle">Teaching &#9654;</h2>
@@ -177,404 +172,261 @@
       section.classList.toggle('hidden');
     }
   </script>
-
-  <!-- Orbit simulator game logic.  Players launch a probe from the planet
-       by clicking and dragging.  The probe moves under a simple gravity
-       law; achieve a stable orbit to score points.  Collisions or
-       escapes end an attempt.  Click again to reset and try a new
-       orbit. -->
-  <script>
-    (function() {
-      const canvas = document.getElementById('orbit-canvas');
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      const width = canvas.width;
-      const height = canvas.height;
-      const centerX = width / 2;
-      const centerY = height / 2;
-      const planetRadius = 40;
-      const G = 2000; // gravitational constant (scaled)
-      let probe = null;
-      let path = [];
-      let dragging = false;
-      let startX, startY;
-      let successCount = 0;
-      const scoreEl = document.getElementById('orbit-score');
-      const messageEl = document.getElementById('orbit-message');
-      function resetProbe() {
-        probe = null;
-        path = [];
-        dragging = false;
-        messageEl.textContent = '';
-      }
-      canvas.addEventListener('mousedown', (e) => {
-        const rect = canvas.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        const dist = Math.hypot(x - centerX, y - centerY);
-        // Only allow launching from near the planet surface
-        if (dist <= planetRadius + 20) {
-          dragging = true;
-          startX = x;
-          startY = y;
-          path = [];
-        }
-      });
-      canvas.addEventListener('mousemove', (e) => {
-        if (!dragging) return;
-        const rect = canvas.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        // draw the arrow while dragging
-        render();
-        ctx.strokeStyle = '#00bfff';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(centerX, centerY);
-        ctx.lineTo(x, y);
-        ctx.stroke();
-      });
-      canvas.addEventListener('mouseup', (e) => {
-        if (!dragging) return;
-        dragging = false;
-        const rect = canvas.getBoundingClientRect();
-        const endX = e.clientX - rect.left;
-        const endY = e.clientY - rect.top;
-        // initial velocity based on drag vector (scaled)
-        const vx = (endX - centerX) * 0.02;
-        const vy = (endY - centerY) * 0.02;
-        probe = { x: centerX, y: centerY, vx, vy };
-        path = [];
-        messageEl.textContent = '';
-      });
-      function update(dt) {
-        if (!probe) return;
-        const dx = probe.x - centerX;
-        const dy = probe.y - centerY;
-        const r2 = dx * dx + dy * dy;
-        const r = Math.sqrt(r2);
-        // gravitational acceleration toward center
-        const accel = -G / (r2 * r);
-        const ax = accel * dx;
-        const ay = accel * dy;
-        probe.vx += ax * dt;
-        probe.vy += ay * dt;
-        probe.x += probe.vx * dt;
-        probe.y += probe.vy * dt;
-        // record path
-        path.push({ x: probe.x, y: probe.y });
-        // collision with planet
-        if (r <= planetRadius) {
-          messageEl.textContent = 'Probe crashed! Click and drag to try again.';
-          resetProbe();
-        }
-        // escape condition (off canvas)
-        if (probe.x < 0 || probe.x > width || probe.y < 0 || probe.y > height) {
-          messageEl.textContent = 'Probe escaped! Click and drag to try again.';
-          resetProbe();
-        }
-        // success condition: if orbit for more than 8 seconds
-        if (path.length * dt > 8 && r > planetRadius + 10 && r < Math.min(width, height) / 2) {
-          successCount++;
-          scoreEl.textContent = 'Successful orbits: ' + successCount;
-          messageEl.textContent = 'Stable orbit achieved! Drag again for a new attempt.';
-          resetProbe();
-        }
-      }
-      function render() {
-        ctx.fillStyle = '#111';
-        ctx.fillRect(0, 0, width, height);
-        // draw planet
-        ctx.fillStyle = '#333';
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, planetRadius, 0, Math.PI * 2);
-        ctx.fill();
-        // draw probe path
-        if (path.length > 1) {
-          ctx.strokeStyle = '#00bfff';
-          ctx.lineWidth = 1;
-          ctx.beginPath();
-          ctx.moveTo(path[0].x, path[0].y);
-          for (let i = 1; i < path.length; i++) {
-            ctx.lineTo(path[i].x, path[i].y);
-          }
-          ctx.stroke();
-        }
-        // draw probe
-        if (probe) {
-          ctx.fillStyle = '#ffdd55';
-          ctx.beginPath();
-          ctx.arc(probe.x, probe.y, 4, 0, Math.PI * 2);
-          ctx.fill();
-        }
-        // draw start arrow? Already drawn in mousemove
-      }
-      let last = performance.now();
-      function loop(now) {
-        const dt = (now - last) / 1000;
-        last = now;
-        update(dt);
-        render();
-        requestAnimationFrame(loop);
-      }
-      requestAnimationFrame(loop);
-    })();
-  </script>
-
-  <!-- Load Three.js library for WebGL rendering -->
+  <!-- Include Three.js from CDN for the rotating exoplanet -->
   <script src="https://cdn.jsdelivr.net/npm/three@0.159.0/build/three.min.js"></script>
-  <!-- Procedural exoplanet rendering script -->
+  <!-- Rotating exoplanet with orbiting satellite -->
   <script>
     (function() {
       const container = document.getElementById('planet-container');
-      // Only execute if the container exists and Three.js is available
-      if (!container || typeof THREE === 'undefined') return;
-
-      let width = container.clientWidth;
-      // Use the container's computed height when available; otherwise fall back to a square
-      let height = container.clientHeight || width;
-
+      if (!container || !window.THREE) return;
+      // Determine size based on container width; keep square
+      const width  = container.clientWidth || 200;
+      const height = width;
       const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
       renderer.setSize(width, height);
       renderer.setPixelRatio(window.devicePixelRatio || 1);
       container.appendChild(renderer.domElement);
-
       const scene = new THREE.Scene();
       const camera = new THREE.PerspectiveCamera(35, width / height, 0.1, 100);
-      // Position the camera a bit farther out to ensure the full planet fits in the square container
-      camera.position.set(0, 0, 3.4);
-
-      // Lighting setup: use a slightly brighter ambient light and a single key
-      // light.  Removing the rim light prevents an outer halo and reduces
-      // reflections that can be mistaken for a secondary hull.  Increasing
-      // ambient intensity softens the shading for a more cohesive look.
-      const ambient = new THREE.AmbientLight(0xffffff, 0.45);
+      camera.position.set(0, 0, 3.2);
+      // Lighting
+      const ambient = new THREE.AmbientLight(0xffffff, 0.5);
       scene.add(ambient);
-      const keyLight = new THREE.DirectionalLight(0xffffff, 0.9);
+      const keyLight = new THREE.DirectionalLight(0xffffff, 1.2);
       keyLight.position.set(3, 2, 4);
       scene.add(keyLight);
-
-      // Helper to convert HSL to hex
-      function hslToHex(h, s, l) {
-        const a = s * Math.min(l, 1 - l);
-        const f = n => {
-          const k = (n + h * 12) % 12;
-          const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
-          return Math.round(255 * color);
-        };
-        return '#' + [f(0), f(8), f(4)].map(x => x.toString(16).padStart(2, '0')).join('');
-      }
-
-      // Create a procedural texture on a canvas
-      function makePlanetTexture(size, baseColor, accentColor) {
-        const canvas = document.createElement('canvas');
-        canvas.width = canvas.height = size;
-        const ctx = canvas.getContext('2d');
-
-        /*
-         * Generate a gas giant texture with convincing swirling clouds and storms.
-         * We combine multiple sine waves to create turbulent bands and then
-         * sprinkle storms for variety.  A small amount of noise breaks up
-         * uniform regions.  The texture is horizontally tiled to simulate
-         * planetary rotation.
-         */
-        const imgData = ctx.createImageData(size, size);
-        const data = imgData.data;
-
-        // Convert hex colour strings to RGB arrays
-        function hexToRgb(hex) {
-          const bigint = parseInt(hex.replace('#', ''), 16);
-          return [
-            (bigint >> 16) & 255,
-            (bigint >> 8) & 255,
-            bigint & 255
-          ];
-        }
-
-        const baseRGB = hexToRgb(baseColor);
-        const accentRGB = hexToRgb(accentColor);
-
-        // Frequencies and phases for sine wave patterns
-        const freqX = 4 + Math.random() * 4;
-        const freqY = 3 + Math.random() * 3;
-        const freqDiag = 5 + Math.random() * 3;
-        const phaseX = Math.random() * Math.PI * 2;
-        const phaseY = Math.random() * Math.PI * 2;
-        const phaseDiag = Math.random() * Math.PI * 2;
-        const swirlStrength = 2 + Math.random() * 2;
-
-        // Storms
-        const stormCount = 2 + Math.floor(Math.random() * 4);
-        const storms = [];
-        for (let s = 0; s < stormCount; s++) {
-          const cx = Math.random() * size;
-          const cy = Math.random() * size;
-          const radius = size * (0.04 + Math.random() * 0.06);
-          storms.push({ cx, cy, radius });
-        }
-
-        for (let y = 0; y < size; y++) {
-          const ny = y / size;
-          for (let x = 0; x < size; x++) {
-            const nx = x / size;
-            const idx = (y * size + x) * 4;
-            // Sine-based turbulent pattern
-            const v =
-              Math.sin(nx * freqX * Math.PI * 2 + phaseX) +
-              Math.sin(ny * freqY * Math.PI * 2 + phaseY) +
-              Math.sin((nx + ny) * freqDiag * Math.PI * 2 + phaseDiag);
-            // Normalise v to 0..1
-            const mix = 0.5 + 0.5 * Math.sin(v * swirlStrength);
-            let rCol = baseRGB[0] * (1 - mix) + accentRGB[0] * mix;
-            let gCol = baseRGB[1] * (1 - mix) + accentRGB[1] * mix;
-            let bCol = baseRGB[2] * (1 - mix) + accentRGB[2] * mix;
-
-            // Limb darkening: fade colours near the edge
-            const cxNorm = (nx - 0.5) * 2;
-            const cyNorm = (ny - 0.5) * 2;
-            const dist = Math.sqrt(cxNorm * cxNorm + cyNorm * cyNorm);
-            const limb = 1 - Math.min(1, dist * 0.8);
-            rCol *= limb;
-            gCol *= limb;
-            bCol *= limb;
-
-            // Add storms: brighten towards the centre with accent colours
-            for (const st of storms) {
-              const dx = x - st.cx;
-              const dy = y - st.cy;
-              const d2 = dx * dx + dy * dy;
-              const rad2 = st.radius * st.radius;
-              if (d2 < rad2) {
-                const factor = 1 - d2 / rad2;
-                rCol = rCol * (1 - factor) + accentRGB[0] * factor;
-                gCol = gCol * (1 - factor) + accentRGB[1] * factor;
-                bCol = bCol * (1 - factor) + accentRGB[2] * factor;
-              }
-            }
-
-            // Add moderate random noise for realism
-            const noise = (Math.random() - 0.5) * 30;
-            rCol += noise;
-            gCol += noise;
-            bCol += noise;
-
-            // Clamp values
-            data[idx] = Math.min(255, Math.max(0, Math.round(rCol)));
-            data[idx + 1] = Math.min(255, Math.max(0, Math.round(gCol)));
-            data[idx + 2] = Math.min(255, Math.max(0, Math.round(bCol)));
-            data[idx + 3] = 255;
-          }
-        }
-
-        ctx.putImageData(imgData, 0, 0);
-        const tex = new THREE.CanvasTexture(canvas);
-        tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-        tex.repeat.set(2, 1);
-        tex.needsUpdate = true;
-        return tex;
-      }
-
-      // Prepare an array of pre‑generated planetary textures.  Each image is a
-      // colour‑shifted version of Jupiter's cloud bands.  Choosing randomly
-      // from this list on each page load makes the exoplanet look different
-      // every time while maintaining realistic structure.
-      const textureNames = [
-        'exoplanet_var1.jpg',
-        'exoplanet_var2.jpg',
-        'exoplanet_var3.jpg',
-        'exoplanet_var4.jpg',
-        'exoplanet_var5.jpg'
-      ];
-      const textureLoader = new THREE.TextureLoader();
-      const chosenName = textureNames[Math.floor(Math.random() * textureNames.length)];
-      const baseTexture = textureLoader.load(chosenName);
-      // Repeat horizontally and clamp vertically to avoid seams
-      baseTexture.wrapS = THREE.RepeatWrapping;
-      baseTexture.wrapT = THREE.ClampToEdgeWrapping;
-      // Randomise the longitudinal offset so the great red spot appears at
-      // different positions on each load
-      baseTexture.offset.set(Math.random(), 0);
-
-      // Choose a random tint colour by sampling the entire HSL hue range.  A
-      // modest saturation and mid‑level lightness ensure the banded structure
-      // remains visible while giving the planet a unique hue.
-      const tintHue = Math.random();
-      const tintColor = new THREE.Color();
-      tintColor.setHSL(tintHue, 0.4 + Math.random() * 0.2, 0.5 + Math.random() * 0.2);
-
-      // Create the planet mesh.  Reduce the radius to 0.5 to further decrease
-      // the planet's apparent size.  Apply the chosen texture and tint.
-      // Reduce the sphere radius further so the planet comfortably fits
-      // within the now smaller container.  A radius of 0.4 provides a
-      // roughly three‑fold reduction in apparent size compared with the
-      // original version.
-      // Create a slightly larger planet mesh.  A radius of 0.45 makes the
-      // sphere more prominent while still fitting within the container.  A
-      // completely matte material avoids specular highlights.
-      // Slightly enlarge the planet radius so it appears bigger relative to
-      // the container.  Increasing from 0.45 to 0.5 preserves the
-      // three-dimensional feel while keeping the globe fully in view.
-      // Increase the planet radius slightly so it appears more prominent within
-      // the container.  A radius of 0.7 enhances its size without clipping.
-      const planetGeo = new THREE.SphereGeometry(0.8, 96, 96);
+      // Load a random tinted Jupiter texture
+      const textureNames = ['exoplanet_var1.jpg','exoplanet_var2.jpg','exoplanet_var3.jpg','exoplanet_var4.jpg','exoplanet_var5.jpg'];
+      const texIndex = Math.floor(Math.random() * textureNames.length);
+      const texLoader = new THREE.TextureLoader();
+      const planetMap = texLoader.load(textureNames[texIndex]);
+      planetMap.wrapS = THREE.RepeatWrapping;
+      planetMap.wrapT = THREE.ClampToEdgeWrapping;
+      planetMap.offset.x = Math.random();
       const planetMat = new THREE.MeshStandardMaterial({
-        map: baseTexture,
-        color: tintColor,
+        map: planetMap,
         roughness: 1.0,
         metalness: 0.0
       });
+      const planetGeo = new THREE.SphereGeometry(0.9, 64, 64);
       const planet = new THREE.Mesh(planetGeo, planetMat);
       scene.add(planet);
-
-      // Add a small satellite orbiting the planet.  This sphere will move
-      // around the planet on a circular orbit.  Clicking the planet area
-      // randomises the orbit radius, tilt and speed.
-      const satelliteGeo = new THREE.SphereGeometry(0.07, 24, 24);
-      const satelliteMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 1.0, metalness: 0.0 });
+      // Orbiting satellite
+      const satelliteGeo = new THREE.SphereGeometry(0.05, 32, 32);
+      const satelliteMat = new THREE.MeshStandardMaterial({ color: 0xffffff });
       const satellite = new THREE.Mesh(satelliteGeo, satelliteMat);
       scene.add(satellite);
-
-      // Orbit parameters
-      let orbitRadius = 0.9;
-      let orbitSpeed = 0.005;
-      let orbitTilt = Math.PI / 8;
-      let orbitPhase = 0;
-
-      // Function to randomise the orbit when the user clicks the container
+      let orbitRadius = 1.3;
+      let orbitSpeed = 0.01;
+      let orbitTilt = 0.4;
       container.addEventListener('click', () => {
-        orbitRadius = 0.6 + Math.random() * 0.4; // range 0.6–1.0
-        orbitSpeed = 0.003 + Math.random() * 0.007;
-        orbitTilt = Math.random() * Math.PI / 3; // up to 60° tilt
+        orbitRadius = 1.2 + Math.random() * 0.6;
+        orbitSpeed  = 0.005 + Math.random() * 0.015;
+        orbitTilt   = Math.random() * Math.PI * 0.5;
       });
-
-      // Animation loop: rotate the planet and update the satellite's position
+      let angle = 0;
       function animate() {
         requestAnimationFrame(animate);
-        planet.rotation.y += 0.002;
-        planet.rotation.x = Math.sin(Date.now() * 0.0001) * 0.05;
-        orbitPhase += orbitSpeed;
-        // Compute satellite orbit in tilted plane
-        const x = orbitRadius * Math.cos(orbitPhase);
-        const z = orbitRadius * Math.sin(orbitPhase);
-        const y = orbitRadius * Math.sin(orbitPhase) * Math.sin(orbitTilt);
-        // Apply a rotation matrix for tilt
-        satellite.position.set(
-          x * Math.cos(orbitTilt) - z * Math.sin(orbitTilt),
-          y,
-          x * Math.sin(orbitTilt) + z * Math.cos(orbitTilt)
-        );
+        planet.rotation.y += 0.003;
+        angle += orbitSpeed;
+        const x = orbitRadius * Math.cos(angle);
+        const z = orbitRadius * Math.sin(angle);
+        const y = Math.sin(angle * 2) * Math.sin(orbitTilt) * 0.3;
+        satellite.position.set(x, y, z);
         renderer.render(scene, camera);
       }
       animate();
-
-      // Handle resizing of the container
       window.addEventListener('resize', () => {
-        width = container.clientWidth;
-        height = container.clientHeight || width;
-        renderer.setSize(width, height);
-        camera.aspect = width / height;
+        const newWidth  = container.clientWidth || 200;
+        const newHeight = newWidth;
+        renderer.setSize(newWidth, newHeight);
+        camera.aspect = newWidth / newHeight;
         camera.updateProjectionMatrix();
       });
+    })();
+  </script>
+  <!-- Exoplanet explorer game script -->
+  <script>
+    (function() {
+      const canvas = document.getElementById('explorer-canvas');
+      const infoPopup = document.getElementById('planet-info');
+      const visitedCountSpan = document.getElementById('visited-count');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      function resizeCanvas() {
+        const parentWidth = canvas.parentElement.clientWidth;
+        canvas.width = parentWidth;
+        canvas.height = 350;
+      }
+      resizeCanvas();
+      window.addEventListener('resize', resizeCanvas);
+      const planetsData = [
+        {
+          name: 'HD 209458 b',
+          mass: '0.73 Jupiters',
+          radius: '1.39 Jupiters',
+          period: '3.5 days',
+          distance: '0.047 AU',
+          description: 'A hot Jupiter orbiting extremely close to its star; first exoplanet observed in transit, discovered in 1999.'
+        },
+        {
+          name: 'Proxima Centauri b',
+          mass: '1.1 Earths',
+          radius: '1.02 Earths',
+          period: '11.19 days',
+          distance: '0.0486 AU',
+          description: 'An Earth-sized planet orbiting Proxima Centauri within the habitable zone, discovered in 2016.'
+        },
+        {
+          name: 'Kepler-22 b',
+          mass: '9.1 Earths',
+          radius: '2.4 Earths',
+          period: '289.9 days',
+          distance: '0.812 AU',
+          description: 'A super-Earth in the habitable zone of its star; discovered by NASA’s Kepler mission in 2011.'
+        },
+        {
+          name: 'TRAPPIST-1 e',
+          mass: '0.62 Earths',
+          radius: '0.92 Earths',
+          period: '6.10 days',
+          distance: '0.028 AU',
+          description: 'An Earth-sized planet in the TRAPPIST-1 system; part of a seven-planet system and potentially habitable.'
+        },
+        {
+          name: '51 Pegasi b',
+          mass: '0.46 Jupiters',
+          radius: '1.27 Jupiters',
+          period: '4.2 days',
+          distance: '0.0527 AU',
+          description: 'The first exoplanet discovered around a Sun-like star; a hot Jupiter discovered in 1995.'
+        },
+        {
+          name: 'WASP-12 b',
+          mass: '1.47 Jupiters',
+          radius: '1.8 Jupiters',
+          period: '1.1 days',
+          distance: '0.0234 AU',
+          description: 'A scorching hot gas giant whose extreme proximity to its star causes it to be stretched into an egg shape.'
+        }
+      ];
+      const colours = ['#ff6f61','#f5b041','#7fb3d5','#af7ac5','#48c9b0','#e74c3c'];
+      const planets = planetsData.map((p, i) => {
+        const padding = 40;
+        const radius = 18;
+        return {
+          data: p,
+          x: padding + Math.random() * (canvas.width - 2 * padding),
+          y: padding + Math.random() * (canvas.height - 2 * padding),
+          r: radius,
+          colour: colours[i % colours.length],
+          visited: false
+        };
+      });
+      const stars = [];
+      for (let i = 0; i < 100; i++) {
+        stars.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          size: Math.random() * 2 + 1,
+          alpha: Math.random() * 0.8 + 0.2
+        });
+      }
+      const ship = {
+        x: canvas.width / 2,
+        y: canvas.height / 2,
+        speed: 2.2,
+        dirX: 0,
+        dirY: 0,
+        size: 12
+      };
+      const keys = {};
+      document.addEventListener('keydown', (e) => {
+        keys[e.code] = true;
+        if (infoPopup && !infoPopup.classList.contains('hidden')) {
+          infoPopup.classList.add('hidden');
+        }
+      });
+      document.addEventListener('keyup', (e) => {
+        keys[e.code] = false;
+      });
+      function update() {
+        ship.dirX = 0;
+        ship.dirY = 0;
+        if (keys['ArrowLeft'] || keys['KeyA']) ship.dirX = -1;
+        if (keys['ArrowRight'] || keys['KeyD']) ship.dirX = 1;
+        if (keys['ArrowUp'] || keys['KeyW']) ship.dirY = -1;
+        if (keys['ArrowDown'] || keys['KeyS']) ship.dirY = 1;
+        if (ship.dirX !== 0 && ship.dirY !== 0) {
+          const norm = Math.sqrt(2);
+          ship.dirX /= norm;
+          ship.dirY /= norm;
+        }
+        ship.x += ship.dirX * ship.speed;
+        ship.y += ship.dirY * ship.speed;
+        if (ship.x < 0) ship.x = 0;
+        if (ship.y < 0) ship.y = 0;
+        if (ship.x > canvas.width) ship.x = canvas.width;
+        if (ship.y > canvas.height) ship.y = canvas.height;
+        let visitedCount = 0;
+        planets.forEach((planet) => {
+          const dx = ship.x - planet.x;
+          const dy = ship.y - planet.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < planet.r + ship.size) {
+            if (!planet.visited) {
+              planet.visited = true;
+              infoPopup.innerHTML = '<strong>' + planet.data.name + '</strong><br>' +
+                'Mass: ' + planet.data.mass + '<br>' +
+                'Radius: ' + planet.data.radius + '<br>' +
+                'Orbital period: ' + planet.data.period + '<br>' +
+                'Distance to star: ' + planet.data.distance + '<br>' +
+                '<em>' + planet.data.description + '</em>';
+              infoPopup.classList.remove('hidden');
+            }
+            infoPopup.style.top = (planet.y - planet.r - 110) + 'px';
+            infoPopup.style.left = (planet.x - 100) + 'px';
+          }
+          if (planet.visited) visitedCount++;
+        });
+        visitedCountSpan.textContent = visitedCount.toString();
+      }
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        stars.forEach(star => {
+          ctx.fillStyle = 'rgba(255,255,255,' + star.alpha + ')';
+          ctx.beginPath();
+          ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+          ctx.fill();
+        });
+        planets.forEach(planet => {
+          ctx.fillStyle = planet.colour;
+          ctx.beginPath();
+          ctx.arc(planet.x, planet.y, planet.r, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = 'rgba(0,0,0,0.2)';
+          ctx.beginPath();
+          ctx.arc(planet.x - planet.r * 0.3, planet.y - planet.r * 0.3, planet.r, 0, Math.PI * 2);
+          ctx.fill();
+        });
+        const s = ship.size;
+        ctx.fillStyle = '#f7dc6f';
+        ctx.beginPath();
+        ctx.moveTo(ship.x + s * Math.cos(0), ship.y + s * Math.sin(0));
+        for (let i = 1; i < 6; i++) {
+          ctx.lineTo(ship.x + s * Math.cos((i * Math.PI) / 3), ship.y + s * Math.sin((i * Math.PI) / 3));
+        }
+        ctx.closePath();
+        ctx.fill();
+      }
+      function loop() {
+        update();
+        draw();
+        requestAnimationFrame(loop);
+      }
+      loop();
     })();
   </script>
 </body>
