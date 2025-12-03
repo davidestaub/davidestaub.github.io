@@ -4,6 +4,32 @@
   <meta charset="UTF-8">
 <title>Davide Staub - Personal Website</title>
   <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css">
+
+  <!-- Inline overrides to make the planet a circular “sphere” -->
+  <style>
+    .bio-content {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+
+    #planet-container {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      overflow: hidden;      /* crop to circle */
+      flex-shrink: 0;
+    }
+
+    #planet-container canvas {
+      width: 100%;
+      height: 100%;
+      display: block;        /* remove extra whitespace */
+    }
+  </style>
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
