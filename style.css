@@ -60,8 +60,20 @@ h2 {
 
 .bio-content {
   display: flex;
-  align-items: flex-start;
-  flex-wrap: wrap;
+  /* Vertically centre the profile picture, planet and text within the row so
+     that they align nicely even on mobile screens. */
+  align-items: center;
+  /* Prevent wrapping so that the profile picture, planet and text stay
+     aligned on a single row even on smaller screens.  The text element
+     will shrink as needed. */
+  flex-wrap: nowrap;
+}
+
+/* Allow the bio paragraph to take up any remaining horizontal space next to
+   the profile image and planet. */
+.bio-content p {
+  flex: 1;
+  min-width: 0;
 }
 
 /* Style for hyperlinks */
@@ -130,21 +142,22 @@ footer {
 
 /* Container for the WebGL canvas */
 #planet-container {
-  /* Position the exoplanet container alongside the profile photo and allow it
-     to grow slightly larger so the planet is more visible.  A square aspect
-     keeps the planet undistorted, and margin-left pushes it to the right
-     within the flex row. */
+  /* Position the exoplanet container alongside the profile photo.  Allow
+     it to be larger to make the planet more prominent.  A square aspect
+     ratio keeps the globe undistorted, and margin-left pushes it to the
+     right within the flex row. */
   width: 100%;
-  max-width: 160px;
+  /* Increase the maximum width so the planet appears larger. */
+  max-width: 220px;
   aspect-ratio: 1 / 1;
   margin-left: auto;
   border-radius: 0;
-  /* Use the same colour as the page background to make the container blend
-     seamlessly into the layout.  If your page background changes, this
-     should be updated accordingly. */
+  /* Match the container background exactly to the page background so
+     there is no visible contrast. */
   background-color: #111;
   overflow: hidden;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+  /* Remove the shadow to avoid halos or mismatched backgrounds. */
+  box-shadow: none;
 }
 
 /* Ensure the Three.js canvas fills the container */
@@ -161,8 +174,9 @@ footer {
   color: #aaa;
 }
 
-/* --- Transit detection game styles --- */
-#exoplanet-game {
+/* --- Orbit simulator game styles --- */
+/* --- Planet hunter game styles --- */
+#planet-hunter {
   margin-top: 40px;
   padding: 15px;
   background-color: #222;
@@ -170,15 +184,15 @@ footer {
   color: #ccc;
 }
 
-#exoplanet-game h3 {
+#planet-hunter h3 {
   margin-top: 0;
   color: #fff;
 }
 
-#transit-canvas {
+#hunter-canvas {
   width: 100%;
   max-width: 600px;
-  height: 150px;
+  height: 300px;
   display: block;
   margin: 10px 0;
   background-color: #111;
@@ -186,8 +200,9 @@ footer {
   border-radius: 4px;
 }
 
-#game-score,
-#game-message,
+#hunter-score,
+#hunter-timer,
+#hunter-message,
 .game-instructions {
   margin: 5px 0;
   font-size: 0.9em;
