@@ -130,17 +130,15 @@ footer {
 
 /* Container for the WebGL canvas */
 #planet-container {
-  /* Keep the container responsive but significantly smaller than the full page width.
-     Limiting the max-width to 200px ensures the planet appears roughly three
-     times smaller than before. */
+  /* Keep the container responsive but much smaller than before. Reducing
+     max-width to 150px helps the planet sit nicely on the page without
+     dominating the layout. */
   width: 100%;
-  max-width: 200px;
-  /* Maintain a square aspect ratio so the sphere never gets cropped */
+  /* Shrink the visualisation container further so the exoplanet appears much smaller. */
+  max-width: 100px;
   aspect-ratio: 1 / 1;
   margin: 20px auto;
-  /* Remove border radius so the sphere isn't visually clipped */
   border-radius: 0;
-  /* Solid black background for seamless integration */
   background-color: #000;
   overflow: hidden;
   box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
