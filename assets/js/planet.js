@@ -1,4 +1,4 @@
-// Rotating gas giant with an orbiting satellite for the home hero.
+// Rotating gas giant for the home hero.
 // Requires three.min.js to be loaded first.
 (function () {
   const container = document.getElementById('planet-container');
@@ -41,29 +41,10 @@
   );
   scene.add(planet);
 
-  const moon = new THREE.Mesh(
-    new THREE.SphereGeometry(0.055, 24, 24),
-    new THREE.MeshStandardMaterial({ color: 0xffffff })
-  );
-  scene.add(moon);
-
-  let orbitRadius = 1.55, orbitSpeed = 0.012, orbitTilt = 0.45, angle = 0;
-  container.addEventListener('click', () => {
-    orbitRadius = 1.45 + Math.random() * 0.5;
-    orbitSpeed = 0.006 + Math.random() * 0.02;
-    orbitTilt = Math.random() * Math.PI * 0.5;
-  });
-
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   function frame() {
     planet.rotation.y += 0.0028;
-    angle += orbitSpeed;
-    moon.position.set(
-      orbitRadius * Math.cos(angle),
-      Math.sin(angle * 2) * Math.sin(orbitTilt) * 0.3,
-      orbitRadius * Math.sin(angle)
-    );
     renderer.render(scene, camera);
   }
   function animate() {

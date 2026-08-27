@@ -337,7 +337,6 @@ figcaption {
   border-radius: 50%;
   overflow: hidden;
   position: relative;
-  cursor: pointer;
   box-shadow:
     0 0 130px 12px rgba(111, 168, 255, 0.16),
     0 0 60px rgba(53, 214, 255, 0.10),
