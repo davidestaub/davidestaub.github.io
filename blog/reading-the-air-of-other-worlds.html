@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reading the Air of Other Worlds — Davide Staub</title>
+  <meta name="description" content="An interactive explainer: how astronomers use transits and the James Webb Space Telescope to read the atmospheres of planets around other stars.">
+  <meta property="og:title" content="Reading the air of other worlds">
+  <meta property="og:description" content="Fly a planet across its star, watch the starlight dip, and build a transmission spectrum yourself.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪐</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/site.css">
+</head>
+<body>
+  <canvas id="starfield"></canvas>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="nav-name" href="../index.html">Davide Staub</a>
+      <div class="nav-links">
+        <a href="../research.html">Research</a>
+        <a href="../teaching.html">Teaching</a>
+        <a href="index.html" class="active">Blog</a>
+        <a href="../CV_Davide_Staub.pdf">CV</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="wrap">
+
+    <section class="post-hero">
+      <p class="eyebrow">Interactive explainer</p>
+      <h1>Reading the air of other worlds</h1>
+      <p class="lede" style="max-width:38rem">
+        We can't visit a planet 300 light-years away. We can't even photograph most of them.
+        And yet we know what's in their skies. Here's how — with a transit you can fly yourself.
+      </p>
+      <p class="post-meta">Davide Staub · August 2026 · ~8 min</p>
+
+      <div class="stat-strip">
+        <div class="stat"><div class="num" id="count-worlds">0</div><div class="lbl">confirmed planets</div></div>
+        <div class="stat"><div class="num">1995</div><div class="lbl">first around a sun-like star</div></div>
+        <div class="stat"><div class="num">300+</div><div class="lbl">light-years to some of them</div></div>
+      </div>
+    </section>
+
+    <div class="bubble gold">
+      <div class="dot">🔭</div>
+      <div class="say">
+        Every bright dot in the night sky is a sun — and we now know that,
+        on average, <strong>every star hosts at least one planet</strong>.
+      </div>
+    </div>
+
+    <!-- ============================ census ============================ -->
+
+    <section class="section">
+      <p class="eyebrow">01 · The census</p>
+      <h2>A galaxy full of strange worlds</h2>
+      <div class="prose" style="margin:0">
+        <p>
+          Three decades ago, humanity knew exactly eight planets — the ones orbiting our own Sun.
+          Today we have confirmed more than <strong>6,000 planets around other stars</strong>, and
+          the surprise isn't just the number. It's the variety. Most of them look like nothing
+          in our Solar System.
+        </p>
+      </div>
+
+      <div class="census">
+        <div class="cls">
+          <img src="../assets/img/planet-gas-giant.webp" alt="Render of a glowing hot gas giant planet" loading="lazy">
+          <div class="share">~30%</div>
+          <div class="name">Gas giants</div>
+          <p>Massive, hydrogen-rich worlds like Jupiter — some so close to their star that their year lasts days.</p>
+        </div>
+        <div class="cls">
+          <img src="../assets/img/planet-neptune.webp" alt="Render of a blue Neptune-like planet" loading="lazy">
+          <div class="share">~35%</div>
+          <div class="name">Neptune-like</div>
+          <p>Icy, gaseous planets. Common out there — and oddly, mostly absent in our own Solar System's inner reaches.</p>
+        </div>
+        <div class="cls">
+          <img src="../assets/img/planet-super-earth.webp" alt="Render of a rocky super-Earth planet" loading="lazy">
+          <div class="share">~31%</div>
+          <div class="name">Super-Earths</div>
+          <p>Rocky worlds larger than Earth but smaller than Neptune. We have no local example at all.</p>
+        </div>
+        <div class="cls">
+          <img src="../assets/img/planet-terrestrial.webp" alt="Render of a small terrestrial planet" loading="lazy">
+          <div class="share">~4%</div>
+          <div class="name">Terrestrial</div>
+          <p>Small and rocky, like Earth or Mars. Rare in the catalogue — mostly because they're the hardest to find.</p>
+        </div>
+      </div>
+
+      <div class="bubble">
+        <div class="dot">🔭</div>
+        <div class="say">
+          A planet census is one thing. But the question everyone actually wants answered is:
+          <strong>what is it like on these worlds?</strong> Is there water? Clouds? Air at all?
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ history ============================ -->
+
+    <section class="section">
+      <p class="eyebrow cyan">02 · The hunt</p>
+      <h2>Thirty years from discovery to weather report</h2>
+      <div class="prose" style="margin:0">
+        <p>
+          Finding a planet and <em>characterising</em> it are two different games.
+          The first thirty years were mostly about counting. Only recently did we
+          get the tools to ask what these planets are actually made of.
+        </p>
+      </div>
+
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-year">1990 — Hubble launches</div>
+          <h3>The space-telescope era begins</h3>
+          <p>Hubble wasn't built for exoplanets — none were known yet around normal stars — but it would later make the first detection of an exoplanet atmosphere.</p>
+          <div class="tl-media frame"><video src="../assets/video/hubble.mp4" autoplay muted loop playsinline aria-label="Rotating render of the Hubble Space Telescope"></video></div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-year">1995 — 51 Pegasi b</div>
+          <h3>The first planet around a Sun-like star</h3>
+          <p>The ELODIE spectrograph caught the star 51 Pegasi wobbling — tugged by an unseen giant planet racing around it every 4.2 days. A hot Jupiter: the first of many worlds with no Solar System counterpart. It earned a Nobel Prize.</p>
+        </div>
+        <div class="tl-item">
+          <div class="tl-year">1999 — HD 209458 b</div>
+          <h3>The first transit</h3>
+          <p>For the first time, a planet was caught crossing in front of its star, dimming it by about 1.5%. This "transit method" would soon become astronomy's planet-finding workhorse — and, as we'll see, the key to reading atmospheres.</p>
+        </div>
+        <div class="tl-item">
+          <div class="tl-year">2009 — Kepler</div>
+          <h3>Counting worlds by the thousand</h3>
+          <p>Kepler stared at one patch of sky for years, watching 150,000 stars for tiny transit dips. It alone confirmed over 2,700 planets and taught us that planets outnumber stars.</p>
+          <div class="tl-media frame"><video src="../assets/video/kepler.mp4" autoplay muted loop playsinline aria-label="Rotating render of the Kepler space telescope"></video></div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-year">2018 — TESS</div>
+          <h3>Surveying the whole sky</h3>
+          <p>TESS scans almost the entire sky for transiting planets around nearby, bright stars — exactly the targets big telescopes can study in detail.</p>
+          <div class="tl-media frame"><video src="../assets/video/tess.mp4" autoplay muted loop playsinline aria-label="Rotating render of the TESS space telescope"></video></div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-year">2021 — JWST</div>
+          <h3>The characterisation machine</h3>
+          <p>The James Webb Space Telescope changed the game: a 6.5-metre gold mirror in deep space, sensitive enough to measure not just <em>that</em> a planet transits, but how the dip changes with the colour of light. That difference is where atmospheres hide.</p>
+          <div class="tl-media frame"><video src="../assets/video/jwst.mp4" autoplay muted loop playsinline aria-label="Rotating render of the James Webb Space Telescope"></video></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ transit demo ============================ -->
+
+    <section class="section">
+      <p class="eyebrow purple">03 · The trick</p>
+      <h2>Try it: fly a planet across its star</h2>
+      <div class="prose" style="margin:0">
+        <p>
+          Here's a star, a planet, and a light meter. When the planet crosses the stellar disk,
+          it blocks a tiny fraction of the light. That dip in brightness is a <strong>transit</strong> —
+          and everything below follows from it.
+        </p>
+      </div>
+
+      <div class="bubble gold">
+        <div class="dot">🔭</div>
+        <div class="say">
+          Drag the sliders! Make the planet bigger and watch the dip deepen —
+          the depth tells us the planet's <strong>size</strong>.
+        </div>
+      </div>
+
+      <div class="demo">
+        <div class="demo-panels">
+          <div>
+            <canvas id="orbit-canvas" width="520" height="330" aria-label="Animation of a planet transiting its star"></canvas>
+          </div>
+          <div>
+            <canvas id="lc-canvas" width="520" height="330" aria-label="Live light curve of the transit"></canvas>
+          </div>
+        </div>
+
+        <div class="demo-controls">
+          <div class="ctl">
+            <label>Planet size <span class="val" id="rp-val">1.0 R<sub>Jup</sub></span></label>
+            <input type="range" id="rp-slider" min="0.3" max="1.8" step="0.05" value="1.0">
+          </div>
+          <div class="ctl">
+            <label>Wavelength (colour of light) <span class="val" id="wl-val">1.0 µm</span></label>
+            <input type="range" id="wl-slider" min="0.6" max="2.8" step="0.02" value="1.0">
+          </div>
+          <div class="ctl toggle">
+            <input type="checkbox" id="atm-toggle" checked>
+            <label for="atm-toggle" style="margin:0">Atmosphere</label>
+          </div>
+        </div>
+
+        <div class="demo-actions">
+          <button class="btn primary" id="scan-btn">Scan the rainbow → build the spectrum</button>
+          <button class="btn" id="reset-btn">Reset</button>
+        </div>
+
+        <canvas id="spec-canvas" width="1060" height="300" style="margin-top:1.2rem" aria-label="Transmission spectrum built from measured transit depths"></canvas>
+
+        <div id="demo-caption">
+          The planet blocks <strong>1.0%</strong> of the starlight. Now try the wavelength slider —
+          with an atmosphere, the dip depth changes with colour…
+        </div>
+      </div>
+
+      <div class="bubble">
+        <div class="dot">🔭</div>
+        <div class="say">
+          Here's the magic: a planet's atmosphere is <strong>opaque at some colours and
+          transparent at others</strong>. Water vapour, for example, absorbs strongly around
+          1.4 and 1.9 µm — at those colours the planet looks slightly <em>bigger</em>, so the dip is slightly deeper.
+        </div>
+      </div>
+
+      <div class="bubble right">
+        <div class="dot">🔭</div>
+        <div class="say">
+          Press <strong>“Scan the rainbow”</strong>: measure the transit depth at every colour, plot depth
+          against wavelength, and you get a <strong>transmission spectrum</strong> — a chemical fingerprint
+          of air on a world we will never visit.
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ real spectrum ============================ -->
+
+    <section class="section">
+      <p class="eyebrow teal">04 · The real thing</p>
+      <h2>What JWST actually sees</h2>
+      <div class="prose" style="margin:0">
+        <p>
+          This is a stylised version of a real measurement: the transmission spectrum of
+          <strong>WASP-17&nbsp;b</strong>, a hot giant planet whose transit JWST and Hubble have measured
+          across wavelengths. The bumps are not noise — they are water vapour in an alien sky.
+        </p>
+      </div>
+
+      <figure class="spectrum-fig card" style="margin-top:1.6rem">
+        <svg viewBox="0 0 900 380" role="img" aria-label="Stylised transmission spectrum of WASP-17 b with water absorption bands highlighted">
+          <!-- axes -->
+          <line x1="70" y1="320" x2="860" y2="320" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+          <line x1="70" y1="40"  x2="70"  y2="320" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+          <!-- y labels -->
+          <text x="58" y="70"  fill="#6B7A99" font-size="12" text-anchor="end" font-family="IBM Plex Mono, monospace">1.60%</text>
+          <text x="58" y="180" fill="#6B7A99" font-size="12" text-anchor="end" font-family="IBM Plex Mono, monospace">1.55%</text>
+          <text x="58" y="290" fill="#6B7A99" font-size="12" text-anchor="end" font-family="IBM Plex Mono, monospace">1.50%</text>
+          <!-- x labels -->
+          <text x="110" y="342" fill="#6B7A99" font-size="12" text-anchor="middle" font-family="IBM Plex Mono, monospace">0.6</text>
+          <text x="310" y="342" fill="#6B7A99" font-size="12" text-anchor="middle" font-family="IBM Plex Mono, monospace">1.2</text>
+          <text x="510" y="342" fill="#6B7A99" font-size="12" text-anchor="middle" font-family="IBM Plex Mono, monospace">1.8</text>
+          <text x="710" y="342" fill="#6B7A99" font-size="12" text-anchor="middle" font-family="IBM Plex Mono, monospace">2.4</text>
+          <text x="465" y="368" fill="#A8B6D0" font-size="13" text-anchor="middle" font-family="IBM Plex Mono, monospace">wavelength of light (microns)</text>
+          <text x="30" y="180" fill="#A8B6D0" font-size="13" text-anchor="middle" font-family="IBM Plex Mono, monospace" transform="rotate(-90 30 180)">amount of light blocked</text>
+          <!-- water band highlights -->
+          <rect x="340" y="40" width="90" height="280" fill="rgba(53,214,255,0.07)"/>
+          <rect x="500" y="40" width="110" height="280" fill="rgba(53,214,255,0.07)"/>
+          <text x="385" y="60" fill="#35D6FF" font-size="13" text-anchor="middle" font-family="IBM Plex Mono, monospace">H₂O</text>
+          <text x="555" y="60" fill="#35D6FF" font-size="13" text-anchor="middle" font-family="IBM Plex Mono, monospace">H₂O</text>
+          <!-- model curve -->
+          <path d="M 90 150 C 150 200, 220 235, 300 215 C 340 200, 360 130, 385 125
+                   C 410 122, 440 190, 470 205 C 500 215, 520 120, 555 112
+                   C 590 106, 620 190, 660 210 C 710 230, 780 200, 850 170"
+                fill="none" stroke="#F5B324" stroke-width="2.5" opacity="0.9"/>
+          <!-- data points with error bars (stylised) -->
+          <g stroke="#EAFBFF" stroke-width="1.4" opacity="0.85">
+            <line x1="110" y1="150" x2="110" y2="190"/><circle cx="110" cy="170" r="3.4" fill="#EAFBFF" stroke="none"/>
+            <line x1="170" y1="195" x2="170" y2="235"/><circle cx="170" cy="215" r="3.4" fill="#EAFBFF" stroke="none"/>
+            <line x1="235" y1="210" x2="235" y2="250"/><circle cx="235" cy="230" r="3.4" fill="#EAFBFF" stroke="none"/>
+            <line x1="300" y1="198" x2="300" y2="230"/><circle cx="300" cy="214" r="3.4" fill="#EAFBFF" stroke="none"/>
+            <line x1="355" y1="120" x2="355" y2="152"/><circle cx="355" cy="136" r="3.4" fill="#EAFBFF" stroke="none"/>
+            <line x1="395" y1="110" x2="395" y2="142"/><circle cx="395" cy="126" r="3.4" fill="#EAFBFF" stroke="none"/>
+            <line x1="440" y1="175" x2="440" y2="207"/><circle cx="440" cy="191" r="3.4" fill="#EAFBFF" stroke="none"/>
+            <line x1="480" y1="192" x2="480" y2="224"/><circle cx="480" cy="208" r="3.4" fill="#EAFBFF" stroke="none"/>
+            <line x1="530" y1="105" x2="530" y2="137"/><circle cx="530" cy="121" r="3.4" fill="#EAFBFF" stroke="none"/>
+            <line x1="575" y1="98"  x2="575" y2="130"/><circle cx="575" cy="114" r="3.4" fill="#EAFBFF" stroke="none"/>
+            <line x1="630" y1="180" x2="630" y2="212"/><circle cx="630" cy="196" r="3.4" fill="#EAFBFF" stroke="none"/>
+            <line x1="690" y1="200" x2="690" y2="232"/><circle cx="690" cy="216" r="3.4" fill="#EAFBFF" stroke="none"/>
+            <line x1="760" y1="185" x2="760" y2="217"/><circle cx="760" cy="201" r="3.4" fill="#EAFBFF" stroke="none"/>
+            <line x1="820" y1="160" x2="820" y2="192"/><circle cx="820" cy="176" r="3.4" fill="#EAFBFF" stroke="none"/>
+          </g>
+        </svg>
+        <figcaption>
+          Stylised transmission spectrum of the hot giant WASP-17 b (model in gold, measurements in white),
+          after public JWST/Hubble results. Shaded bands: water vapour absorption. Credit: after NASA / ESA / CSA / STScI.
+        </figcaption>
+      </figure>
+
+      <div class="chips">
+        <span class="chip h2o">H₂O — water vapour</span>
+        <span class="chip co2">CO₂ — carbon dioxide</span>
+        <span class="chip co">CO — carbon monoxide</span>
+        <span class="chip ch4">CH₄ — methane</span>
+      </div>
+      <p class="muted small" style="max-width:44rem">
+        Each molecule absorbs at its own characteristic wavelengths, so each leaves a distinct
+        pattern of bumps. JWST has now detected all of the above in exoplanet atmospheres.
+      </p>
+
+      <div class="bubble gold">
+        <div class="dot">🔭</div>
+        <div class="say">
+          One transit of a typical hot Jupiter changes the starlight by <strong>about 1%</strong> —
+          and the atmospheric fingerprint on top of that is another <strong>hundred times smaller</strong>.
+          Measuring it means controlling every instrumental effect with exquisite care.
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ outro ============================ -->
+
+    <section class="section">
+      <p class="eyebrow">05 · Where I come in</p>
+      <h2>The hard part is trusting the answer</h2>
+      <div class="prose" style="margin:0">
+        <p>
+          Signals this small put enormous weight on the analysis: subtle instrument
+          systematics and modelling choices can shift the answer by more than the atmospheric
+          signal itself. My PhD research at Imperial College London develops physics-based,
+          differentiable methods to make these measurements — and the conclusions drawn from
+          them — more trustworthy.
+        </p>
+        <p>
+          If that sounds interesting, have a look at my <a href="../research.html">research page</a>,
+          or <a href="mailto:dds25@ic.ac.uk">get in touch</a>.
+        </p>
+      </div>
+    </section>
+
+    <p class="small" style="color:var(--faint); margin-top:3rem">
+      Telescope animations and planet renders: NASA. Spectrum stylised after public NASA/ESA/CSA/STScI releases.
+    </p>
+
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <span>© 2026 Davide Staub</span>
+      <span>
+        <a href="mailto:dds25@ic.ac.uk">Email</a> ·
+        <a href="https://www.linkedin.com/in/davide-staub/" target="_blank" rel="noopener">LinkedIn</a> ·
+        <a href="https://github.com/davidestaub" target="_blank" rel="noopener">GitHub</a>
+      </span>
+    </div>
+  </footer>
+
+  <script src="../assets/js/starfield.js"></script>
+  <script src="../assets/js/transit-demo.js"></script>
+</body>
+</html>

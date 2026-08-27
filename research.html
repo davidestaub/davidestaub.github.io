@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Research — Davide Staub</title>
+  <meta name="description" content="Research by Davide Staub: exoplanet atmospheres with JWST, narrative processing in the brain, physics-informed neural networks for seismology.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪐</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/site.css">
+</head>
+<body>
+  <canvas id="starfield"></canvas>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="nav-name" href="index.html">Davide Staub</a>
+      <div class="nav-links">
+        <a href="research.html" class="active">Research</a>
+        <a href="teaching.html">Teaching</a>
+        <a href="blog/index.html">Blog</a>
+        <a href="CV_Davide_Staub.pdf">CV</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="wrap">
+
+    <section class="section">
+      <p class="eyebrow">Research</p>
+      <h1>Physics, data &amp; learning.</h1>
+      <p class="lede">
+        My work sits at the intersection of machine learning and physical modelling —
+        building differentiable methods that respect the physics of the systems they describe,
+        from planetary atmospheres to seismic waves to the human brain.
+      </p>
+    </section>
+
+    <section class="section">
+      <div class="card">
+        <p class="eyebrow">PhD · ongoing</p>
+        <h3>Exoplanet atmospheres with JWST</h3>
+        <div class="split">
+          <div>
+            <p>
+              The James Webb Space Telescope has transformed the study of exoplanet
+              atmospheres: for the first time we can measure the composition of the air
+              on planets hundreds of light-years away. But turning raw JWST measurements
+              into trustworthy statements about an atmosphere is a delicate chain of
+              inference — and the subject of my PhD.
+            </p>
+            <p>
+              I develop end-to-end differentiable, physics-based methods for analysing
+              JWST observations of transiting exoplanets, with a focus on making the
+              resulting atmospheric constraints more reliable. More details coming with
+              upcoming publications — in the meantime, my interactive
+              <a href="blog/reading-the-air-of-other-worlds.html">explainer on transmission
+              spectroscopy</a> covers the foundations this work builds on.
+            </p>
+          </div>
+          <figure>
+            <div class="frame"><img src="assets/img/current_research.jpg" alt="Artist's impression of a hot Jupiter exoplanet orbiting close to its host star"></div>
+            <figcaption>Artist's impression of a hot Jupiter — a gas giant orbiting scorchingly close to its star. Credit: NASA</figcaption>
+          </figure>
+        </div>
+      </div>
+
+      <div class="card">
+        <p class="eyebrow cyan">HomanLab · Zürich</p>
+        <h3>How the brain follows a story</h3>
+        <div class="split flip">
+          <figure>
+            <div class="frame"><img src="assets/img/method_diagram_white.png" alt="Diagram of the method: converting stories into drift and shift signals via a large language model and mapping them to brain activity"></div>
+            <figcaption>From stories to brain signals via a large language model.</figcaption>
+          </figure>
+          <div>
+            <p>
+              At the HomanLab within the Psychiatric University Hospital of Zürich, I explored
+              how our brains follow the flow of stories. Working with a language model, we
+              distilled two simple signals from narratives: a <em>drift</em> signal capturing the
+              gradual build-up of meaning, and a <em>shift</em> signal that spikes when the story
+              moves to a new event or scene.
+            </p>
+            <p>
+              Compared against high-resolution fMRI recordings of a volunteer listening to
+              crime stories, the burst-like shift signal lit up the brain's speech and hearing
+              centres, while the slow drift signal was strongest in the default-mode network —
+              regions like the angular gyrus and precuneus that support memory and imagination.
+              Auditory areas mark event boundaries; broader networks track the slow evolution of context.
+            </p>
+          </div>
+        </div>
+        <div class="card-grid" style="margin-top:1.2rem">
+          <figure>
+            <div class="frame"><img src="assets/img/shift_map.png" alt="Brain map showing shift responses in peri-Sylvian regions"></div>
+            <figcaption>Shift: event-boundary responses in auditory–language cortex.</figcaption>
+          </figure>
+          <figure>
+            <div class="frame"><img src="assets/img/drift_map.png" alt="Brain map highlighting drift responses in default-mode regions"></div>
+            <figcaption>Drift: slow accumulation responses in default-mode regions.</figcaption>
+          </figure>
+        </div>
+      </div>
+
+      <div class="card">
+        <p class="eyebrow purple">Master's thesis · ETH Zürich</p>
+        <h3>Physics-informed neural networks for seismology</h3>
+        <div class="split">
+          <div>
+            <p>
+              My master's thesis investigated physics-informed neural networks (PINNs) for
+              solving the elastic wave equation, which describes how seismic waves travel
+              through the Earth. By embedding wave physics directly into the architecture —
+              custom wavelet and plane-wave layers with encoder–decoder components — the
+              networks were roughly twice as accurate as standard PINNs.
+            </p>
+            <p>
+              Conditioning the networks on the seismic source location lets them infer the
+              wavefield for countless source positions in a single forward pass, dramatically
+              faster than traditional finite-difference solvers.
+            </p>
+          </div>
+          <figure>
+            <div class="frame"><img src="assets/img/wavefield.png" alt="Simulated radial elastic wavefields produced by a physics-informed neural network"></div>
+            <figcaption>Elastic wavefields simulated by a physics-informed neural network.</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <p class="eyebrow teal">Publications &amp; theses</p>
+      <div class="card">
+        <div class="pub">
+          <div class="where">Astronomy &amp; Geophysics · 2025</div>
+          Physics-informed neural networks for seismic wave simulation —
+          <a href="https://academic.oup.com/astrogeo/article-abstract/66/3/3.29/8154308" target="_blank" rel="noopener">article</a>
+        </div>
+        <div class="pub">
+          <div class="where">Master's thesis · ETH Zürich</div>
+          Improving physics-informed neural networks for the elastic wave equation —
+          <a href="https://doi.org/10.3929/ethz-b-000668359" target="_blank" rel="noopener">DOI 10.3929/ethz-b-000668359</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <span>© 2026 Davide Staub</span>
+      <span>
+        <a href="mailto:dds25@ic.ac.uk">Email</a> ·
+        <a href="https://www.linkedin.com/in/davide-staub/" target="_blank" rel="noopener">LinkedIn</a> ·
+        <a href="https://github.com/davidestaub" target="_blank" rel="noopener">GitHub</a>
+      </span>
+    </div>
+  </footer>
+
+  <script src="assets/js/starfield.js"></script>
+</body>
+</html>
