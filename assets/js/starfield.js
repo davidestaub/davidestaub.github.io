@@ -41,20 +41,26 @@
   window.addEventListener('resize', () => { build(); if (reduced) draw(); });
 })();
 
-// Reveal .bubble elements (and anything with .reveal) as they scroll into view.
+// Reveal .bubble and .reveal elements as they scroll into view.
 (function () {
-  const els = document.querySelectorAll('.bubble, .reveal, .carpet');
-  if (!('IntersectionObserver' in window)) {
-    els.forEach(e => e.classList.add('visible'));
-    return;
-  }
-  const io = new IntersectionObserver((entries) => {
-    entries.forEach(en => {
-      if (en.isIntersecting) {
-        en.target.classList.add('visible');
-        io.unobserve(en.target);
+  let els = Array.from(document.querySelectorAll('.bubble, .reveal'));
+  function check() {
+    const vh = window.innerHeight;
+    els = els.filter(el => {
+      const r = el.getBoundingClientRect();
+      if (r.top < vh * 0.92 && r.bottom > 0) {
+        el.classList.add('visible');
+        return false;
       }
+      return true;
     });
-  }, { threshold: 0.25 });
-  els.forEach(e => io.observe(e));
+    if (!els.length) {
+      window.removeEventListener('scroll', check);
+      window.removeEventListener('resize', check);
+    }
+  }
+  window.addEventListener('scroll', check, { passive: true });
+  window.addEventListener('resize', check);
+  window.addEventListener('load', check);
+  check();
 })();

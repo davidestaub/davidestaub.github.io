@@ -450,7 +450,7 @@
       fact: 'A sub-Neptune in its star\u2019s habitable zone. In 2023 JWST detected methane and carbon dioxide in its atmosphere, and the debate about what kind of world it is (ocean planet? gas-rich mini-Neptune?) is still running.' },
     { name: '51 Pegasi b', temp: '1,000 °C', img: 'planet-gas-giant.webp',
       meta: 'hot Jupiter · 50 light-years · discovered 1995',
-      fact: 'The planet that started it all: the first found around a Sun-like star, through the wobble of its star. A gas giant with a four-day year, something nobody thought possible at the time. The discovery won the 2019 Nobel Prize in Physics.' },
+      fact: 'The first planet found around a Sun-like star, detected through the wobble of its star. A gas giant with a four-day year, something nobody thought possible at the time. The discovery won the 2019 Nobel Prize in Physics.' },
     { name: 'WASP-96 b', temp: '1,050 °C', img: 'planet-gas-giant.webp',
       meta: 'hot Saturn · 1,150 light-years · discovered 2014',
       fact: 'Its spectrum was in JWST\u2019s very first science release in July 2022: a textbook water signature and surprisingly clear skies for such a hot world.' },

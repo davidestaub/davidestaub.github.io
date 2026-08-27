@@ -559,7 +559,7 @@ input[type="checkbox"] { accent-color: var(--gold); width: 18px; height: 18px; }
   clip-path: inset(0 100% 0 0);
   transition: clip-path 2.2s cubic-bezier(0.3, 0, 0.2, 1);
 }
-.carpet.visible { clip-path: inset(0 0 0 0); }
+.carpet.visible, .carpet-wrap.visible .carpet { clip-path: inset(0 0 0 0); }
 .carpet img { display: block; width: 100%; }
 
 .temp-axis {
