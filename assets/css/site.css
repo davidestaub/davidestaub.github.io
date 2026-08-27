@@ -519,18 +519,6 @@ footer a { color: var(--muted); }
   margin: 0 auto 1.1rem;
 }
 
-.opener::first-letter {
-  float: left;
-  font-size: 3.3em;
-  line-height: 0.82;
-  padding: 0.08em 0.12em 0 0;
-  font-weight: 600;
-  color: var(--gold);
-}
-@supports (initial-letter: 3) {
-  .opener::first-letter { float: none; padding: 0 0.12em 0 0; initial-letter: 3; }
-}
-
 /* stat counter strip */
 .stat-strip {
   display: flex;
