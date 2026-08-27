@@ -43,7 +43,7 @@
 
 // Reveal .bubble elements (and anything with .reveal) as they scroll into view.
 (function () {
-  const els = document.querySelectorAll('.bubble, .reveal');
+  const els = document.querySelectorAll('.bubble, .reveal, .carpet');
   if (!('IntersectionObserver' in window)) {
     els.forEach(e => e.classList.add('visible'));
     return;

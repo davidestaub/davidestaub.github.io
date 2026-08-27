@@ -7,6 +7,8 @@
   <meta name="description" content="An interactive explainer: how astronomers use transits and the James Webb Space Telescope to read the atmospheres of planets around other stars.">
   <meta property="og:title" content="Reading the air of other worlds">
   <meta property="og:description" content="Fly a planet across its star, watch the starlight dip, and build a transmission spectrum yourself.">
+  <meta property="og:image" content="https://davidestaub.github.io/assets/img/og-card.png">
+  <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪐</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -23,7 +25,6 @@
         <a href="../research.html">Research</a>
         <a href="../teaching.html">Teaching</a>
         <a href="index.html" class="active">Blog</a>
-        <a href="../observatory.html">Observatory</a>
         <a href="../CV_Davide_Staub.pdf">CV</a>
       </div>
     </div>
@@ -95,6 +96,22 @@
         </div>
       </div>
 
+      <div class="carpet-wrap reveal">
+        <p class="eyebrow" style="margin-bottom:0.9rem">From ice to fire</p>
+        <div class="carpet"><img src="../assets/img/planet-carpet.webp" alt="Dozens of rendered planets arranged from icy blue worlds on the left to scorching hot worlds on the right" loading="lazy"></div>
+        <div class="temp-axis"></div>
+        <div class="temp-labels"><span>Icy</span><span>Temperate</span><span>Scorching</span></div>
+      </div>
+
+      <div class="prose" style="margin:1.6rem auto 0; max-width:none">
+        <p style="max-width:44rem">
+          Line the known worlds up by temperature and the range is absurd: from planets colder
+          than Pluto to planets hotter than some stars. A few favourites, coldest first. Tap one.
+        </p>
+      </div>
+      <div class="world-chips" id="world-chips"></div>
+      <div id="world-card" class="target-card"></div>
+
       <div class="bubble">
         <div class="dot">🔭</div>
         <div class="say">
@@ -121,18 +138,71 @@
         <div class="tl-item">
           <div class="tl-year">1990 · Hubble launches</div>
           <h3>The space-telescope era begins</h3>
-          <p>Hubble was not built for exoplanets, since none were known around normal stars at launch. It would later make the first detection of an exoplanet atmosphere.</p>
+          <p>Hubble was not built for exoplanets, since none were known at launch. It would still end up writing several firsts in this story.</p>
           <div class="tl-media frame"><video src="../assets/video/hubble.mp4" autoplay muted loop playsinline aria-label="Rotating render of the Hubble Space Telescope"></video></div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-year">1992 · PSR B1257+12</div>
+          <h3>The first exoplanets ever found</h3>
+          <p>The Arecibo radio telescope found the very first exoplanets in the strangest place imaginable: orbiting a pulsar, the collapsed core of an exploded star. Two rocky worlds, bathed in radiation. Planets, it turned out, can survive almost anything.</p>
         </div>
         <div class="tl-item">
           <div class="tl-year">1995 · 51 Pegasi b</div>
           <h3>The first planet around a Sun-like star</h3>
-          <p>The ELODIE spectrograph caught the star 51 Pegasi wobbling, tugged by an unseen giant planet racing around it every 4.2 days. The discovery earned a Nobel Prize.</p>
+          <p>The ELODIE spectrograph caught the star 51 Pegasi wobbling, tugged by an unseen giant planet racing around it every 4.2 days. The planet never blocks the star from our point of view. It reveals itself through the wobble alone, visible as a spectral line swinging between blue and red. The discovery earned a Nobel Prize.</p>
+          <div class="tl-media frame anim-pane" style="max-width:460px">
+            <svg viewBox="0 0 460 260" aria-label="A star wobbling in a small circle as an unseen planet orbits it, while the star's spectral line shifts between blue and red">
+              <defs>
+                <radialGradient id="wstar" cx="40%" cy="35%">
+                  <stop offset="0%" stop-color="#FFFDF4"/><stop offset="60%" stop-color="#FFE9B8"/><stop offset="100%" stop-color="#F0C878"/>
+                </radialGradient>
+                <linearGradient id="wspec" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stop-color="#6FA8FF"/><stop offset="30%" stop-color="#35D6FF"/>
+                  <stop offset="55%" stop-color="#F5D98A"/><stop offset="80%" stop-color="#F2A54A"/><stop offset="100%" stop-color="#EE642A"/>
+                </linearGradient>
+              </defs>
+              <circle cx="150" cy="95" r="62" fill="none" stroke="rgba(255,255,255,0.14)" stroke-dasharray="3 6"/>
+              <g class="w-planet-orbit"><circle cx="150" cy="157" r="6" fill="#6FA8FF"/></g>
+              <g class="w-star-orbit"><circle cx="150" cy="83" r="14" fill="url(#wstar)"/></g>
+              <text x="150" y="196" fill="#6B7A99" font-size="10" text-anchor="middle" font-family="IBM Plex Mono, monospace">THE STAR WOBBLES</text>
+              <rect x="270" y="78" width="170" height="30" rx="3" fill="url(#wspec)" opacity="0.9"/>
+              <rect class="w-line" x="352" y="78" width="4" height="30" fill="#04060F"/>
+              <text x="355" y="66" fill="#A8B6D0" font-size="10" text-anchor="middle" font-family="IBM Plex Mono, monospace">THE STAR'S LIGHT</text>
+              <text x="355" y="128" fill="#6B7A99" font-size="10" text-anchor="middle" font-family="IBM Plex Mono, monospace">ITS SPECTRAL LINE</text>
+              <text x="355" y="142" fill="#6B7A99" font-size="10" text-anchor="middle" font-family="IBM Plex Mono, monospace">SHIFTS BLUE AND RED</text>
+              <text x="150" y="240" fill="#6B7A99" font-size="10" text-anchor="middle" font-family="IBM Plex Mono, monospace">UNSEEN PLANET</text>
+            </svg>
+          </div>
         </div>
         <div class="tl-item">
           <div class="tl-year">1999 · HD 209458 b</div>
           <h3>The first transit</h3>
-          <p>For the first time, a planet was caught crossing in front of its star, dimming it by about 1.5%. This transit method became astronomy's main planet-finding tool, and it is also the key to reading atmospheres.</p>
+          <p>For the first time, a planet was caught crossing in front of its star, dimming it by about 1.5%. This transit method became astronomy's main planet-finding tool.</p>
+        </div>
+        <div class="tl-item">
+          <div class="tl-year">2001 · First atmosphere</div>
+          <h3>Sodium in an alien sky</h3>
+          <p>During transits of HD 209458 b, Hubble saw the star's sodium line get slightly deeper. Starlight was filtering through the planet's atmosphere on its way to us. This measurement founded the field this post is about.</p>
+          <div class="tl-media frame anim-pane" style="max-width:460px">
+            <svg viewBox="0 0 460 190" aria-label="A planet crossing its star while a dark sodium absorption line appears in the star's spectrum">
+              <defs>
+                <radialGradient id="nastar" cx="40%" cy="35%">
+                  <stop offset="0%" stop-color="#FFFDF4"/><stop offset="60%" stop-color="#FFE9B8"/><stop offset="100%" stop-color="#F0C878"/>
+                </radialGradient>
+                <linearGradient id="naspec" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stop-color="#8A6A2A"/><stop offset="50%" stop-color="#F5D98A"/><stop offset="100%" stop-color="#8A6A2A"/>
+                </linearGradient>
+              </defs>
+              <circle cx="110" cy="80" r="30" fill="url(#nastar)"/>
+              <circle class="na-planet" cx="-10" cy="80" r="8" fill="#05070F" stroke="rgba(168,182,208,0.6)"/>
+              <text x="110" y="140" fill="#6B7A99" font-size="10" text-anchor="middle" font-family="IBM Plex Mono, monospace">TRANSIT</text>
+              <rect x="250" y="62" width="180" height="30" rx="3" fill="url(#naspec)" opacity="0.9"/>
+              <rect class="na-line" x="322" y="62" width="4" height="30" fill="#04060F"/>
+              <text x="324" y="52" fill="#35D6FF" font-size="11" text-anchor="middle" font-family="IBM Plex Mono, monospace">Na</text>
+              <text x="340" y="112" fill="#6B7A99" font-size="10" text-anchor="middle" font-family="IBM Plex Mono, monospace">SODIUM APPEARS</text>
+              <text x="340" y="126" fill="#6B7A99" font-size="10" text-anchor="middle" font-family="IBM Plex Mono, monospace">DURING THE TRANSIT</text>
+            </svg>
+          </div>
         </div>
         <div class="tl-item">
           <div class="tl-year">2009 · Kepler</div>
@@ -233,10 +303,70 @@
       </div>
     </section>
 
+    <!-- ============================ light's journey ============================ -->
+
+    <section class="section">
+      <p class="eyebrow purple">04 · Inside the telescope</p>
+      <h2>How the light becomes a rainbow</h2>
+      <div class="prose" style="margin:0">
+        <p>
+          In the demo you measured the dip one colour at a time. JWST does it all at once.
+          Its NIRISS instrument, in a mode called SOSS, spreads the incoming starlight into
+          curved rainbow traces on the detector. Each position along a trace is a different
+          wavelength, so a single exposure records the transit at hundreds of colours simultaneously.
+        </p>
+      </div>
+
+      <div class="journey">
+        <svg viewBox="0 0 940 300" aria-label="A planet orbits its star, the starlight travels to JWST, and the telescope spreads it into curved rainbow traces">
+          <defs>
+            <radialGradient id="jstar" cx="40%" cy="35%">
+              <stop offset="0%" stop-color="#FFFDF4"/><stop offset="60%" stop-color="#FFE9B8"/><stop offset="100%" stop-color="#F0C878"/>
+            </radialGradient>
+            <linearGradient id="jrain" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#6FA8FF"/><stop offset="35%" stop-color="#35D6FF"/>
+              <stop offset="65%" stop-color="#F5D98A"/><stop offset="100%" stop-color="#EE642A"/>
+            </linearGradient>
+          </defs>
+
+          <circle cx="95" cy="130" r="48" fill="none" stroke="rgba(255,255,255,0.14)" stroke-dasharray="3 6"/>
+          <circle cx="95" cy="130" r="20" fill="url(#jstar)"/>
+          <g class="j-orbit"><circle cx="95" cy="82" r="6" fill="#6FA8FF"/></g>
+          <text x="95" y="212" fill="#6B7A99" font-size="11" text-anchor="middle" font-family="IBM Plex Mono, monospace">STARLIGHT</text>
+
+          <line x1="150" y1="130" x2="398" y2="130" stroke="rgba(245,217,138,0.28)" stroke-width="2"/>
+          <line class="j-beam" x1="150" y1="130" x2="398" y2="130" stroke="#F7FAFF" stroke-width="2"/>
+
+          <polygon points="402,168 476,168 464,146 414,146" fill="rgba(169,112,255,0.30)" stroke="rgba(169,112,255,0.6)"/>
+          <g fill="#F5B324" opacity="0.92">
+            <polygon points="431,109 439,113.5 439,122.5 431,127 423,122.5 423,113.5"/>
+            <polygon points="448,109 456,113.5 456,122.5 448,127 440,122.5 440,113.5"/>
+            <polygon points="439.5,124 447.5,128.5 447.5,137.5 439.5,142 431.5,137.5 431.5,128.5"/>
+          </g>
+          <text x="439" y="196" fill="#6B7A99" font-size="11" text-anchor="middle" font-family="IBM Plex Mono, monospace">JWST</text>
+
+          <path d="M 486 126 C 610 112, 700 66, 912 92" fill="none" stroke="url(#jrain)" stroke-width="8" stroke-linecap="round" opacity="0.85"/>
+          <path d="M 486 138 C 600 148, 680 176, 856 208" fill="none" stroke="url(#jrain)" stroke-width="6" stroke-linecap="round" opacity="0.6"/>
+          <path class="j-flow" d="M 486 126 C 610 112, 700 66, 912 92" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round"/>
+          <path class="j-flow" d="M 486 138 C 600 148, 680 176, 856 208" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+          <text x="700" y="250" fill="#6B7A99" font-size="11" text-anchor="middle" font-family="IBM Plex Mono, monospace">NIRISS · SOSS SPECTROGRAPH TRACES</text>
+          <text x="700" y="268" fill="#6B7A99" font-size="11" text-anchor="middle" font-family="IBM Plex Mono, monospace">EACH POSITION ALONG A TRACE IS A DIFFERENT WAVELENGTH</text>
+        </svg>
+      </div>
+
+      <div class="bubble gold">
+        <div class="dot">🔭</div>
+        <div class="say">
+          Those two curved stripes are the same starlight, split by wavelength.
+          Follow a trace with your eyes and you are walking along the spectrum.
+        </div>
+      </div>
+    </section>
+
     <!-- ============================ real spectrum ============================ -->
 
     <section class="section">
-      <p class="eyebrow teal">04 · The real thing</p>
+      <p class="eyebrow teal">05 · The real thing</p>
       <h2>What JWST actually sees</h2>
       <div class="prose" style="margin:0">
         <p>
@@ -348,7 +478,7 @@
     <!-- ============================ outro ============================ -->
 
     <section class="section">
-      <p class="eyebrow">05 · Where I come in</p>
+      <p class="eyebrow">06 · Where I come in</p>
       <h2>The hard part is trusting the answer</h2>
       <div class="prose" style="margin:0">
         <p>
@@ -359,10 +489,8 @@
           them, more trustworthy.
         </p>
         <p>
-          Want more planets? In the <a href="../observatory.html">observatory</a> you can point
-          JWST at seven real stars and meet the worlds it finds. And if the methods side sounds
-          interesting, have a look at my <a href="../research.html">research page</a> or
-          <a href="mailto:dds25@ic.ac.uk">get in touch</a>.
+          If the methods side sounds interesting, have a look at my
+          <a href="../research.html">research page</a> or <a href="mailto:dds25@ic.ac.uk">get in touch</a>.
         </p>
       </div>
     </section>
