@@ -6,7 +6,7 @@
   <title>Reading the Air of Other Worlds · Davide Staub</title>
   <meta name="description" content="An interactive explainer: how astronomers use transits and the James Webb Space Telescope to read the atmospheres of planets around other stars.">
   <meta property="og:title" content="Reading the air of other worlds">
-  <meta property="og:description" content="Fly a planet across its star, watch the starlight dip, and build a transmission spectrum yourself.">
+  <meta property="og:description" content="Watch a planet cross its star, see the starlight dip, and build a transmission spectrum yourself.">
   <meta property="og:image" content="https://davidestaub.github.io/assets/img/og-card.png">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="canonical" href="https://davidestaub.github.io/blog/reading-the-air-of-other-worlds.html">
@@ -41,7 +41,7 @@
       <p class="lede">
         We cannot visit a planet 300 light-years away, and only a few dozen exoplanets have
         ever been photographed directly. Still, we know what some of their skies are made of.
-        This post explains how, with a transit you can fly yourself.
+        This post explains how, and lets you try each step yourself.
       </p>
       <p class="post-meta">Davide Staub · August 2026 · ~8 min</p>
 
@@ -102,9 +102,14 @@
 
       <div class="carpet-wrap reveal">
         <p class="eyebrow" style="margin-bottom:0.9rem">Sorted by temperature</p>
-        <div class="carpet"><img src="../assets/img/planet-carpet.webp" alt="Dozens of rendered planets arranged from icy blue worlds on the left to scorching hot worlds on the right"></div>
-        <div class="temp-axis"></div>
-        <div class="temp-labels"><span>Icy</span><span>Temperate</span><span>Scorching</span></div>
+        <div class="carpet">
+          <div class="carpet-inner">
+            <img src="../assets/img/planet-carpet.webp" alt="Dozens of rendered planets arranged from icy blue worlds on the left to scorching hot worlds on the right">
+            <div class="temp-axis"></div>
+            <div class="temp-labels"><span>Icy</span><span>Temperate</span><span>Scorching</span></div>
+          </div>
+        </div>
+        <div class="swipe-hint">swipe</div>
       </div>
 
       <div class="prose" style="margin-top:1.6rem">
@@ -234,7 +239,7 @@
 
     <section class="section chapter">
       <p class="eyebrow purple">03 · The trick</p>
-      <h2>Try it: fly a planet across its star</h2>
+      <h2>Watch a planet cross its star</h2>
       <div class="prose">
         <p>
           Here is a star, a planet, and a light meter. When the planet crosses the stellar disk,
@@ -363,6 +368,7 @@
       </div>
 
       <figure class="spectrum-fig card" style="margin-top:1.6rem">
+        <div class="spectrum-scroll">
         <svg viewBox="0 0 900 430" role="img" aria-label="Stylised transmission spectrum of WASP-39 b with sodium, potassium, water, sulphur dioxide, carbon dioxide and carbon monoxide features labelled">
           <!-- axes -->
           <line x1="70" y1="340" x2="860" y2="340" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
@@ -428,6 +434,8 @@
 <line x1="844.2" y1="250.8" x2="844.2" y2="278.8"/><circle cx="844.2" cy="264.8" r="3.2" fill="#EAFBFF" stroke="none"/>
           </g>
         </svg>
+        </div>
+        <div class="swipe-hint">swipe</div>
         <figcaption>
           Stylised transmission spectrum of the hot Saturn WASP-39 b (model in gold, measurements in white),
           after the JWST Early Release Science observations (Rustamkulov et al. 2023). Credit: after NASA / ESA / CSA / STScI.

@@ -231,7 +231,8 @@
   }
 
   function drawSpectrum() {
-    const { ctx, w, h } = fit(specC, 1060 / 300);
+    const specNarrow = (specC.clientWidth || 1060) < 640;
+    const { ctx, w, h } = fit(specC, specNarrow ? 1.7 : 1060 / 300);
     ctx.clearRect(0, 0, w, h);
 
     const padL = 56, padR = 16, padT = 26, padB = 36;
@@ -377,6 +378,8 @@
     state.scan = { t0: performance.now() };
     scanBtn.disabled = true;
     scanBtn.style.opacity = 0.5;
+    rpSlider.disabled = true;
+    wlSlider.disabled = true;
     say('Scanning the rainbow: measuring the transit depth at every wavelength, one colour at a time.');
   });
 
@@ -385,6 +388,8 @@
     state.scan = null;
     scanBtn.disabled = false;
     scanBtn.style.opacity = 1;
+    rpSlider.disabled = false;
+    wlSlider.disabled = false;
     rpSlider.value = 1.0; rpSlider.dispatchEvent(new Event('input'));
     wlSlider.value = 1.0; wlSlider.dispatchEvent(new Event('input'));
     if (!atmToggle.checked) { atmToggle.checked = true; atmToggle.dispatchEvent(new Event('change')); }
@@ -418,6 +423,8 @@
         state.scan = null;
         scanBtn.disabled = false;
         scanBtn.style.opacity = 1;
+        rpSlider.disabled = false;
+        wlSlider.disabled = false;
         say(state.atm
           ? 'Done. That curve is a <strong>transmission spectrum</strong>. The two big bumps are water vapour ' +
             'absorbing at 1.4 and 1.9 µm.'

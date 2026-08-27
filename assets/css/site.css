@@ -672,11 +672,16 @@ footer a { color: var(--muted); }
   color: var(--muted);
   margin-bottom: 0.4rem;
 }
-.ctl label .val { color: var(--gold); }
+.ctl label .val { color: var(--gold); text-transform: none; letter-spacing: 0; }
 
 input[type="range"] {
   width: 100%;
   accent-color: var(--gold);
+  touch-action: none;
+}
+input[type="range"]:disabled { opacity: 0.45; }
+@media (pointer: coarse) {
+  input[type="range"] { height: 34px; }
 }
 
 .ctl.toggle {
@@ -762,6 +767,27 @@ input[type="checkbox"] { accent-color: var(--gold); width: 18px; height: 18px; }
 }
 .carpet.visible, .carpet-wrap.visible .carpet { clip-path: inset(0 0 0 0); }
 .carpet img { display: block; width: 100%; }
+
+.swipe-hint {
+  display: none;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--faint);
+  text-align: center;
+  margin-top: 0.7rem;
+}
+.swipe-hint::before { content: "← "; }
+.swipe-hint::after { content: " →"; }
+
+@media (max-width: 640px) {
+  .carpet { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .carpet-inner { min-width: 680px; }
+  .spectrum-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .spectrum-scroll svg { min-width: 640px; }
+  .swipe-hint { display: block; }
+}
 
 .temp-axis {
   height: 6px;
