@@ -26,7 +26,9 @@
 
 * { box-sizing: border-box; }
 
-html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+}
 
 body {
   margin: 0;
@@ -54,6 +56,29 @@ a { color: var(--cyan); text-decoration: none; }
 a:hover { text-decoration: underline; text-underline-offset: 3px; }
 
 img, video { max-width: 100%; height: auto; }
+
+/* ---------------- skip link & focus ---------------- */
+
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -3rem;
+  z-index: 100;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  background: var(--gold);
+  color: #04060F;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  transition: top 0.15s ease;
+}
+.skip-link:focus { top: 0.6rem; text-decoration: none; }
+
+a:focus-visible, button:focus-visible, input:focus-visible, .world-chip:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
 
 /* ---------------- nav ---------------- */
 
@@ -666,45 +691,10 @@ input[type="checkbox"] { accent-color: var(--gold); width: 18px; height: 18px; }
 }
 .na-line { animation: naDeepen 5s linear infinite; }
 
-/* ---------------- light's journey ---------------- */
-
-.journey {
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  background: #01020A;
-  padding: 1rem;
-  margin-top: 2rem;
-}
-.journey svg { display: block; width: 100%; height: auto; }
-
-@keyframes beamFlow {
-  from { stroke-dashoffset: 0; }
-  to   { stroke-dashoffset: -36; }
-}
-.j-beam {
-  stroke-dasharray: 4 14;
-  animation: beamFlow 1.6s linear infinite;
-}
-
-@keyframes traceFlow {
-  from { stroke-dashoffset: 0; }
-  to   { stroke-dashoffset: -60; }
-}
-.j-flow {
-  stroke-dasharray: 2 28;
-  animation: traceFlow 2.4s linear infinite;
-}
-
-.j-orbit {
-  animation: wobbleOrbit 7s linear infinite;
-  transform-origin: 95px 130px;
-}
-
 /* ---------------- reduced motion ---------------- */
 
 @media (prefers-reduced-motion: reduce) {
-  .w-star-orbit, .w-planet-orbit, .w-line, .na-planet, .na-line,
-  .j-beam, .j-flow, .j-orbit { animation: none; }
+  .w-star-orbit, .w-planet-orbit, .w-line, .na-planet, .na-line { animation: none; }
   .carpet { clip-path: none; transition: none; }
   .reveal, .bubble { transition: none; }
 }

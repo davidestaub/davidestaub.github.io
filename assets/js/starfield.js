@@ -3,42 +3,45 @@
   const canvas = document.getElementById('starfield');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
-  let stars = [];
 
-  function build() {
-    canvas.width = window.innerWidth * devicePixelRatio;
-    canvas.height = window.innerHeight * devicePixelRatio;
-    const n = Math.min(110, Math.floor(window.innerWidth * window.innerHeight / 22000));
-    stars = Array.from({ length: n }, () => ({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      r: (Math.random() * 0.9 + 0.3) * devicePixelRatio,
-      a: Math.random() * 0.3 + 0.08,
-      tw: Math.random() * 0.002 + 0.0006,
-      ph: Math.random() * Math.PI * 2,
-      hue: Math.random() < 0.06 ? '111,168,255' : '247,250,255'
-    }));
+  // star positions are stored as 0..1 fractions so a resize (for example the
+  // mobile URL bar collapsing) rescales the pattern instead of re-rolling it
+  const n = Math.min(110, Math.floor(window.innerWidth * window.innerHeight / 22000));
+  const stars = Array.from({ length: n }, () => ({
+    x: Math.random(),
+    y: Math.random(),
+    r: Math.random() * 0.9 + 0.3,
+    a: Math.random() * 0.3 + 0.08,
+    tw: Math.random() * 0.12 + 0.036,
+    ph: Math.random() * Math.PI * 2
+  }));
+  const blue = new Set();
+  stars.forEach((s, i) => { if (Math.random() < 0.06) blue.add(i); });
+
+  function size() {
+    canvas.width = Math.round(window.innerWidth * devicePixelRatio);
+    canvas.height = Math.round(window.innerHeight * devicePixelRatio);
   }
 
-  let t = 0;
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  function draw() {
+  function draw(now) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    t += 1;
-    for (const s of stars) {
-      const a = reduced ? s.a : s.a * (0.82 + 0.18 * Math.sin(t * s.tw * 60 + s.ph));
-      ctx.fillStyle = 'rgba(' + s.hue + ',' + a.toFixed(3) + ')';
+    const t = (now || 0) / 1000;
+    stars.forEach((s, i) => {
+      const a = reduced ? s.a : s.a * (0.82 + 0.18 * Math.sin(t * s.tw + s.ph));
+      ctx.fillStyle = 'rgba(' + (blue.has(i) ? '111,168,255' : '247,250,255') + ',' + a.toFixed(3) + ')';
       ctx.beginPath();
-      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.arc(s.x * canvas.width, s.y * canvas.height, s.r * devicePixelRatio, 0, Math.PI * 2);
       ctx.fill();
-    }
+    });
     if (!reduced) requestAnimationFrame(draw);
   }
 
-  build();
-  draw();
-  window.addEventListener('resize', () => { build(); if (reduced) draw(); });
+  size();
+  requestAnimationFrame(draw);
+  if (reduced) draw(0);
+  window.addEventListener('resize', () => { size(); if (reduced) draw(0); });
 })();
 
 // Reveal .bubble and .reveal elements as they scroll into view.

@@ -57,9 +57,10 @@
   function overlap(r, d) {
     if (d >= 1 + r) return 0;
     if (d <= 1 - r) return Math.PI * r * r;
-    const a = r * r * Math.acos((d * d + r * r - 1) / (2 * d * r)) +
-              Math.acos((d * d + 1 - r * r) / (2 * d)) -
-              0.5 * Math.sqrt((-d + r + 1) * (d + r - 1) * (d - r + 1) * (d + r + 1));
+    const clamp1 = x => Math.max(-1, Math.min(1, x));
+    const a = r * r * Math.acos(clamp1((d * d + r * r - 1) / (2 * d * r))) +
+              Math.acos(clamp1((d * d + 1 - r * r) / (2 * d))) -
+              0.5 * Math.sqrt(Math.max(0, (-d + r + 1) * (d + r - 1) * (d - r + 1) * (d + r + 1)));
     return a;
   }
 
@@ -89,9 +90,10 @@
     const w = c.clientWidth || parseInt(c.getAttribute('width'), 10);
     const h = Math.round(w / aspect);
     const dpr = Math.min(devicePixelRatio || 1, 2);
-    if (c.width !== w * dpr || c.height !== h * dpr) {
-      c.width = w * dpr;
-      c.height = h * dpr;
+    const bw = Math.round(w * dpr), bh = Math.round(h * dpr);
+    if (c.width !== bw || c.height !== bh) {
+      c.width = bw;
+      c.height = bh;
       c.style.height = h + 'px';
     }
     const ctx = c.getContext('2d');
@@ -365,7 +367,7 @@
     state.atm = atmToggle.checked;
     state.specPoints = [];
     say(state.atm
-      ? 'Atmosphere on: a thin envelope of gas now wraps the planet. Its opacity depends on the colour of light. Scan the wavelength slider to see it.'
+      ? 'Atmosphere on: a thin envelope of gas now wraps the planet. Its opacity depends on the colour of light. Move the wavelength slider to see it.'
       : 'Atmosphere off: a bare, airless world. Watch the spectrum go completely flat.');
   });
 
@@ -396,8 +398,11 @@
   // ------------------------------------------------------------------
   const SCAN_MS = 5000;
   let last = performance.now();
+  let demoInView = true;
+  let demoRunning = false;
 
   function loop(now) {
+    if (!demoInView) { demoRunning = false; return; }
     const dt = Math.min(50, now - last);
     last = now;
     state.phase = (state.phase + dt / 6000) % 1;
@@ -426,7 +431,20 @@
     drawSpectrum();
     requestAnimationFrame(loop);
   }
-  requestAnimationFrame(loop);
+  function ensureDemoRunning() {
+    if (!demoRunning && demoInView) {
+      demoRunning = true;
+      last = performance.now();
+      requestAnimationFrame(loop);
+    }
+  }
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver((es) => {
+      demoInView = es[0].isIntersecting;
+      ensureDemoRunning();
+    }).observe(orbitC);
+  }
+  ensureDemoRunning();
 })();
 
 
@@ -442,19 +460,19 @@
     { name: 'OGLE-2005-BLG-390L b', temp: '−220 °C', img: 'planet-terrestrial.webp',
       meta: 'icy super-Earth · 21,500 light-years · found by microlensing, 2006',
       fact: 'Nicknamed Hoth, one of the coldest planets known. It was found through gravitational microlensing: its star briefly magnified the light of an even more distant star, and the planet left a blip in that flash.' },
-    { name: 'TRAPPIST-1 e', temp: '−20 °C', img: 'planet-terrestrial.webp',
+    { name: 'TRAPPIST-1 e', temp: '−25 °C', img: 'planet-terrestrial.webp',
       meta: 'Earth-sized · 40 light-years · discovered 2017',
-      fact: 'One of seven rocky planets packed around a star barely bigger than Jupiter, and squarely in the habitable zone. JWST is currently testing whether it has an atmosphere at all. If it does, this is one of the best places to look for another Earth.' },
-    { name: 'K2-18 b', temp: '0 °C', img: 'planet-neptune.webp',
+      fact: 'One of seven rocky planets around a star barely bigger than Jupiter. TRAPPIST-1 e sits in the habitable zone, and JWST is currently testing whether it has an atmosphere at all. If it does, this is one of the best places to look for another Earth.' },
+    { name: 'K2-18 b', temp: '−15 °C', img: 'planet-neptune.webp',
       meta: 'sub-Neptune · 124 light-years · discovered 2015',
-      fact: 'A sub-Neptune in its star\u2019s habitable zone. In 2023 JWST detected methane and carbon dioxide in its atmosphere, and the debate about what kind of world it is (ocean planet? gas-rich mini-Neptune?) is still running.' },
+      fact: 'A sub-Neptune in its star\u2019s habitable zone. In 2023 JWST detected methane, with tentative signs of carbon dioxide, and the debate about what kind of world it is (ocean planet? gas-rich mini-Neptune?) is still running.' },
     { name: '51 Pegasi b', temp: '1,000 °C', img: 'planet-gas-giant.webp',
       meta: 'hot Jupiter · 50 light-years · discovered 1995',
       fact: 'The first planet found around a Sun-like star, detected through the wobble of its star. A gas giant with a four-day year, something nobody thought possible at the time. The discovery won the 2019 Nobel Prize in Physics.' },
     { name: 'WASP-96 b', temp: '1,050 °C', img: 'planet-gas-giant.webp',
       meta: 'hot Saturn · 1,150 light-years · discovered 2014',
       fact: 'Its spectrum was in JWST\u2019s very first science release in July 2022: a textbook water signature and surprisingly clear skies for such a hot world.' },
-    { name: 'HD 209458 b', temp: '1,100 °C', img: 'planet-gas-giant.webp',
+    { name: 'HD 209458 b', temp: '1,200 °C', img: 'planet-gas-giant.webp',
       meta: 'hot Jupiter · 159 light-years · discovered 1999',
       fact: 'The first planet ever seen in transit and the first with a detected atmosphere. Its outer layers are slowly boiling off into space, trailing behind the planet like a comet tail.' },
     { name: 'WASP-17 b', temp: '1,500 °C', img: 'planet-gas-giant.webp',

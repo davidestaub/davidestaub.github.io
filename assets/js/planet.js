@@ -54,8 +54,9 @@
     orbitTilt = Math.random() * Math.PI * 0.5;
   });
 
-  function animate() {
-    requestAnimationFrame(animate);
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function frame() {
     planet.rotation.y += 0.0028;
     angle += orbitSpeed;
     moon.position.set(
@@ -65,10 +66,21 @@
     );
     renderer.render(scene, camera);
   }
-  animate();
+  function animate() {
+    requestAnimationFrame(animate);
+    frame();
+  }
+  if (reduced) {
+    map.onUpdate = null;
+    setTimeout(frame, 200);   // one still frame once the texture is in
+  } else {
+    animate();
+  }
 
   window.addEventListener('resize', () => {
     const s = container.clientWidth || 280;
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
     renderer.setSize(s, s);
+    if (reduced) frame();
   });
 })();

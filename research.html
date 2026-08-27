@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Research · Davide Staub</title>
   <meta name="description" content="Research by Davide Staub: exoplanet atmospheres with JWST, narrative processing in the brain, physics-informed neural networks for seismology.">
+  <meta property="og:title" content="Research · Davide Staub">
+  <meta property="og:description" content="Exoplanet atmospheres with JWST, narrative processing in the brain, and physics-informed neural networks for seismology.">
+  <meta property="og:image" content="https://davidestaub.github.io/assets/img/og-card.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://davidestaub.github.io/research.html">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪐</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,13 +17,14 @@
   <link rel="stylesheet" href="assets/css/site.css">
 </head>
 <body>
-  <canvas id="starfield"></canvas>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <canvas id="starfield" aria-hidden="true"></canvas>
 
   <nav class="nav">
     <div class="nav-inner">
       <a class="nav-name" href="index.html">Davide Staub</a>
       <div class="nav-links">
-        <a href="research.html" class="active">Research</a>
+        <a href="research.html" class="active" aria-current="page">Research</a>
         <a href="teaching.html">Teaching</a>
         <a href="blog/index.html">Blog</a>
         <a href="CV_Davide_Staub.pdf">CV</a>
@@ -26,7 +32,7 @@
     </div>
   </nav>
 
-  <main class="wrap">
+  <main class="wrap" id="main">
 
     <section class="section">
       <p class="eyebrow">Research</p>
@@ -47,14 +53,14 @@
               The James Webb Space Telescope has transformed the study of exoplanet
               atmospheres: for the first time we can measure the composition of the air
               on planets hundreds of light-years away. But turning raw JWST measurements
-              into trustworthy statements about an atmosphere is a delicate chain of
-              inference. That chain is the subject of my PhD.
+              into trustworthy statements about an atmosphere takes a long chain of careful
+              analysis, and my PhD is about that chain.
             </p>
             <p>
               I develop end-to-end differentiable, physics-based methods for analysing
               JWST observations of transiting exoplanets, with a focus on making the
-              resulting atmospheric constraints more reliable. More details will come with
-              upcoming publications. In the meantime, my interactive
+              resulting atmospheric constraints more reliable. More details will follow once
+              the first papers are out. In the meantime, my interactive
               <a href="blog/reading-the-air-of-other-worlds.html">explainer on transmission
               spectroscopy</a> covers the foundations this work builds on.
             </p>
@@ -117,8 +123,8 @@
             </p>
             <p>
               Conditioning the networks on the seismic source location lets them infer the
-              wavefield for countless source positions in a single forward pass, dramatically
-              faster than traditional finite-difference solvers. The thesis was featured in the
+              wavefield for any source position in a single forward pass, far faster than
+              traditional finite-difference solvers. The thesis was featured in the
               <a href="https://academic.oup.com/astrogeo/article-abstract/66/3/3.29/8154308" target="_blank" rel="noopener">British
               Seismology Meeting 2024 report</a> in <em>Astronomy &amp; Geophysics</em>.
             </p>

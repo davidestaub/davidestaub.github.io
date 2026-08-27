@@ -9,6 +9,7 @@
   <meta property="og:description" content="Fly a planet across its star, watch the starlight dip, and build a transmission spectrum yourself.">
   <meta property="og:image" content="https://davidestaub.github.io/assets/img/og-card.png">
   <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://davidestaub.github.io/blog/reading-the-air-of-other-worlds.html">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪐</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,7 +17,8 @@
   <link rel="stylesheet" href="../assets/css/site.css">
 </head>
 <body>
-  <canvas id="starfield"></canvas>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <canvas id="starfield" aria-hidden="true"></canvas>
 
   <nav class="nav">
     <div class="nav-inner">
@@ -24,19 +26,19 @@
       <div class="nav-links">
         <a href="../research.html">Research</a>
         <a href="../teaching.html">Teaching</a>
-        <a href="index.html" class="active">Blog</a>
+        <a href="index.html" class="active" aria-current="page">Blog</a>
         <a href="../CV_Davide_Staub.pdf">CV</a>
       </div>
     </div>
   </nav>
 
-  <main class="wrap">
+  <main class="wrap" id="main">
 
     <section class="post-hero">
       <p class="eyebrow">Interactive explainer</p>
       <h1>Reading the air of other worlds</h1>
       <p class="lede" style="max-width:38rem">
-        We cannot visit a planet 300 light-years away, and only a handful of exoplanets have
+        We cannot visit a planet 300 light-years away, and only a few dozen exoplanets have
         ever been photographed directly. Still, we know what some of their skies are made of.
         This post explains how, with a transit you can fly yourself.
       </p>
@@ -44,13 +46,13 @@
 
       <div class="stat-strip">
         <div class="stat"><div class="num" id="count-worlds">0</div><div class="lbl">confirmed planets</div></div>
-        <div class="stat"><div class="num">1995</div><div class="lbl">first around a sun-like star</div></div>
+        <div class="stat"><div class="num">1995</div><div class="lbl">first planet around a Sun-like star</div></div>
         <div class="stat"><div class="num">300+</div><div class="lbl">light-years to some of them</div></div>
       </div>
     </section>
 
     <div class="bubble gold">
-      <div class="dot">🔭</div>
+      <div class="dot" aria-hidden="true">🔭</div>
       <div class="say">
         Every bright dot in the night sky is a sun, and on average
         <strong>every star hosts at least one planet</strong>.
@@ -64,7 +66,7 @@
       <h2>A galaxy full of strange worlds</h2>
       <div class="prose" style="margin:0">
         <p>
-          Three decades ago, humanity knew exactly eight planets, the ones orbiting our own Sun.
+          When the 1990s began, every planet we knew orbited our own Sun.
           Today we have confirmed more than <strong>6,000 planets around other stars</strong>,
           and most of them look nothing like the planets of our Solar System.
         </p>
@@ -115,7 +117,7 @@
       <div id="world-card" class="target-card"></div>
 
       <div class="bubble">
-        <div class="dot">🔭</div>
+        <div class="dot" aria-hidden="true">🔭</div>
         <div class="say">
           So we know they are out there. But <strong>what is it like on these
           worlds?</strong> Is there water? Clouds? Air at all?
@@ -166,13 +168,13 @@
               <circle cx="150" cy="95" r="62" fill="none" stroke="rgba(255,255,255,0.14)" stroke-dasharray="3 6"/>
               <g class="w-planet-orbit"><circle cx="150" cy="157" r="6" fill="#6FA8FF"/></g>
               <g class="w-star-orbit"><circle cx="150" cy="83" r="14" fill="url(#wstar)"/></g>
-              <text x="150" y="196" fill="#6B7A99" font-size="10" text-anchor="middle" font-family="IBM Plex Mono, monospace">THE STAR WOBBLES</text>
+              <text x="150" y="196" fill="#6B7A99" font-size="12" text-anchor="middle" font-family="IBM Plex Mono, monospace">THE STAR WOBBLES</text>
               <rect x="270" y="78" width="170" height="30" rx="3" fill="url(#wspec)" opacity="0.9"/>
               <rect class="w-line" x="352" y="78" width="4" height="30" fill="#04060F"/>
-              <text x="355" y="66" fill="#A8B6D0" font-size="10" text-anchor="middle" font-family="IBM Plex Mono, monospace">THE STAR'S LIGHT</text>
-              <text x="355" y="128" fill="#6B7A99" font-size="10" text-anchor="middle" font-family="IBM Plex Mono, monospace">ITS SPECTRAL LINE</text>
-              <text x="355" y="142" fill="#6B7A99" font-size="10" text-anchor="middle" font-family="IBM Plex Mono, monospace">SHIFTS BLUE AND RED</text>
-              <text x="150" y="240" fill="#6B7A99" font-size="10" text-anchor="middle" font-family="IBM Plex Mono, monospace">UNSEEN PLANET</text>
+              <text x="355" y="66" fill="#A8B6D0" font-size="12" text-anchor="middle" font-family="IBM Plex Mono, monospace">THE STAR'S LIGHT</text>
+              <text x="355" y="128" fill="#6B7A99" font-size="12" text-anchor="middle" font-family="IBM Plex Mono, monospace">ITS SPECTRAL LINE</text>
+              <text x="355" y="142" fill="#6B7A99" font-size="12" text-anchor="middle" font-family="IBM Plex Mono, monospace">SHIFTS BLUE AND RED</text>
+              <text x="150" y="240" fill="#6B7A99" font-size="12" text-anchor="middle" font-family="IBM Plex Mono, monospace">UNSEEN PLANET</text>
             </svg>
           </div>
         </div>
@@ -197,12 +199,12 @@
               </defs>
               <circle cx="110" cy="80" r="30" fill="url(#nastar)"/>
               <circle class="na-planet" cx="-10" cy="80" r="8" fill="#05070F" stroke="rgba(168,182,208,0.6)"/>
-              <text x="110" y="140" fill="#6B7A99" font-size="10" text-anchor="middle" font-family="IBM Plex Mono, monospace">TRANSIT</text>
+              <text x="110" y="140" fill="#6B7A99" font-size="12" text-anchor="middle" font-family="IBM Plex Mono, monospace">TRANSIT</text>
               <rect x="250" y="62" width="180" height="30" rx="3" fill="url(#naspec)" opacity="0.9"/>
               <rect class="na-line" x="322" y="62" width="4" height="30" fill="#04060F"/>
               <text x="324" y="52" fill="#35D6FF" font-size="11" text-anchor="middle" font-family="IBM Plex Mono, monospace">Na</text>
-              <text x="340" y="112" fill="#6B7A99" font-size="10" text-anchor="middle" font-family="IBM Plex Mono, monospace">SODIUM APPEARS</text>
-              <text x="340" y="126" fill="#6B7A99" font-size="10" text-anchor="middle" font-family="IBM Plex Mono, monospace">DURING THE TRANSIT</text>
+              <text x="340" y="112" fill="#6B7A99" font-size="12" text-anchor="middle" font-family="IBM Plex Mono, monospace">SODIUM APPEARS</text>
+              <text x="340" y="126" fill="#6B7A99" font-size="12" text-anchor="middle" font-family="IBM Plex Mono, monospace">DURING THE TRANSIT</text>
             </svg>
           </div>
         </div>
@@ -241,7 +243,7 @@
       </div>
 
       <div class="bubble gold">
-        <div class="dot">🔭</div>
+        <div class="dot" aria-hidden="true">🔭</div>
         <div class="say">
           Drag the sliders. A bigger planet blocks more light, so the depth of
           the dip tells us the planet's <strong>size</strong>.
@@ -260,11 +262,11 @@
 
         <div class="demo-controls">
           <div class="ctl">
-            <label>Planet size <span class="val" id="rp-val">1.0 R<sub>Jup</sub></span></label>
+            <label for="rp-slider">Planet size <span class="val" id="rp-val">1.0 R<sub>Jup</sub></span></label>
             <input type="range" id="rp-slider" min="0.3" max="1.8" step="0.05" value="1.0">
           </div>
           <div class="ctl">
-            <label>Wavelength (colour of light) <span class="val" id="wl-val">1.0 µm</span></label>
+            <label for="wl-slider">Wavelength (colour of light) <span class="val" id="wl-val">1.0 µm</span></label>
             <input type="range" id="wl-slider" min="0.6" max="2.8" step="0.02" value="1.0">
           </div>
           <div class="ctl toggle">
@@ -274,20 +276,20 @@
         </div>
 
         <div class="demo-actions">
-          <button class="btn primary" id="scan-btn">Scan the rainbow → build the spectrum</button>
+          <button class="btn primary" id="scan-btn">Scan the rainbow</button>
           <button class="btn" id="reset-btn">Reset</button>
         </div>
 
         <canvas id="spec-canvas" width="1060" height="300" style="margin-top:1.2rem" aria-label="Transmission spectrum built from measured transit depths"></canvas>
 
-        <div id="demo-caption">
+        <div id="demo-caption" aria-live="polite">
           The planet blocks <strong>1.0%</strong> of the starlight. Try the wavelength slider:
           with an atmosphere, the depth changes with colour.
         </div>
       </div>
 
       <div class="bubble">
-        <div class="dot">🔭</div>
+        <div class="dot" aria-hidden="true">🔭</div>
         <div class="say">
           A planet's atmosphere is <strong>opaque at some colours and transparent at
           others</strong>. Water vapour absorbs strongly around 1.4 and 1.9 microns.
@@ -296,7 +298,7 @@
       </div>
 
       <div class="bubble right">
-        <div class="dot">🔭</div>
+        <div class="dot" aria-hidden="true">🔭</div>
         <div class="say">
           Press <strong>“Scan the rainbow”</strong> to measure the transit depth at every colour.
           Depth plotted against wavelength is a <strong>transmission spectrum</strong>, a chemical
@@ -305,63 +307,40 @@
       </div>
     </section>
 
-    <!-- ============================ light's journey ============================ -->
+    <!-- ============================ inside the telescope ============================ -->
 
     <section class="section">
       <p class="eyebrow purple">04 · Inside the telescope</p>
-      <h2>How the light becomes a rainbow</h2>
+      <h2>One stripe of starlight</h2>
       <div class="prose" style="margin:0">
         <p>
-          In the demo you measured the dip one colour at a time. JWST does it all at once.
-          Its NIRISS instrument, in a mode called SOSS, spreads the incoming starlight into
-          curved rainbow traces on the detector. Each position along a trace is a different
-          wavelength, so a single exposure records the transit at hundreds of colours simultaneously.
+          In the demo you measured the dip one colour at a time. JWST records all of them at once.
+          Its NIRISS instrument, in a mode called SOSS, stretches the star's light into a single
+          curved stripe on the detector. Position along the stripe is wavelength: one end is the
+          blue side of the spectrum, the other end the red side.
+        </p>
+        <p>
+          Below is a transit as the detector sees it. When the planet crosses its star, the whole
+          stripe dims, but not evenly: at the wavelengths where the planet's atmosphere absorbs,
+          it dims more. Move your cursor along the stripe to read off the wavelength.
         </p>
       </div>
 
-      <div class="journey">
-        <svg viewBox="0 0 940 300" aria-label="A planet orbits its star, the starlight travels to JWST, and the telescope spreads it into curved rainbow traces">
-          <defs>
-            <radialGradient id="jstar" cx="40%" cy="35%">
-              <stop offset="0%" stop-color="#FFFDF4"/><stop offset="60%" stop-color="#FFE9B8"/><stop offset="100%" stop-color="#F0C878"/>
-            </radialGradient>
-            <linearGradient id="jrain" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stop-color="#6FA8FF"/><stop offset="35%" stop-color="#35D6FF"/>
-              <stop offset="65%" stop-color="#F5D98A"/><stop offset="100%" stop-color="#EE642A"/>
-            </linearGradient>
-          </defs>
-
-          <circle cx="95" cy="130" r="48" fill="none" stroke="rgba(255,255,255,0.14)" stroke-dasharray="3 6"/>
-          <circle cx="95" cy="130" r="20" fill="url(#jstar)"/>
-          <g class="j-orbit"><circle cx="95" cy="82" r="6" fill="#6FA8FF"/></g>
-          <text x="95" y="212" fill="#6B7A99" font-size="11" text-anchor="middle" font-family="IBM Plex Mono, monospace">STARLIGHT</text>
-
-          <line x1="150" y1="130" x2="398" y2="130" stroke="rgba(245,217,138,0.28)" stroke-width="2"/>
-          <line class="j-beam" x1="150" y1="130" x2="398" y2="130" stroke="#F7FAFF" stroke-width="2"/>
-
-          <polygon points="402,168 476,168 464,146 414,146" fill="rgba(169,112,255,0.30)" stroke="rgba(169,112,255,0.6)"/>
-          <g fill="#F5B324" opacity="0.92">
-            <polygon points="431,109 439,113.5 439,122.5 431,127 423,122.5 423,113.5"/>
-            <polygon points="448,109 456,113.5 456,122.5 448,127 440,122.5 440,113.5"/>
-            <polygon points="439.5,124 447.5,128.5 447.5,137.5 439.5,142 431.5,137.5 431.5,128.5"/>
-          </g>
-          <text x="439" y="196" fill="#6B7A99" font-size="11" text-anchor="middle" font-family="IBM Plex Mono, monospace">JWST</text>
-
-          <path d="M 486 126 C 610 112, 700 66, 912 92" fill="none" stroke="url(#jrain)" stroke-width="8" stroke-linecap="round" opacity="0.85"/>
-          <path d="M 486 138 C 600 148, 680 176, 856 208" fill="none" stroke="url(#jrain)" stroke-width="6" stroke-linecap="round" opacity="0.6"/>
-          <path class="j-flow" d="M 486 126 C 610 112, 700 66, 912 92" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round"/>
-          <path class="j-flow" d="M 486 138 C 600 148, 680 176, 856 208" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
-          <text x="700" y="250" fill="#6B7A99" font-size="11" text-anchor="middle" font-family="IBM Plex Mono, monospace">NIRISS · SOSS SPECTROGRAPH TRACES</text>
-          <text x="700" y="268" fill="#6B7A99" font-size="11" text-anchor="middle" font-family="IBM Plex Mono, monospace">EACH POSITION ALONG A TRACE IS A DIFFERENT WAVELENGTH</text>
-        </svg>
+      <div class="demo" style="margin-top:1.8rem">
+        <canvas id="trace-canvas" width="1060" height="470" aria-label="A single curved spectral trace on a detector, dimming unevenly as a planet transits its star, with the brightness at each wavelength plotted below"></canvas>
+        <p class="small" style="color:var(--faint); margin:0.9rem 0 0">
+          The stripe follows the shape of a real NIRISS SOSS trace (SOSS records a second,
+          fainter trace as well, omitted here for clarity). The atmosphere's imprint is
+          exaggerated about three times so you can see it by eye; in real data it is smaller
+          than the pixel-to-pixel noise.
+        </p>
       </div>
 
       <div class="bubble gold">
-        <div class="dot">🔭</div>
+        <div class="dot" aria-hidden="true">🔭</div>
         <div class="say">
-          Both stripes are the same starlight, split by wavelength. Position along
-          a trace corresponds to wavelength, so moving along a stripe means moving
-          through the spectrum.
+          That uneven dimming <strong>is</strong> the transmission spectrum. Recording this one
+          stripe through one transit is enough to capture the chemistry of the planet's air.
         </div>
       </div>
     </section>
@@ -376,7 +355,7 @@
           This is a stylised version of a real measurement: the transmission spectrum of
           <strong>WASP-39&nbsp;b</strong>, a hot Saturn observed by JWST in its first year.
           Every bump is a molecule in the planet's sky, and this single spectrum shows
-          water, sodium, potassium, carbon monoxide, carbon dioxide and even sulphur dioxide.
+          water, sodium, carbon monoxide, carbon dioxide and even sulphur dioxide.
         </p>
       </div>
 
@@ -406,7 +385,6 @@
           <rect x="742" y="50" width="62" height="290" fill="rgba(245,179,36,0.08)"/>
           <!-- feature labels -->
           <text x="84"  y="196" fill="#35C4A8" font-size="12" text-anchor="middle" font-family="IBM Plex Mono, monospace">Na</text>
-          <text x="113" y="222" fill="#35C4A8" font-size="12" text-anchor="middle" font-family="IBM Plex Mono, monospace">K</text>
           <text x="212" y="70" fill="#35D6FF" font-size="12" text-anchor="middle" font-family="IBM Plex Mono, monospace">H₂O</text>
           <text x="292" y="70" fill="#35D6FF" font-size="12" text-anchor="middle" font-family="IBM Plex Mono, monospace">H₂O</text>
           <text x="434" y="70" fill="#35D6FF" font-size="12" text-anchor="middle" font-family="IBM Plex Mono, monospace">H₂O</text>
@@ -459,7 +437,6 @@
         <span class="chip so2">SO₂ · sulphur dioxide</span>
         <span class="chip co">CO · carbon monoxide</span>
         <span class="chip na">Na · sodium</span>
-        <span class="chip na">K · potassium</span>
       </div>
       <p class="muted small" style="max-width:44rem">
         Each molecule absorbs at its own characteristic wavelengths, so each leaves its own pattern in the spectrum.
@@ -469,7 +446,7 @@
       </p>
 
       <div class="bubble gold">
-        <div class="dot">🔭</div>
+        <div class="dot" aria-hidden="true">🔭</div>
         <div class="say">
           One transit of a typical hot giant planet changes the starlight by <strong>about 1%</strong>,
           and the molecular fingerprint on top of that is another <strong>hundred times smaller</strong>.
@@ -517,5 +494,6 @@
 
   <script src="../assets/js/starfield.js"></script>
   <script src="../assets/js/transit-demo.js"></script>
+  <script src="../assets/js/trace-view.js"></script>
 </body>
 </html>

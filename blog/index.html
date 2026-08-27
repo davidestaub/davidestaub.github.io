@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Blog · Davide Staub</title>
   <meta name="description" content="Interactive explainers and notes on exoplanets, JWST and scientific machine learning by Davide Staub.">
+  <meta property="og:title" content="Blog · Davide Staub">
+  <meta property="og:description" content="Interactive explainers and notes on exoplanets, JWST and scientific machine learning.">
+  <meta property="og:image" content="https://davidestaub.github.io/assets/img/og-card.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://davidestaub.github.io/blog/index.html">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪐</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,7 +17,8 @@
   <link rel="stylesheet" href="../assets/css/site.css">
 </head>
 <body>
-  <canvas id="starfield"></canvas>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <canvas id="starfield" aria-hidden="true"></canvas>
 
   <nav class="nav">
     <div class="nav-inner">
@@ -20,13 +26,13 @@
       <div class="nav-links">
         <a href="../research.html">Research</a>
         <a href="../teaching.html">Teaching</a>
-        <a href="index.html" class="active">Blog</a>
+        <a href="index.html" class="active" aria-current="page">Blog</a>
         <a href="../CV_Davide_Staub.pdf">CV</a>
       </div>
     </div>
   </nav>
 
-  <main class="wrap">
+  <main class="wrap" id="main">
 
     <section class="section">
       <p class="eyebrow teal">Blog</p>
@@ -44,10 +50,10 @@
           <p class="eyebrow">Interactive explainer</p>
           <h3>Reading the air of other worlds</h3>
           <p>
-            Humanity has confirmed more than 6,000 planets around other stars, and with JWST
-            we can now study their air from hundreds of light-years away. An interactive
-            introduction to transmission spectroscopy: how a dip in starlight turns into a
-            chemical fingerprint of a distant atmosphere.
+            More than 6,000 planets are confirmed around other stars, and with JWST we can
+            now study their air from hundreds of light-years away. An interactive introduction
+            to transmission spectroscopy: how a dip in starlight turns into a chemical
+            fingerprint of a distant atmosphere.
           </p>
         </div>
       </a>
