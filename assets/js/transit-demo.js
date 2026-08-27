@@ -494,6 +494,11 @@
         '</div>' +
       '</div>' +
       '<p class="tc-fact">' + w.fact + '</p>';
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      card.classList.remove('swap');
+      void card.offsetWidth;
+      card.classList.add('swap');
+    }
     wrap.querySelectorAll('.world-chip').forEach((c, j) => c.classList.toggle('active', j === i));
   }
 

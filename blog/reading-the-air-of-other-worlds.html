@@ -16,13 +16,14 @@
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../assets/css/site.css">
 </head>
-<body>
+<body class="page-blog">
   <a class="skip-link" href="#main">Skip to content</a>
   <canvas id="starfield" aria-hidden="true"></canvas>
 
   <nav class="nav">
     <div class="nav-inner">
       <a class="nav-name" href="../index.html">Davide Staub</a>
+      <canvas class="nav-transit" width="120" height="26" aria-hidden="true"></canvas>
       <div class="nav-links">
         <a href="../research.html">Research</a>
         <a href="../teaching.html">Teaching</a>
@@ -32,12 +33,12 @@
     </div>
   </nav>
 
-  <main class="wrap" id="main">
+  <main class="wrap post" id="main">
 
     <section class="post-hero">
       <p class="eyebrow">Interactive explainer</p>
       <h1>Reading the air of other worlds</h1>
-      <p class="lede" style="max-width:38rem">
+      <p class="lede">
         We cannot visit a planet 300 light-years away, and only a few dozen exoplanets have
         ever been photographed directly. Still, we know what some of their skies are made of.
         This post explains how, with a transit you can fly yourself.
@@ -61,18 +62,18 @@
 
     <!-- ============================ census ============================ -->
 
-    <section class="section">
+    <section class="section chapter">
       <p class="eyebrow">01 · The census</p>
       <h2>A galaxy full of strange worlds</h2>
-      <div class="prose" style="margin:0">
-        <p>
+      <div class="prose">
+        <p class="opener">
           When the 1990s began, every planet we knew orbited our own Sun.
           Today we have confirmed more than <strong>6,000 planets around other stars</strong>,
           and most of them look nothing like the planets of our Solar System.
         </p>
       </div>
 
-      <div class="census">
+      <div class="census reveal-group">
         <div class="cls">
           <img src="../assets/img/planet-gas-giant.webp" alt="Render of a glowing hot gas giant planet" loading="lazy">
           <div class="share">~30%</div>
@@ -106,8 +107,8 @@
         <div class="temp-labels"><span>Icy</span><span>Temperate</span><span>Scorching</span></div>
       </div>
 
-      <div class="prose" style="margin:1.6rem auto 0; max-width:none">
-        <p style="max-width:44rem">
+      <div class="prose" style="margin-top:1.6rem">
+        <p>
           Known planets cover a huge range of temperatures, from colder than Pluto to hotter
           than some small stars. Here are a few of my favourites, from coldest to hottest.
           Click on one to read more.
@@ -127,10 +128,10 @@
 
     <!-- ============================ history ============================ -->
 
-    <section class="section">
+    <section class="section chapter">
       <p class="eyebrow cyan">02 · The hunt</p>
       <h2>Thirty years from discovery to weather report</h2>
-      <div class="prose" style="margin:0">
+      <div class="prose">
         <p>
           Finding a planet and <em>characterising</em> it are different problems.
           The first thirty years were mostly about counting. Only recently did we
@@ -231,10 +232,10 @@
 
     <!-- ============================ transit demo ============================ -->
 
-    <section class="section">
+    <section class="section chapter">
       <p class="eyebrow purple">03 · The trick</p>
       <h2>Try it: fly a planet across its star</h2>
-      <div class="prose" style="margin:0">
+      <div class="prose">
         <p>
           Here is a star, a planet, and a light meter. When the planet crosses the stellar disk,
           it blocks a tiny fraction of the light. That dip in brightness is a <strong>transit</strong>.
@@ -251,6 +252,7 @@
       </div>
 
       <div class="demo">
+        <span class="live-badge"><span class="live-dot" aria-hidden="true"></span>Interactive</span>
         <div class="demo-panels">
           <div>
             <canvas id="orbit-canvas" width="520" height="330" aria-label="Animation of a planet transiting its star"></canvas>
@@ -309,10 +311,10 @@
 
     <!-- ============================ inside the telescope ============================ -->
 
-    <section class="section">
+    <section class="section chapter">
       <p class="eyebrow purple">04 · Inside the telescope</p>
       <h2>One stripe of starlight</h2>
-      <div class="prose" style="margin:0">
+      <div class="prose">
         <p>
           In the demo you measured the dip one colour at a time. JWST records all of them at once.
           Its NIRISS instrument, in a mode called SOSS, stretches the star's light into a single
@@ -327,6 +329,7 @@
       </div>
 
       <div class="demo" style="margin-top:1.8rem">
+        <span class="live-badge"><span class="live-dot" aria-hidden="true"></span>Interactive · hover the stripe</span>
         <canvas id="trace-canvas" width="1060" height="470" aria-label="A single curved spectral trace on a detector, dimming unevenly as a planet transits its star, with the brightness at each wavelength plotted below"></canvas>
         <p class="small" style="color:var(--faint); margin:0.9rem 0 0">
           The stripe follows the shape of a real NIRISS SOSS trace (SOSS records a second,
@@ -347,10 +350,10 @@
 
     <!-- ============================ real spectrum ============================ -->
 
-    <section class="section">
+    <section class="section chapter">
       <p class="eyebrow teal">05 · The real thing</p>
       <h2>What JWST actually sees</h2>
-      <div class="prose" style="margin:0">
+      <div class="prose">
         <p>
           This is a stylised version of a real measurement: the transmission spectrum of
           <strong>WASP-39&nbsp;b</strong>, a hot Saturn observed by JWST in its first year.
@@ -457,10 +460,10 @@
 
     <!-- ============================ outro ============================ -->
 
-    <section class="section">
+    <section class="section chapter">
       <p class="eyebrow">06 · Where I come in</p>
       <h2>The hard part is trusting the answer</h2>
-      <div class="prose" style="margin:0">
+      <div class="prose">
         <p>
           Signals this small put enormous weight on the analysis: subtle instrument
           systematics and modelling choices can shift the answer by more than the atmospheric
@@ -468,14 +471,19 @@
           differentiable methods to make these measurements, and the conclusions drawn from
           them, more trustworthy.
         </p>
-        <p>
-          If the methods side sounds interesting, have a look at my
-          <a href="../research.html">research page</a> or <a href="mailto:dds25@ic.ac.uk">get in touch</a>.
-        </p>
+      </div>
+      <div class="post-end">
+        <svg class="dip-divider" viewBox="0 0 600 44" aria-hidden="true"><path d="M0 12 H205 C225 12 232 32 258 32 H342 C368 32 375 12 395 12 H600" fill="none" stroke="rgba(245,179,36,0.75)" stroke-width="1.5"/></svg>
+        <p class="close-line">Every clear night, thousands of these dips are happening somewhere overhead. Now you know how to read one.</p>
+        <div class="hero-links" style="justify-content:center; margin-top:1.6rem">
+          <a class="btn primary" href="../research.html">What I do with this</a>
+          <a class="btn" href="mailto:dds25@ic.ac.uk">Get in touch</a>
+          <a class="btn" href="index.html">All posts</a>
+        </div>
       </div>
     </section>
 
-    <p class="small" style="color:var(--faint); margin-top:3rem">
+    <p class="small" style="color:var(--faint); margin-top:3rem; text-align:center">
       Telescope animations and planet renders: NASA. Spectrum stylised after public NASA/ESA/CSA/STScI releases.
     </p>
 
