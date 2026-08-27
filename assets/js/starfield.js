@@ -8,15 +8,15 @@
   function build() {
     canvas.width = window.innerWidth * devicePixelRatio;
     canvas.height = window.innerHeight * devicePixelRatio;
-    const n = Math.min(220, Math.floor(window.innerWidth * window.innerHeight / 9000));
+    const n = Math.min(110, Math.floor(window.innerWidth * window.innerHeight / 22000));
     stars = Array.from({ length: n }, () => ({
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height,
-      r: (Math.random() * 1.1 + 0.3) * devicePixelRatio,
-      a: Math.random() * 0.55 + 0.15,
-      tw: Math.random() * 0.008 + 0.002,
+      r: (Math.random() * 0.9 + 0.3) * devicePixelRatio,
+      a: Math.random() * 0.3 + 0.08,
+      tw: Math.random() * 0.002 + 0.0006,
       ph: Math.random() * Math.PI * 2,
-      hue: Math.random() < 0.12 ? '111,168,255' : (Math.random() < 0.08 ? '245,179,36' : '247,250,255')
+      hue: Math.random() < 0.06 ? '111,168,255' : '247,250,255'
     }));
   }
 
@@ -27,7 +27,7 @@
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     t += 1;
     for (const s of stars) {
-      const a = reduced ? s.a : s.a * (0.65 + 0.35 * Math.sin(t * s.tw * 60 + s.ph));
+      const a = reduced ? s.a : s.a * (0.82 + 0.18 * Math.sin(t * s.tw * 60 + s.ph));
       ctx.fillStyle = 'rgba(' + s.hue + ',' + a.toFixed(3) + ')';
       ctx.beginPath();
       ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);

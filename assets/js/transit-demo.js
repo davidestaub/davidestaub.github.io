@@ -320,16 +320,16 @@
   function describeCurrent() {
     const d = (depthAt(state.wl) * 100).toFixed(2);
     if (!state.atm) {
-      return 'Atmosphere off: a bare rock blocks the same light at every colour — ' +
-             'the dip is <strong>' + d + '%</strong> everywhere, and the spectrum is flat.';
+      return 'Atmosphere off: a bare rock blocks the same light at every colour. ' +
+             'The dip is <strong>' + d + '%</strong> everywhere and the spectrum is flat.';
     }
     const boost = atmBoost(state.wl);
     if (boost > 0.028) {
-      return 'At <strong>' + state.wl.toFixed(2) + ' µm</strong> the atmosphere absorbs strongly ' +
-             '(hello, water vapour!) — the planet looks bigger, and the dip deepens to <strong>' + d + '%</strong>.';
+      return 'At <strong>' + state.wl.toFixed(2) + ' µm</strong> the atmosphere absorbs strongly. ' +
+             'The planet looks bigger and the dip deepens to <strong>' + d + '%</strong>. That is water vapour.';
     }
-    return 'At <strong>' + state.wl.toFixed(2) + ' µm</strong> the air is fairly transparent — ' +
-           'the dip is <strong>' + d + '%</strong>. Try sliding towards 1.4 µm…';
+    return 'At <strong>' + state.wl.toFixed(2) + ' µm</strong> the air is fairly transparent. ' +
+           'The dip is <strong>' + d + '%</strong>. Try sliding towards 1.4 µm.';
   }
 
   // ------------------------------------------------------------------
@@ -347,8 +347,8 @@
     state.rpJup = parseFloat(rpSlider.value);
     rpVal.innerHTML = state.rpJup.toFixed(2) + ' R<sub>Jup</sub>';
     state.specPoints = [];   // new planet, new spectrum
-    say('Planet size: <strong>' + state.rpJup.toFixed(2) + ' R<sub>Jup</sub></strong> — the dip is now <strong>' +
-        (depthAt(state.wl) * 100).toFixed(2) + '%</strong>. Depth scales with the planet’s area: double the radius, four times the dip.');
+    say('Planet size: <strong>' + state.rpJup.toFixed(2) + ' R<sub>Jup</sub></strong>. The dip is now <strong>' +
+        (depthAt(state.wl) * 100).toFixed(2) + '%</strong>. Depth scales with area: double the radius, four times the dip.');
   });
 
   wlSlider.addEventListener('input', () => {
@@ -365,7 +365,7 @@
     state.atm = atmToggle.checked;
     state.specPoints = [];
     say(state.atm
-      ? 'Atmosphere on: a thin envelope of gas now wraps the planet. Its opacity depends on the colour of light — scan the wavelength slider to see it.'
+      ? 'Atmosphere on: a thin envelope of gas now wraps the planet. Its opacity depends on the colour of light. Scan the wavelength slider to see it.'
       : 'Atmosphere off: a bare, airless world. Watch the spectrum go completely flat.');
   });
 
@@ -375,7 +375,7 @@
     state.scan = { t0: performance.now() };
     scanBtn.disabled = true;
     scanBtn.style.opacity = 0.5;
-    say('Scanning the rainbow: measuring the transit depth at every wavelength, one colour at a time…');
+    say('Scanning the rainbow: measuring the transit depth at every wavelength, one colour at a time.');
   });
 
   resetBtn.addEventListener('click', () => {
@@ -414,10 +414,10 @@
         scanBtn.disabled = false;
         scanBtn.style.opacity = 1;
         say(state.atm
-          ? 'Done — that curve is a <strong>transmission spectrum</strong>. The two big bumps are water vapour ' +
-            'absorbing at 1.4 and 1.9 µm. From dips in starlight to chemistry: that’s the whole trick.'
-          : 'Done — perfectly flat. No atmosphere means no fingerprint: every colour sees the same opaque rock. ' +
-            'Switch the atmosphere on and scan again!');
+          ? 'Done. That curve is a <strong>transmission spectrum</strong>. The two big bumps are water vapour ' +
+            'absorbing at 1.4 and 1.9 µm.'
+          : 'Done, and perfectly flat. No atmosphere means no fingerprint. ' +
+            'Switch the atmosphere on and scan again.');
       }
     }
 

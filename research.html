@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Research — Davide Staub</title>
+  <title>Research · Davide Staub</title>
   <meta name="description" content="Research by Davide Staub: exoplanet atmospheres with JWST, narrative processing in the brain, physics-informed neural networks for seismology.">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪐</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -21,6 +21,7 @@
         <a href="research.html" class="active">Research</a>
         <a href="teaching.html">Teaching</a>
         <a href="blog/index.html">Blog</a>
+        <a href="observatory.html">Observatory</a>
         <a href="CV_Davide_Staub.pdf">CV</a>
       </div>
     </div>
@@ -30,10 +31,9 @@
 
     <section class="section">
       <p class="eyebrow">Research</p>
-      <h1>Physics, data &amp; learning.</h1>
+      <h1>What I work on</h1>
       <p class="lede">
-        My work sits at the intersection of machine learning and physical modelling —
-        building differentiable methods that respect the physics of the systems they describe,
+        I build differentiable methods that respect the physics of the systems they describe,
         from planetary atmospheres to seismic waves to the human brain.
       </p>
     </section>
@@ -49,20 +49,20 @@
               atmospheres: for the first time we can measure the composition of the air
               on planets hundreds of light-years away. But turning raw JWST measurements
               into trustworthy statements about an atmosphere is a delicate chain of
-              inference — and the subject of my PhD.
+              inference. That chain is the subject of my PhD.
             </p>
             <p>
               I develop end-to-end differentiable, physics-based methods for analysing
               JWST observations of transiting exoplanets, with a focus on making the
-              resulting atmospheric constraints more reliable. More details coming with
-              upcoming publications — in the meantime, my interactive
+              resulting atmospheric constraints more reliable. More details will come with
+              upcoming publications. In the meantime, my interactive
               <a href="blog/reading-the-air-of-other-worlds.html">explainer on transmission
               spectroscopy</a> covers the foundations this work builds on.
             </p>
           </div>
           <figure>
             <div class="frame"><img src="assets/img/current_research.jpg" alt="Artist's impression of a hot Jupiter exoplanet orbiting close to its host star"></div>
-            <figcaption>Artist's impression of a hot Jupiter — a gas giant orbiting scorchingly close to its star. Credit: NASA</figcaption>
+            <figcaption>Artist's impression of a hot Jupiter, a gas giant orbiting very close to its star. Credit: NASA</figcaption>
           </figure>
         </div>
       </div>
@@ -86,8 +86,8 @@
             <p>
               Compared against high-resolution fMRI recordings of a volunteer listening to
               crime stories, the burst-like shift signal lit up the brain's speech and hearing
-              centres, while the slow drift signal was strongest in the default-mode network —
-              regions like the angular gyrus and precuneus that support memory and imagination.
+              centres, while the slow drift signal was strongest in the default-mode network,
+              in regions like the angular gyrus and precuneus that support memory and imagination.
               Auditory areas mark event boundaries; broader networks track the slow evolution of context.
             </p>
           </div>
@@ -112,14 +112,16 @@
             <p>
               My master's thesis investigated physics-informed neural networks (PINNs) for
               solving the elastic wave equation, which describes how seismic waves travel
-              through the Earth. By embedding wave physics directly into the architecture —
-              custom wavelet and plane-wave layers with encoder–decoder components — the
-              networks were roughly twice as accurate as standard PINNs.
+              through the Earth. By embedding wave physics directly into the architecture,
+              using custom wavelet and plane-wave layers with encoder and decoder
+              components, the networks were roughly twice as accurate as standard PINNs.
             </p>
             <p>
               Conditioning the networks on the seismic source location lets them infer the
               wavefield for countless source positions in a single forward pass, dramatically
-              faster than traditional finite-difference solvers.
+              faster than traditional finite-difference solvers. The thesis was featured in the
+              <a href="https://academic.oup.com/astrogeo/article-abstract/66/3/3.29/8154308" target="_blank" rel="noopener">British
+              Seismology Meeting 2024 report</a> in <em>Astronomy &amp; Geophysics</em>.
             </p>
           </div>
           <figure>
@@ -131,18 +133,30 @@
     </section>
 
     <section class="section">
-      <p class="eyebrow teal">Publications &amp; theses</p>
+      <p class="eyebrow teal">Publications</p>
       <div class="card">
         <div class="pub">
-          <div class="where">Astronomy &amp; Geophysics · 2025</div>
-          Physics-informed neural networks for seismic wave simulation —
-          <a href="https://academic.oup.com/astrogeo/article-abstract/66/3/3.29/8154308" target="_blank" rel="noopener">article</a>
+          <div class="where">arXiv:2512.20481 · 2025</div>
+          Coherence in the brain unfolds across separable temporal regimes.
+          D. Staub, F. Rabe, A. Misra, Y. Pauli, R. Hüppi, N. Yang, N. Lang, L. Michels,
+          V. Edkins, S. Frühholz, I. Sommer, W. Hinzen, P. Homan.
+          <a href="https://arxiv.org/abs/2512.20481" target="_blank" rel="noopener">arXiv</a>
         </div>
         <div class="pub">
-          <div class="where">Master's thesis · ETH Zürich</div>
-          Improving physics-informed neural networks for the elastic wave equation —
+          <div class="where">arXiv:2605.21049 · 2026</div>
+          Cross-lingual robustness of LLM-brain alignment and its computational roots.
+          N. Yang, R. He, P. Homan, I. Sommer, D. Staub, W. Hinzen.
+          <a href="https://arxiv.org/abs/2605.21049" target="_blank" rel="noopener">arXiv</a>
+        </div>
+        <div class="pub">
+          <div class="where">Master's thesis · ETH Zürich · 2024</div>
+          Solving the elastic wave equation with physics-informed neural networks:
+          a robust and critical assessment.
           <a href="https://doi.org/10.3929/ethz-b-000668359" target="_blank" rel="noopener">DOI 10.3929/ethz-b-000668359</a>
         </div>
+        <p class="small muted" style="margin-bottom:0">
+          Full list on <a href="https://scholar.google.com/citations?user=wVVLcFsAAAAJ" target="_blank" rel="noopener">Google Scholar</a>.
+        </p>
       </div>
     </section>
 

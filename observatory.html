@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Observatory · Davide Staub</title>
+  <meta name="description" content="Point JWST at real stars, watch the transit, and meet seven real exoplanets. A small game by Davide Staub.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪐</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/site.css">
+</head>
+<body>
+  <canvas id="starfield"></canvas>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="nav-name" href="index.html">Davide Staub</a>
+      <div class="nav-links">
+        <a href="research.html">Research</a>
+        <a href="teaching.html">Teaching</a>
+        <a href="blog/index.html">Blog</a>
+        <a href="observatory.html" class="active">Observatory</a>
+        <a href="CV_Davide_Staub.pdf">CV</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="wrap">
+
+    <section class="section">
+      <p class="eyebrow">Observatory</p>
+      <h1>Point JWST at a star</h1>
+      <p class="lede">
+        Seven real stars, seven real planets. Click a star to slew the telescope,
+        watch the light meter during the observation, and meet the planet you caught.
+        Every number and every fact on the cards is real.
+      </p>
+    </section>
+
+    <section class="section" style="padding-top:1rem">
+      <div class="demo">
+        <canvas id="sky-canvas" width="1024" height="500" aria-label="Star field with seven real planet-hosting stars. Click a star to observe it."></canvas>
+
+        <div class="obs-row">
+          <div>
+            <canvas id="obs-canvas" width="520" height="200" aria-label="Live light curve of the current observation"></canvas>
+            <div id="obs-status" class="obs-status">
+              Pick a target. Small red stars host small planets; the dips will be tiny, so watch closely.
+            </div>
+          </div>
+          <div id="target-card" class="target-card show">
+            <p class="eyebrow" style="margin:0 0 0.4rem">Target dossier</p>
+            <p class="tc-fact" style="margin:0">Empty for now. Observe a star and the planet you catch appears here.</p>
+          </div>
+        </div>
+
+        <div class="game-count">Worlds observed: <span id="observed-count">0</span> / 7</div>
+      </div>
+
+      <div class="bubble gold">
+        <div class="dot">🔭</div>
+        <div class="say">
+          Notice how <strong>TRAPPIST-1 e</strong>, an Earth-sized planet, makes a deeper dip than
+          some giant planets. Its star is tiny, so even a small planet covers a good fraction of it.
+          Small stars are where we hunt for other Earths.
+        </div>
+      </div>
+
+      <p class="muted" style="max-width:44rem">
+        Want to know how a dip in starlight turns into chemistry? The interactive explainer
+        <a href="blog/reading-the-air-of-other-worlds.html">Reading the air of other worlds</a>
+        walks through the whole idea, including a transit you control yourself.
+      </p>
+      <p class="small" style="color:var(--faint)">
+        Planet renders: NASA. Depths, orbits and discovery facts from the published literature.
+      </p>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <span>© 2026 Davide Staub</span>
+      <span>
+        <a href="mailto:dds25@ic.ac.uk">Email</a> ·
+        <a href="https://www.linkedin.com/in/davide-staub/" target="_blank" rel="noopener">LinkedIn</a> ·
+        <a href="https://github.com/davidestaub" target="_blank" rel="noopener">GitHub</a>
+      </span>
+    </div>
+  </footer>
+
+  <script src="assets/js/starfield.js"></script>
+  <script src="assets/js/observatory.js"></script>
+</body>
+</html>
