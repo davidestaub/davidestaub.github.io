@@ -25,44 +25,6 @@
 
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // At the foot of the page, the Great Square of Pegasus quietly joins up
-  // and a small gold ring marks 51 Peg, the planet that started the field.
-  const SQ = [[0.885, 0.665], [0.755, 0.695], [0.775, 0.865], [0.900, 0.845]];
-  const EDGES = [[0, 1], [1, 2], [2, 3], [3, 0]];
-  const PEG51 = [0.715, 0.795];
-  let cTarget = 0, cA = 0;
-  const footer = document.querySelector('footer');
-  if (footer && 'IntersectionObserver' in window) {
-    new IntersectionObserver(es => {
-      cTarget = es[0].isIntersecting ? 1 : 0;
-      if (reduced) { cA = cTarget; draw(0); }
-    }, { threshold: 0.35 }).observe(footer);
-  }
-
-  function drawConstellation() {
-    if (window.innerWidth < 760) return;
-    cA += (cTarget - cA) * (reduced ? 1 : 0.045);
-    if (cA < 0.01) return;
-    const d = devicePixelRatio, W = canvas.width, H = canvas.height;
-    ctx.lineWidth = d;
-    ctx.strokeStyle = 'rgba(111,168,255,' + (0.22 * cA).toFixed(3) + ')';
-    EDGES.forEach(([i, j]) => {
-      ctx.beginPath();
-      ctx.moveTo(SQ[i][0] * W, SQ[i][1] * H);
-      ctx.lineTo(SQ[j][0] * W, SQ[j][1] * H);
-      ctx.stroke();
-    });
-    ctx.fillStyle = 'rgba(247,250,255,' + (0.85 * cA).toFixed(3) + ')';
-    SQ.forEach(p => { ctx.beginPath(); ctx.arc(p[0] * W, p[1] * H, 1.6 * d, 0, 7); ctx.fill(); });
-    ctx.beginPath(); ctx.arc(PEG51[0] * W, PEG51[1] * H, 1.1 * d, 0, 7);
-    ctx.fillStyle = 'rgba(245,217,138,' + (0.9 * cA).toFixed(3) + ')'; ctx.fill();
-    ctx.beginPath(); ctx.arc(PEG51[0] * W, PEG51[1] * H, 5 * d, 0, 7);
-    ctx.strokeStyle = 'rgba(245,179,36,' + (0.6 * cA).toFixed(3) + ')'; ctx.stroke();
-    ctx.font = (10 * d) + 'px "IBM Plex Mono", monospace';
-    ctx.fillStyle = 'rgba(107,122,153,' + (0.9 * cA).toFixed(3) + ')';
-    ctx.fillText('51 Peg', PEG51[0] * W + 9 * d, PEG51[1] * H + 3 * d);
-  }
-
   function draw(now) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     const t = (now || 0) / 1000;
@@ -73,7 +35,6 @@
       ctx.arc(s.x * canvas.width, s.y * canvas.height, s.r * devicePixelRatio, 0, Math.PI * 2);
       ctx.fill();
     });
-    drawConstellation();
     if (!reduced) requestAnimationFrame(draw);
   }
 
