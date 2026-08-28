@@ -227,7 +227,7 @@
 
     const d = depthAt(state.wl);
     ctx.fillStyle = '#F5B324';
-    ctx.fillText('dip: ' + (d * 100).toFixed(2) + '%', padL + 4, padT + 14);
+    ctx.fillText('dip: ' + (d * 100).toFixed(2) + '%', padL + 4, padT + ih - 8);
   }
 
   function drawSpectrum() {
@@ -407,7 +407,7 @@
   let demoRunning = false;
 
   function loop(now) {
-    if (!demoInView) { demoRunning = false; return; }
+    if (!demoInView && !state.scan) { demoRunning = false; return; }
     const dt = Math.min(50, now - last);
     last = now;
     state.phase = (state.phase + dt / 6000) % 1;
@@ -449,7 +449,7 @@
     new IntersectionObserver((es) => {
       demoInView = es[0].isIntersecting;
       ensureDemoRunning();
-    }).observe(orbitC);
+    }).observe(orbitC.closest('.demo') || orbitC);
   }
   ensureDemoRunning();
 })();
