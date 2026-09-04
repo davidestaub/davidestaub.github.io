@@ -1,27 +1,40 @@
 /* ===================================================================
-   /explore/system.js : star system renderer (stage 2)
+   /explore/system.js : star system renderer and ship (stage 3)
 
    One host star and its confirmed planets at true scale
    (1 scene unit = 1,000 km), lit by the star, under the real sky as
    seen from the host's position. Every rendering choice that is not
    backed by a catalogued number is reported in the dossier as imagined.
+
+   Floating origin: the camera never leaves the scene origin. The ship
+   keeps its true position in doubles (ship.pos) and every frame each
+   body, orbit line and the star group is placed at (body - ship), so
+   there is no Float32 jitter a million units from the star.
+
+   Modes
+     attract  the camera orbits the focused body (OrbitControls driven
+              on a hidden camera in a frame centred on the focus; the
+              ship's position and orientation are derived from it)
+     flight   the ship module drives position and orientation
+     warp     frozen while the warp effect plays and the system swaps
    =================================================================== */
 
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import {
-  KM_PER_UNIT, SUN_RADIUS_KM, AU_KM, EARTH_RADIUS_KM, JUP_RADIUS_KM,
+  KM_PER_UNIT, SUN_RADIUS_KM, AU_KM, EARTH_RADIUS_KM, JUP_RADIUS_KM, LY_PER_PC,
   loadCatalog, deriveSystem, describeMeasured, describeAssumed, findHost,
 } from './lib/catalog.js';
 import { makePlanetMaterial, makeAtmosphere } from './lib/planet-shaders.js';
 import { makeStar } from './lib/star.js';
 import { loadSky, makeSky } from './lib/sky.js';
+import { createShip, THROTTLE_STEPS } from './lib/ship.js';
 
 /* ---------------- constants ---------------- */
 
 const BASE_URL = new URL('./', import.meta.url).href;
 const DEFAULT_HOST = 'TRAPPIST-1';
-const PC_TO_LY = 3.26156;
+const PC_TO_LY = LY_PER_PC;
 const TAU = Math.PI * 2;
 const DAY_S = 86400;
 const YEAR_S = 365.25 * DAY_S;
@@ -32,19 +45,28 @@ const MARKER_HIDE_PX = 7;            // hide the planet marker once the disc is 
 const LIGHT_SOFTEN = 0.45;           // fraction of the way from the star colour toward white for lighting
 const FOCUS_AZIMUTH = THREE.MathUtils.degToRad(65);   // planet focus: camera this far round from the star direction
 const FOCUS_ELEVATION = 0.32;        // and this much above the orbital plane (fraction of the offset)
+const ATTRACT_ROTATE_SPEED = 0.25;   // OrbitControls autoRotateSpeed: 2.0 is one turn per 30 s
+const ARRIVAL_STAR_RADII = 12;       // after a warp the ship sits this far from the star
+const DISCOVER_RADII = 6;            // within this many radii of a planet counts as a visit
+const RELEASE_FOCUS_RADII = 30;      // on Esc, focus the planet the ship is parked next to
+const HUD_HZ = 30;
+const VISITED_KEY = 'explore.visited';
+const TIME_LABELS = { 1: 'real time', 3600: '1 h/s', 86400: '1 day/s', 864000: '10 days/s' };
 
-/* ---------------- DOM ---------------- */
+/* ---------------- DOM (every element optional: the cockpit markup is built elsewhere) ---------------- */
 
 const $ = (id) => document.getElementById(id);
 const el = {
-  stage: $('system-stage'),
+  stage: $('system-stage') || $('cockpit') || document.body,
   canvas: $('system-canvas'),
+  cockpit: $('cockpit'),
   status: $('sys-status'),
   clock: $('sys-clock'),
   pause: $('btn-pause'),
   timeButtons: Array.from(document.querySelectorAll('.t-btn[data-scale]')),
   btnStar: $('btn-star'),
   btnSystem: $('btn-system'),
+  btnTake: $('btn-take-controls'),
   planetList: $('planet-list'),
   hint: $('sys-hint'),
   hostTitle: $('host-title'),
@@ -53,6 +75,8 @@ const el = {
   dFocus: $('d-focus'),
   dMeasured: $('d-measured'),
   dImagined: $('d-imagined'),
+  toast: $('hud-toast'),
+  warpOverlay: $('warp-overlay'),
 };
 
 /* ---------------- small helpers ---------------- */
@@ -93,6 +117,16 @@ function hideStatus() { if (el.status) el.status.hidden = true; }
 
 function srcNote(src) { return src ? src : 'measured'; }
 
+let toastTimer = 0;
+function toast(text, ms) {
+  if (state.hud && typeof state.hud.toast === 'function') { state.hud.toast(text, ms || 2600); return; }
+  if (!el.toast) return;
+  el.toast.textContent = text;
+  el.toast.hidden = false;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.toast.hidden = true; }, ms || 2600);
+}
+
 /** Palette guess used for the HUD swatch and atmosphere tint when the material exposes nothing better.
     Mirrors the palette rules of planet-shaders.js (class + equilibrium temperature). */
 function paletteFor(p) {
@@ -126,8 +160,6 @@ function dominantColour(material, p) {
   }
   const u = material && material.uniforms;
   if (u) {
-    // planet-shaders.js: gas/neptune programs expose uColA (base band colour),
-    // solid programs expose uColLow/uColHigh (lowland/highland); all linear THREE.Color
     if (u.uColLow && u.uColHigh && u.uColLow.value && u.uColLow.value.isColor && u.uColHigh.value.isColor) {
       const a = u.uColLow.value, b = u.uColHigh.value;
       return [(a.r + b.r) / 2, (a.g + b.g) / 2, (a.b + b.b) / 2];
@@ -138,7 +170,6 @@ function dominantColour(material, p) {
       if (v && v.isVector3) return [v.x, v.y, v.z];
     }
   }
-  // paletteFor returns sRGB-ish values; linearise roughly so rgbCss can encode them
   return paletteFor(p).map((v) => Math.pow(v, 2.2));
 }
 
@@ -195,31 +226,92 @@ function solveKepler(M, e) {
   return E;
 }
 
+function disposeObject(obj) {
+  if (!obj) return;
+  obj.traverse((o) => {
+    if (o.geometry && typeof o.geometry.dispose === 'function') o.geometry.dispose();
+    const m = o.material;
+    if (!m) return;
+    const list = Array.isArray(m) ? m : [m];
+    for (const mat of list) {
+      if (mat.map && typeof mat.map.dispose === 'function' && mat.map !== state.dotTex) mat.map.dispose();
+      if (typeof mat.dispose === 'function') mat.dispose();
+    }
+  });
+}
+
+async function optionalImport(path) {
+  try {
+    return await import(path);
+  } catch (err) {
+    console.warn('system: optional module not loaded: ' + path, err && err.message ? err.message : err);
+    return null;
+  }
+}
+
+async function optionalJson(url) {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (err) {
+    return null;
+  }
+}
+
 /* ---------------- state ---------------- */
 
 const state = {
+  catalog: null, skyData: null, galaxy: null,
   host: null, system: null,
-  renderer: null, scene: null, camera: null, controls: null,
-  sky: null, star: null, bodies: [], outerRadius: 1,
+  renderer: null, scene: null, camera: null, orbitCam: null, controls: null,
+  ship: null, shipBodies: [], starBody: null,
+  hud: null, minimap: null, warp: null,
+  sky: null, star: null, starMarker: null, bodies: [], outerRadius: 1,
+  starRadiusUnits: 1, lightColor: null, dotTex: null, orbitMat: null, markerMat: null,
   simSeconds: 0, timeScale: 3600, paused: false,
   realSeconds: 0, lastFrame: 0, running: false, rafId: 0,
   visible: true,
+  mode: 'attract', building: false,
   focus: { mode: 'system', index: -1 },
-  tween: { active: false, t: 0, fromTarget: new THREE.Vector3(), fromDir: new THREE.Vector3(), toDir: new THREE.Vector3(), fromDist: 0, toDist: 0 },
+  focusWorld: { x: 0, y: 0, z: 0 },
+  tween: {
+    active: false, t: 0,
+    fromTarget: { x: 0, y: 0, z: 0 },
+    fromDir: new THREE.Vector3(), toDir: new THREE.Vector3(),
+    fromDist: 0, toDist: 0,
+    fromQuat: new THREE.Quaternion(), slerp: false,
+  },
+  visited: new Set(),
+  pickedHost: null,
   pixelRatio: 1,
+  noLock: false,        // ?flight=1: fly without pointer lock
+};
+
+/** Per-frame HUD state object, mutated in place. */
+const hudState = {
+  speedKms: 0, speedC: 0, throttleLevel: 0,
+  targetName: null, distToTargetKm: null,
+  hostName: '', distFromEarthLy: null,
+  systemsVisited: 0, totalSystems: 0,
+  autopilot: false, timeScaleLabel: '', mode: 'attract',
+  hudAt: -1,           // real seconds of the last HUD push (not part of the HUD contract)
 };
 
 // reusable temporaries: no per-frame allocation
-const tmpV = new THREE.Vector3();
 const tmpDir = new THREE.Vector3();
-const tmpDelta = new THREE.Vector3();
-const tmpTarget = new THREE.Vector3();
+const tmpD = { x: 0, y: 0, z: 0 };     // double-precision scratch point
 
 /* ---------------- boot ---------------- */
 
 async function boot() {
   const params = new URLSearchParams(location.search);
   const hostParam = (params.get('host') || DEFAULT_HOST).trim();
+
+  if (!el.canvas) {
+    setStatus('no #system-canvas on the page', true);
+    return;
+  }
 
   let catalog, skyData;
   try {
@@ -229,9 +321,19 @@ async function boot() {
     setStatus('could not load the catalogue: ' + (err && err.message ? err.message : err), true);
     return;
   }
+  state.catalog = catalog;
+  state.skyData = skyData;
+  state.visited = loadVisited();
 
-  // exact host name, then case-insensitive, then a planet-name prefix
-  // (the archive files Kepler-90 b..h under host KOI-351)
+  // the cockpit modules are optional: the page renders without them
+  const [hudMod, minimapMod, warpMod, galaxy] = await Promise.all([
+    optionalImport('./lib/hud.js'),
+    optionalImport('./lib/minimap.js'),
+    optionalImport('./lib/warp.js'),
+    optionalJson(BASE_URL + 'data/galaxy.json'),
+  ]);
+  state.galaxy = galaxy;
+
   const host = findHost(catalog, hostParam);
   if (!host) {
     setStatus('host "' + hostParam + '" is not in the catalogue', true);
@@ -239,34 +341,31 @@ async function boot() {
     return;
   }
 
-  state.host = host;
-  state.system = deriveSystem(host);
-  document.title = host.name + ' · System · Davide Staub';
-  if (el.hostTitle) el.hostTitle.textContent = host.name;
-
   setStatus('building scene');
   try {
-    buildScene(skyData);
+    buildRenderer();
+    buildChrome(hudMod, minimapMod, warpMod);
+    await setHost(host.name, { immediate: true, arrival: false });
   } catch (err) {
     console.error(err);
     setStatus('could not build the scene: ' + (err && err.message ? err.message : err), true);
     return;
   }
 
-  buildHud();
-  renderStarLine();
-  setFocus('system', -1, true);
   hideStatus();
   installLoop();
   installTestHook();
+
+  // ?flight=1: start with the controls, without pointer lock (mouse motion looks); for testing
+  if (params.get('flight') === '1') {
+    state.noLock = true;
+    setMode('flight');
+  }
 }
 
-/* ---------------- scene ---------------- */
+/* ---------------- renderer, cameras, ship (built once) ---------------- */
 
-function buildScene(skyData) {
-  const { star, planets } = state.system;
-  const host = state.host;
-
+function buildRenderer() {
   const renderer = new THREE.WebGLRenderer({
     canvas: el.canvas, antialias: true, logarithmicDepthBuffer: true, preserveDrawingBuffer: true,
   });
@@ -282,32 +381,202 @@ function buildScene(skyData) {
   scene.background = new THREE.Color(0x000000);
   state.scene = scene;
 
+  // the rendering camera: always at the origin, orientation from the ship
   const camera = new THREE.PerspectiveCamera(45, 1, 0.01, 1e9);
   camera.up.set(0, 0, 1);
+  camera.position.set(0, 0, 0);
   state.camera = camera;
+
+  // the attract-mode camera: OrbitControls drives this one in a frame centred on the focus
+  const orbitCam = new THREE.PerspectiveCamera(45, 1, 0.01, 1e9);
+  orbitCam.up.set(0, 0, 1);
+  state.orbitCam = orbitCam;
+
+  const controls = new OrbitControls(orbitCam, el.canvas);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.08;
+  controls.rotateSpeed = 0.6;
+  controls.zoomSpeed = 0.9;
+  controls.screenSpacePanning = true;
+  controls.maxDistance = 5e8;
+  controls.autoRotate = true;
+  controls.autoRotateSpeed = ATTRACT_ROTATE_SPEED;
+  controls.touches = { ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN };
+  state.controls = controls;
+
+  const ship = createShip(THREE, { camera, element: el.canvas });
+  ship.onRelease = () => { if (state.mode === 'flight') setMode('attract'); };
+  ship.onArrive = onShipArrive;
+  ship.onInput = () => { toast('autopilot off'); };
+  state.ship = ship;
+
+  state.dotTex = makeDotTexture();
+  state.starBody = { name: '', pos: { x: 0, y: 0, z: 0 }, vel: { x: 0, y: 0, z: 0 }, radius_units: 1, kind: 'star', index: -1 };
+}
+
+/** Controls that live for the whole page: time presets, star/system buttons, the cockpit modules. */
+function buildChrome(hudMod, minimapMod, warpMod) {
+  // cockpit HUD (owns the buttons inside #cockpit and fires callbacks)
+  const root = el.cockpit || el.stage;
+  if (hudMod && typeof hudMod.createHud === 'function' && root) {
+    try {
+      state.hud = hudMod.createHud(root, {
+        onTakeControls: () => setMode('flight'),
+        onRelease: () => setMode('attract'),
+        onFocus: (name) => focusByName(name, false),
+        onAutopilot: (name) => autopilotByName(name),
+        onWarp: (name) => warpTo(name || state.pickedHost),
+        onToggleMap: () => {
+          if (!state.minimap) return;
+          const m = state.minimap.toggleMode();
+          state.minimap.draw();
+          if (typeof state.hud.setMapMode === 'function') state.hud.setMapMode(typeof m === 'string' ? m : state.minimap.getMode());
+        },
+        onTimeScale: (scale) => setTimeScale(scale),
+        onPause: () => setPaused(!state.paused),
+        onThrottle: (delta) => { if (state.ship) state.ship.throttleStep(delta); },
+        onBrake: () => { if (state.ship) state.ship.brake(); },
+        onTouchLook: state.ship ? state.ship.touchLook : null,
+      });
+    } catch (err) {
+      console.error('system: hud failed', err);
+      state.hud = null;
+    }
+  }
+  // without the HUD module the stage-2 controls are wired directly
+  if (!state.hud) {
+    if (el.btnTake) el.btnTake.addEventListener('click', () => setMode('flight'));
+    if (el.btnStar) el.btnStar.addEventListener('click', () => setFocus('star', -1));
+    if (el.btnSystem) el.btnSystem.addEventListener('click', () => setFocus('system', -1));
+    el.timeButtons.forEach((btn) => {
+      btn.addEventListener('click', () => setTimeScale(Number(btn.dataset.scale)));
+    });
+    if (el.pause) el.pause.addEventListener('click', () => setPaused(!state.paused));
+  }
+
+  // galaxy minimap on the HUD's canvas
+  const mapCanvas = state.hud && state.hud.minimapCanvas ? state.hud.minimapCanvas : $('minimap');
+  if (minimapMod && typeof minimapMod.createMinimap === 'function' && mapCanvas && state.galaxy) {
+    try {
+      const hosts = [];
+      for (const h of state.catalog.hostList) {
+        if (Number.isFinite(h.x) && Number.isFinite(h.y) && Number.isFinite(h.z)) {
+          hosts.push({ name: h.name, x: h.x, y: h.y, z: h.z, planets: h.planets.length });
+        }
+      }
+      const minimap = minimapMod.createMinimap(mapCanvas, { hosts, galaxy: state.galaxy, baseUrl: BASE_URL });
+      minimap.onPick((name) => {
+        state.pickedHost = name;
+        if (state.hud && typeof state.hud.setPickedHost === 'function') state.hud.setPickedHost(name);
+        else toast('selected: ' + name);
+      });
+      minimap.setVisited(state.visited);
+      // the HUD's mode button starts on 'local'; the map itself defaults to galaxy, so agree on one
+      minimap.setMode('local');
+      if (state.hud && typeof state.hud.setMapMode === 'function') state.hud.setMapMode('local');
+      state.minimap = minimap;
+    } catch (err) {
+      console.error('system: minimap failed', err);
+      state.minimap = null;
+    }
+  }
+
+  // warp effect
+  if (warpMod && typeof warpMod.createWarp === 'function') {
+    let overlay = el.warpOverlay;
+    if (!overlay && root) {
+      overlay = document.createElement('div');
+      overlay.id = 'warp-overlay';
+      overlay.className = 'warp-overlay';
+      overlay.hidden = true;
+      root.appendChild(overlay);
+    }
+    try {
+      state.warp = warpMod.createWarp(THREE, { scene: state.scene, camera: state.camera, overlayEl: overlay });
+    } catch (err) {
+      console.error('system: warp failed', err);
+      state.warp = null;
+    }
+  }
+
+  // keyboard: Enter warps to the picked host (H and M are handled by the HUD)
+  window.addEventListener('keydown', onPageKey);
+
+  if (state.hud) {
+    state.hud.setVisited(state.visited.size, state.catalog.hostList.length);
+    state.hud.setMode('attract');
+  }
+  updateClock(true);
+}
+
+function onPageKey(e) {
+  if (state.mode !== 'flight') return;
+  const t = e.target;
+  if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+  if (e.code === 'Enter' || e.code === 'NumpadEnter') {
+    if (state.pickedHost) warpTo(state.pickedHost);
+  }
+}
+
+/* ---------------- system build and teardown ---------------- */
+
+function teardownSystem() {
+  const scene = state.scene;
+  if (!scene) return;
+  for (const b of state.bodies) {
+    scene.remove(b.mesh, b.orbit, b.marker);
+    disposeObject(b.mesh);
+    if (b.orbit.geometry) b.orbit.geometry.dispose();
+    if (b.marker.geometry) b.marker.geometry.dispose();
+  }
+  if (state.orbitMat) state.orbitMat.dispose();
+  if (state.markerMat) state.markerMat.dispose();
+  state.bodies = [];
+  state.shipBodies = [];
+  if (state.star) {
+    scene.remove(state.star.group);
+    if (state.star.light && state.star.light.parent === scene) scene.remove(state.star.light);
+    disposeObject(state.star.group);
+    state.star = null;
+  }
+  if (state.starMarker) {
+    scene.remove(state.starMarker);
+    state.starMarker.geometry.dispose();
+    state.starMarker.material.dispose();
+    state.starMarker = null;
+  }
+  if (state.sky) {
+    scene.remove(state.sky);
+    disposeObject(state.sky);
+    state.sky = null;
+  }
+}
+
+function buildSystem() {
+  const { star, planets } = state.system;
+  const host = state.host;
+  const scene = state.scene;
+  const dotTex = state.dotTex;
 
   // sky at the host's heliocentric position (null -> the Sun's sky)
   const origin = (Number.isFinite(host.x) && Number.isFinite(host.y) && Number.isFinite(host.z))
     ? { x: host.x, y: host.y, z: host.z } : null;
-  const sky = makeSky(THREE, skyData, origin);
+  const sky = makeSky(THREE, state.skyData, origin);
+  if (sky.setPixelRatio) sky.setPixelRatio(state.pixelRatio);
   scene.add(sky);
   state.sky = sky;
 
-  // the star at the origin
+  // the star at the world origin (drawn at -ship)
   const starRadiusUnits = star.radius_km / KM_PER_UNIT;
   const starObj = makeStar(THREE, { radius_units: starRadiusUnits, teff: star.teff, color: star.color });
   scene.add(starObj.group);
   if (starObj.light && !starObj.light.parent) scene.add(starObj.light);
   state.star = starObj;
   state.starRadiusUnits = starRadiusUnits;
-  // light colour: the star's colour (linear), softened toward white so that a cool red
-  // star does not paint every rock world as lava. Reported in the IMAGINED column.
   state.lightColor = new THREE.Color(star.color[0], star.color[1], star.color[2]);
   if (starObj.light && starObj.light.color) state.lightColor.copy(starObj.light.color);
   state.lightColor.lerp(new THREE.Color(1, 1, 1), LIGHT_SOFTEN);
 
-  // screen-space marker for the star itself: a Sun-sized star is sub-pixel from a 1 AU system view
-  const dotTex = makeDotTexture();
   const starMarkerGeom = new THREE.BufferGeometry();
   starMarkerGeom.setAttribute('position', new THREE.BufferAttribute(new Float32Array(3), 3));
   const starMarkerMat = new THREE.PointsMaterial({
@@ -322,7 +591,6 @@ function buildScene(skyData) {
   scene.add(starMarker);
   state.starMarker = starMarker;
 
-  // planets, orbits and markers
   const orbitMat = new THREE.LineBasicMaterial({ color: 0xF5B324, transparent: true, opacity: 0.32 });
   const markerMat = new THREE.PointsMaterial({
     color: 0xF5B324, size: 6 * state.pixelRatio, sizeAttenuation: false,
@@ -330,6 +598,8 @@ function buildScene(skyData) {
     transparent: true, opacity: 0.8, depthTest: false, depthWrite: false,
   });
   markerMat.toneMapped = false;
+  state.orbitMat = orbitMat;
+  state.markerMat = markerMat;
 
   let outer = starRadiusUnits * 12;
   const bodies = [];
@@ -352,12 +622,10 @@ function buildScene(skyData) {
     mesh.rotation.set(Math.PI / 2, 0, 0);
     scene.add(mesh);
 
-    // atmosphere rule: radius above 1.6 Earth radii, or equilibrium temperature below 1,500 K
     const showAtm = (p.radius_km > 1.6 * EARTH_RADIUS_KM) || (Number.isFinite(p.teq) && p.teq < 1500);
     let atmosphere = null;
     if (showAtm) {
       const atmColor = atmosphereColour(p);
-      // makeAtmosphere scales the shell itself (ratio 1.045 by default): pass the planet radius
       atmosphere = makeAtmosphere(THREE, { radius_units: rUnits, color: atmColor, strength: p.cls === 'gas-giant' ? 0.7 : 0.55 });
       mesh.add(atmosphere);
     }
@@ -378,7 +646,6 @@ function buildScene(skyData) {
     orbit.frustumCulled = false;
     scene.add(orbit);
 
-    // screen-space marker so a true-scale planet can be found from far away
     const markerGeom = new THREE.BufferGeometry();
     markerGeom.setAttribute('position', new THREE.BufferAttribute(new Float32Array(3), 3));
     const marker = new THREE.Points(markerGeom, markerMat);
@@ -396,6 +663,9 @@ function buildScene(skyData) {
       swatch: dominantColour(material, p),
       atmosphereShown: showAtm,
       atmosphereColour: showAtm ? atmosphereColour(p) : null,
+      world: { x: 0, y: 0, z: 0 },          // true position, doubles
+      vel: { x: 0, y: 0, z: 0 },            // finite-difference velocity, units per real second
+      velKnown: false,
     };
     bodies.push(body);
     outer = Math.max(outer, aUnits * (1 + e) + rUnits);
@@ -403,27 +673,86 @@ function buildScene(skyData) {
   state.bodies = bodies;
   state.outerRadius = outer;
 
-  // controls
-  const controls = new OrbitControls(camera, el.canvas);
-  controls.enableDamping = true;
-  controls.dampingFactor = 0.08;
-  controls.rotateSpeed = 0.6;
-  controls.zoomSpeed = 0.9;
-  controls.screenSpacePanning = true;
-  controls.maxDistance = 5e8;
-  controls.touches = { ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN };
-  state.controls = controls;
+  // the ship's view of the system: star first, then the planets (positions shared by reference)
+  const sb = state.starBody;
+  sb.name = host.name;
+  sb.radius_units = starRadiusUnits;
+  const shipBodies = [sb];
+  for (let i = 0; i < bodies.length; i++) {
+    const b = bodies[i];
+    shipBodies.push({ name: b.planet.name, pos: b.world, vel: b.vel, radius_units: b.radiusUnits, kind: 'planet', index: i });
+  }
+  state.shipBodies = shipBodies;
 
-  // size the renderer first so the system fit uses the real aspect ratio
   resize();
+  positionBodies(state.simSeconds, 0);
+}
 
-  // initial camera: above the plane, looking at the whole system
-  const d0 = systemDistance();
-  camera.position.set(0, -0.72 * d0, 0.69 * d0);
-  controls.target.set(0, 0, 0);
-  controls.update();
+/**
+ * Swap the whole system for another host (no page reload).
+ * @param name  host name (resolved with findHost)
+ * @param opts  { immediate: bool (no tween), arrival: bool (place the ship at the arrival point) }
+ */
+async function setHost(name, opts) {
+  const o = opts || {};
+  const host = findHost(state.catalog, name);
+  if (!host) throw new Error('host "' + name + '" is not in the catalogue');
+  state.building = true;
+  try {
+    teardownSystem();
+    state.host = host;
+    state.system = deriveSystem(host);
+    state.simSeconds = 0;
+    state.focus.mode = 'system';
+    state.focus.index = -1;
+    state.tween.active = false;
+    document.title = host.name + ' · System · Davide Staub';
+    if (el.hostTitle) el.hostTitle.textContent = host.name;
 
-  positionBodies(0);
+    buildSystem();
+    buildPlanetButtons();
+    renderStarLine();
+
+    const ship = state.ship;
+    ship.cancelAutopilot();
+    ship.unanchor();
+    ship.setVelocity(null);
+    ship.setThrottleIndex(0);
+    if (o.arrival !== false) placeShipAtArrival();
+
+    if (state.mode === 'attract') {
+      // the attract frame starts from wherever the ship is; the focus tween takes it to the system view
+      syncOrbitFrameToShip();
+      setFocus('system', -1, !!o.immediate);
+    } else {
+      setFocus('system', -1, true);
+    }
+    if (state.minimap) { state.minimap.setCurrent(host.name); state.minimap.draw(); }
+    hudState.hudAt = -1;
+    updateClock(true);
+    // one placed frame even when the loop is paused (hidden tab, offscreen stage)
+    step(0);
+    renderFrame();
+  } finally {
+    state.building = false;
+  }
+}
+
+/** Arrival point: ARRIVAL_STAR_RADII from the star on the side of the outermost planet, facing the star. */
+function placeShipAtArrival() {
+  const ship = state.ship;
+  const bodies = state.bodies;
+  let dx = 1, dy = 0;
+  if (bodies.length) {
+    const outerBody = bodies[bodies.length - 1];
+    const w = outerBody.world;
+    const len = Math.hypot(w.x, w.y);
+    if (len > 1e-9) { dx = w.x / len; dy = w.y / len; }
+  }
+  const d = state.starRadiusUnits * ARRIVAL_STAR_RADII;
+  ship.setPosition({ x: dx * d, y: dy * d, z: state.starRadiusUnits * 2 });
+  ship.setVelocity(null);
+  ship.lookAt({ x: 0, y: 0, z: 0 });
 }
 
 function systemDistance() {
@@ -433,48 +762,49 @@ function systemDistance() {
   return fit * (aspect < 1 ? 1.15 / aspect : 1.15);
 }
 
-/* ---------------- HUD ---------------- */
+/* ---------------- legacy side panel and HUD lists ---------------- */
 
-function buildHud() {
-  const frag = document.createDocumentFragment();
-  state.bodies.forEach((b, i) => {
-    const p = b.planet;
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'f-btn f-planet';
-    btn.dataset.index = String(i);
-    btn.setAttribute('aria-pressed', 'false');
-    const sw = document.createElement('span');
-    sw.className = 'p-sw';
-    sw.style.background = rgbCss(b.swatch);
-    sw.style.boxShadow = '0 0 6px ' + rgbCss(b.swatch);
-    const name = document.createElement('span');
-    name.className = 'p-name';
-    name.textContent = p.name;
-    const meta = document.createElement('span');
-    meta.className = 'p-meta';
-    meta.textContent = p.cls + ' · ' + fmt(p.radius_km / EARTH_RADIUS_KM, 2) + ' Re';
-    meta.title = 'class, radius in Earth radii (' + srcNote(p.radius_src) + ')';
-    btn.append(sw, name, meta);
-    btn.addEventListener('click', () => setFocus('planet', i));
-    frag.appendChild(btn);
-  });
-  el.planetList.replaceChildren(frag);
-
-  el.btnStar.addEventListener('click', () => setFocus('star', -1));
-  el.btnSystem.addEventListener('click', () => setFocus('system', -1));
-
-  el.timeButtons.forEach((btn) => {
-    btn.addEventListener('click', () => setTimeScale(Number(btn.dataset.scale)));
-  });
-  el.pause.addEventListener('click', () => setPaused(!state.paused));
-  updateClock();
+function buildPlanetButtons() {
+  if (el.planetList && !state.hud) {
+    const frag = document.createDocumentFragment();
+    state.bodies.forEach((b, i) => {
+      const p = b.planet;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'f-btn f-planet';
+      btn.dataset.index = String(i);
+      btn.setAttribute('aria-pressed', 'false');
+      const sw = document.createElement('span');
+      sw.className = 'p-sw';
+      sw.style.background = rgbCss(b.swatch);
+      sw.style.boxShadow = '0 0 6px ' + rgbCss(b.swatch);
+      const name = document.createElement('span');
+      name.className = 'p-name';
+      name.textContent = p.name;
+      const meta = document.createElement('span');
+      meta.className = 'p-meta';
+      meta.textContent = p.cls + ' · ' + fmt(p.radius_km / EARTH_RADIUS_KM, 2) + ' Re';
+      meta.title = 'class, radius in Earth radii (' + srcNote(p.radius_src) + ')';
+      btn.append(sw, name, meta);
+      btn.addEventListener('click', () => setFocus('planet', i));
+      frag.appendChild(btn);
+    });
+    el.planetList.replaceChildren(frag);
+  }
+  if (state.hud && typeof state.hud.setBodies === 'function') {
+    state.hud.setBodies(state.bodies.map((b) => ({
+      name: b.planet.name, cls: b.planet.cls, radius_re: b.planet.radius_km / EARTH_RADIUS_KM, swatchCss: rgbCss(b.swatch),
+    })));
+  }
 }
 
 function setTimeScale(scale) {
-  state.timeScale = scale;
+  const s = Number(scale);
+  if (!(s > 0)) { setPaused(true); return; }
+  state.timeScale = s;
+  if (state.paused) setPaused(false);
   el.timeButtons.forEach((btn) => {
-    const on = Number(btn.dataset.scale) === scale;
+    const on = Number(btn.dataset.scale) === s;
     btn.classList.toggle('active', on);
     btn.setAttribute('aria-pressed', on ? 'true' : 'false');
   });
@@ -482,15 +812,22 @@ function setTimeScale(scale) {
 
 function setPaused(paused) {
   state.paused = paused;
-  el.pause.classList.toggle('active', paused);
-  el.pause.setAttribute('aria-pressed', paused ? 'true' : 'false');
-  el.pause.textContent = paused ? 'resume' : 'pause';
+  if (el.pause) {
+    el.pause.classList.toggle('active', paused);
+    el.pause.setAttribute('aria-pressed', paused ? 'true' : 'false');
+    el.pause.textContent = paused ? 'resume' : 'pause';
+  }
+}
+
+function timeScaleLabel() {
+  if (state.paused) return 'paused';
+  return TIME_LABELS[state.timeScale] || (fmt(state.timeScale, 0) + ' s/s');
 }
 
 let lastClockText = '';
 let lastClockAt = -1;
 function updateClock(force) {
-  // the clock text is rebuilt at most four times a second
+  if (!el.clock) return;
   if (!force && state.realSeconds - lastClockAt < 0.25) return;
   lastClockAt = state.realSeconds;
   const text = 'elapsed: ' + fmtElapsed(state.simSeconds);
@@ -500,50 +837,110 @@ function updateClock(force) {
 /* ---------------- focus ---------------- */
 
 function focusButtons() {
-  return [el.btnStar, el.btnSystem, ...el.planetList.querySelectorAll('.f-planet')];
+  const list = [];
+  if (el.btnStar) list.push(el.btnStar);
+  if (el.btnSystem) list.push(el.btnSystem);
+  if (el.planetList) list.push(...el.planetList.querySelectorAll('.f-planet'));
+  return list;
 }
 
+/** Resolve 'star', 'system' or a planet name (full, suffix letter, or substring) to a focus. */
+function resolveFocus(name) {
+  const key = String(name || '').trim().toLowerCase();
+  if (key === 'star' || key === state.host.name.toLowerCase()) return { mode: 'star', index: -1 };
+  if (key === 'system' || key === '') return { mode: 'system', index: -1 };
+  let idx = state.bodies.findIndex((b) => b.planet.name.toLowerCase() === key);
+  if (idx < 0) idx = state.bodies.findIndex((b) => b.planet.name.toLowerCase().endsWith(' ' + key));
+  if (idx < 0) idx = state.bodies.findIndex((b) => b.planet.name.toLowerCase().includes(key));
+  if (idx < 0) return null;
+  return { mode: 'planet', index: idx };
+}
+
+function focusByName(name, immediate) {
+  const f = resolveFocus(name);
+  if (!f) { toast('no such body: ' + name); return false; }
+  setFocus(f.mode, f.index, immediate);
+  return true;
+}
+
+function focusMinDistance(mode, index) {
+  if (mode === 'planet') return state.bodies[index].radiusUnits * 1.4;
+  return state.starRadiusUnits * 1.3;
+}
+
+function focusDistance(mode, index) {
+  if (mode === 'planet') return Math.max(state.bodies[index].radiusUnits * 6, 0.05);
+  if (mode === 'star') return state.starRadiusUnits * 8;
+  return systemDistance();
+}
+
+/** World position (doubles) of a focus. */
+function focusWorldOf(mode, index, out) {
+  if (mode === 'planet') {
+    const w = state.bodies[index].world;
+    out.x = w.x; out.y = w.y; out.z = w.z;
+  } else {
+    out.x = 0; out.y = 0; out.z = 0;
+  }
+  return out;
+}
+
+/** Unit vector from a planet toward a good viewpoint: rotated FOCUS_AZIMUTH round from the
+    star direction in the orbital plane, lifted above the plane. */
+function focusDirection(body, out) {
+  const px = body.world.x, py = body.world.y;
+  let ang = Math.atan2(-py, -px);                 // direction planet -> star (star at the origin)
+  if (!Number.isFinite(ang)) ang = 0;
+  ang += FOCUS_AZIMUTH;
+  out.set(Math.cos(ang), Math.sin(ang), FOCUS_ELEVATION).normalize();
+  return out;
+}
+
+/**
+ * Focus a body. In attract mode the camera tweens to it; in flight it only becomes the
+ * target for the dossier and the HUD readouts (the autopilot flies there on request).
+ */
 function setFocus(mode, index, immediate) {
   const f = state.focus;
+  const prevMode = f.mode, prevIndex = f.index;
   f.mode = mode;
   f.index = mode === 'planet' ? index : -1;
 
-  let dist, minDist;
-  if (mode === 'planet') {
-    const b = state.bodies[index];
-    dist = Math.max(b.radiusUnits * 6, 0.05);
-    minDist = b.radiusUnits * 1.4;
-  } else if (mode === 'star') {
-    dist = state.starRadiusUnits * 8;
-    minDist = state.starRadiusUnits * 1.3;
-  } else {
-    dist = systemDistance();
-    minDist = state.starRadiusUnits * 1.3;
-  }
-  state.controls.minDistance = minDist;
+  if (state.mode === 'attract') {
+    const cam = state.orbitCam, controls = state.controls, tw = state.tween;
+    const dist = focusDistance(mode, index);
+    controls.minDistance = focusMinDistance(mode, index);
 
-  focusTargetPosition(tmpTarget);
-  const tw = state.tween;
-  // current viewing direction (target -> camera)
-  tmpDir.subVectors(state.camera.position, state.controls.target);
-  if (tmpDir.lengthSq() < 1e-12) tmpDir.set(0, -0.72, 0.69);
-  tmpDir.normalize();
-  tw.fromDir.copy(tmpDir);
-  // where to look from: for a planet, round from the star direction so the
-  // terminator is in view; for the star and the whole system, keep the current direction
-  if (mode === 'planet') focusDirection(state.bodies[index], tw.toDir);
-  else tw.toDir.copy(tmpDir);
-  if (immediate) {
-    tw.active = false;
-    state.controls.target.copy(tmpTarget);
-    state.camera.position.copy(tmpTarget).addScaledVector(tw.toDir, dist);
-  } else {
-    tw.active = true;
-    tw.t = 0;
-    tw.fromTarget.copy(state.controls.target);
-    tw.fromDist = state.camera.position.distanceTo(state.controls.target);
-    tw.toDist = dist;
+    // where the camera is now, in world doubles: old frame origin + local offset
+    focusWorldOf(prevMode, prevIndex, tmpD);
+    tmpDir.subVectors(cam.position, controls.target);
+    if (tmpDir.lengthSq() < 1e-12) tmpDir.set(0, -0.72, 0.69);
+    const fromDist = tmpDir.length();
+    tmpDir.normalize();
+    tw.fromDir.copy(tmpDir);
+    if (mode === 'planet') focusDirection(state.bodies[index], tw.toDir);
+    else tw.toDir.copy(tmpDir);
+
+    if (immediate) {
+      tw.active = false;
+      focusWorldOf(mode, index, state.focusWorld);
+      controls.target.set(0, 0, 0);
+      cam.position.copy(tw.toDir).multiplyScalar(dist);
+      cam.lookAt(controls.target);
+      applyOrbitFrameToShip();
+    } else {
+      tw.active = true;
+      tw.t = 0;
+      tw.slerp = false;
+      tw.fromTarget.x = tmpD.x + controls.target.x;
+      tw.fromTarget.y = tmpD.y + controls.target.y;
+      tw.fromTarget.z = tmpD.z + controls.target.z;
+      tw.fromDist = fromDist;
+      tw.toDist = dist;
+    }
   }
+
+  if (mode === 'planet') markVisited(state.host.name);
 
   focusButtons().forEach((btn) => {
     const on = (btn.dataset.focus === mode) || (mode === 'planet' && Number(btn.dataset.index) === index);
@@ -553,51 +950,224 @@ function setFocus(mode, index, immediate) {
   renderDossier();
 }
 
-/** Unit vector from a planet toward a good viewpoint: rotated FOCUS_AZIMUTH round from the
-    star direction in the orbital plane, lifted above the plane. */
-function focusDirection(body, out) {
-  const px = body.mesh.position.x, py = body.mesh.position.y;
-  let ang = Math.atan2(-py, -px);                 // direction planet -> star (star at the origin)
-  if (!Number.isFinite(ang)) ang = 0;
-  ang += FOCUS_AZIMUTH;
-  out.set(Math.cos(ang), Math.sin(ang), FOCUS_ELEVATION).normalize();
-  return out;
+/** Attract frame: local origin = focus world position; the ship sits at origin + orbitCam.position. */
+function applyOrbitFrameToShip() {
+  const cam = state.orbitCam, ship = state.ship, fw = state.focusWorld;
+  ship.pos.x = fw.x + cam.position.x;
+  ship.pos.y = fw.y + cam.position.y;
+  ship.pos.z = fw.z + cam.position.z;
+  ship.quat.copy(cam.quaternion);
 }
 
-function focusTargetPosition(out) {
+/** The inverse: put the orbit camera where the ship is, relative to the current focus. */
+function syncOrbitFrameToShip() {
+  const cam = state.orbitCam, controls = state.controls, ship = state.ship, f = state.focus;
+  focusWorldOf(f.mode, f.index, state.focusWorld);
+  const fw = state.focusWorld;
+  controls.target.set(0, 0, 0);
+  cam.position.set(ship.pos.x - fw.x, ship.pos.y - fw.y, ship.pos.z - fw.z);
+  cam.quaternion.copy(ship.quat);
+}
+
+/** Leaving flight: keep the view where the ship is, turn toward the focus, then let OrbitControls take over. */
+function enterAttractFromShip() {
+  const ship = state.ship, tw = state.tween, controls = state.controls, cam = state.orbitCam;
+  // if the ship is parked near a planet, that planet becomes the focus
+  let nearest = -1, nearestRadii = RELEASE_FOCUS_RADII;
+  for (let i = 0; i < state.bodies.length; i++) {
+    const b = state.bodies[i];
+    const d = Math.hypot(ship.pos.x - b.world.x, ship.pos.y - b.world.y, ship.pos.z - b.world.z) / b.radiusUnits;
+    if (d < nearestRadii) { nearestRadii = d; nearest = i; }
+  }
   const f = state.focus;
-  if (f.mode === 'planet') out.copy(state.bodies[f.index].mesh.position);
-  else out.set(0, 0, 0);
-  return out;
+  if (nearest >= 0 && !(f.mode === 'planet' && f.index === nearest)) {
+    f.mode = 'planet'; f.index = nearest;
+    focusButtons().forEach((btn) => {
+      const on = Number(btn.dataset.index) === nearest;
+      btn.classList.toggle('active', on);
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+    renderDossier();
+  }
+  syncOrbitFrameToShip();
+  controls.minDistance = focusMinDistance(f.mode, f.index);
+  tmpDir.copy(cam.position);
+  let dist = tmpDir.length();
+  if (dist < 1e-9) { tmpDir.set(0, -0.72, 0.69); dist = focusDistance(f.mode, f.index); }
+  tmpDir.normalize();
+  tw.active = true;
+  tw.t = 0;
+  tw.slerp = true;
+  tw.fromQuat.copy(ship.quat);
+  tw.fromTarget.x = state.focusWorld.x;
+  tw.fromTarget.y = state.focusWorld.y;
+  tw.fromTarget.z = state.focusWorld.z;
+  tw.fromDir.copy(tmpDir);
+  tw.toDir.copy(tmpDir);
+  tw.fromDist = dist;
+  tw.toDist = Math.max(dist, controls.minDistance * 1.5);
 }
 
-function updateFocus(dt) {
-  const cam = state.camera, controls = state.controls, tw = state.tween;
-  focusTargetPosition(tmpTarget);
+function updateAttract(dt) {
+  const cam = state.orbitCam, controls = state.controls, tw = state.tween, f = state.focus;
+  const fw = focusWorldOf(f.mode, f.index, state.focusWorld);
   if (tw.active) {
     tw.t = Math.min(1, tw.t + dt / TWEEN_SECONDS);
     const s = 1 - Math.pow(1 - tw.t, 3);           // ease out cubic
     tmpDir.lerpVectors(tw.fromDir, tw.toDir, s);
     if (tmpDir.lengthSq() < 1e-12) tmpDir.copy(tw.toDir);
     tmpDir.normalize();
-    tmpV.lerpVectors(tw.fromTarget, tmpTarget, s);
+    // the look target slides from the old focus to the new one, expressed in the new frame
+    const tx = tw.fromTarget.x + (fw.x - tw.fromTarget.x) * s - fw.x;
+    const ty = tw.fromTarget.y + (fw.y - tw.fromTarget.y) * s - fw.y;
+    const tz = tw.fromTarget.z + (fw.z - tw.fromTarget.z) * s - fw.z;
     const d = tw.fromDist + (tw.toDist - tw.fromDist) * s;
-    controls.target.copy(tmpV);
-    cam.position.copy(tmpV).addScaledVector(tmpDir, d);
-    if (tw.t >= 1) tw.active = false;
+    controls.target.set(tx, ty, tz);
+    cam.position.copy(controls.target).addScaledVector(tmpDir, d);
+    cam.lookAt(controls.target);
+    applyOrbitFrameToShip();
+    if (tw.slerp) state.ship.quat.slerpQuaternions(tw.fromQuat, cam.quaternion, s);
+    if (tw.t >= 1) { tw.active = false; tw.slerp = false; }
   } else {
-    // the focused body moves: carry the camera along with it, keeping the user's offset
-    tmpDelta.subVectors(tmpTarget, controls.target);
-    if (tmpDelta.lengthSq() > 0) {
-      controls.target.copy(tmpTarget);
-      cam.position.add(tmpDelta);
-    }
+    controls.update();                              // damping, slow auto-orbit, user drag and zoom
+    applyOrbitFrameToShip();
   }
+}
+
+/* ---------------- modes ---------------- */
+
+function setMode(name) {
+  const ship = state.ship;
+  const attachOpts = state.noLock ? { lock: false } : undefined;
+  if (name === state.mode) {
+    if (name === 'flight' && !ship.enabled) ship.attach(attachOpts);
+    return;
+  }
+  if (name === 'flight') {
+    state.mode = 'flight';
+    state.tween.active = false;
+    state.controls.enabled = false;
+    ship.unanchor();
+    ship.setVelocity(null);
+    ship.setThrottleIndex(0);
+    ship.attach(attachOpts);
+    if (state.hud) state.hud.setMode('flight');
+    if (el.hint) el.hint.textContent = 'mouse looks · W/S throttle · Q/E roll · shift boost · space brake · Esc releases the controls';
+    toast('you have the controls · Esc releases them · H for help');
+  } else if (name === 'attract') {
+    state.mode = 'attract';
+    ship.cancelAutopilot();
+    if (ship.enabled) ship.detach();
+    enterAttractFromShip();
+    state.controls.enabled = true;
+    if (state.hud) state.hud.setMode('attract');
+    if (el.hint) el.hint.textContent = 'drag to rotate · scroll to zoom · right-drag to pan';
+  } else if (name === 'warp') {
+    state.mode = 'warp';
+    state.tween.active = false;
+    state.controls.enabled = false;
+    ship.cancelAutopilot();
+    ship.setVelocity(null);
+    if (state.hud) state.hud.setMode('warp');
+  } else {
+    throw new Error('unknown mode: ' + name);
+  }
+  hudState.hudAt = -1;
+}
+
+/* ---------------- autopilot, discovery, warp ---------------- */
+
+function autopilotByName(name) {
+  const f = resolveFocus(name);
+  if (!f || f.mode === 'system') { toast('pick a body first'); return false; }
+  const body = f.mode === 'star' ? state.shipBodies[0] : state.shipBodies[f.index + 1];
+  if (!body) return false;
+  if (state.mode !== 'flight') setMode('flight');
+  setFocus(f.mode, f.index, true);
+  state.ship.autopilotTo(body, { stopRadii: 4 });
+  toast('autopilot: ' + body.name);
+  return true;
+}
+
+function onShipArrive(body) {
+  toast('arrived: ' + body.name);
+  if (body.kind === 'planet') markVisited(state.host.name);
+}
+
+function loadVisited() {
+  try {
+    const a = JSON.parse(localStorage.getItem(VISITED_KEY) || '[]');
+    return new Set(Array.isArray(a) ? a.filter((s) => typeof s === 'string') : []);
+  } catch (err) {
+    return new Set();
+  }
+}
+
+function markVisited(hostName) {
+  if (!hostName || state.visited.has(hostName)) return;
+  state.visited.add(hostName);
+  try { localStorage.setItem(VISITED_KEY, JSON.stringify(Array.from(state.visited))); } catch (err) { /* private mode */ }
+  const total = state.catalog ? state.catalog.hostList.length : 0;
+  if (state.hud) state.hud.setVisited(state.visited.size, total);
+  if (state.minimap) { state.minimap.setVisited(state.visited); state.minimap.draw(); }
+  toast('system visited: ' + hostName + ' · ' + state.visited.size + ' of ' + total.toLocaleString('en-GB'));
+}
+
+/** In flight, coming within DISCOVER_RADII of any planet counts as a visit. */
+function checkDiscovery() {
+  if (state.visited.has(state.host.name)) return;
+  const ship = state.ship;
+  for (let i = 0; i < state.bodies.length; i++) {
+    const b = state.bodies[i];
+    const lim = b.radiusUnits * (1 + DISCOVER_RADII);
+    const dx = ship.pos.x - b.world.x, dy = ship.pos.y - b.world.y, dz = ship.pos.z - b.world.z;
+    if (dx * dx + dy * dy + dz * dz < lim * lim) { markVisited(state.host.name); return; }
+  }
+}
+
+function hostDistanceLy(a, b) {
+  if (!a || !b) return null;
+  const ok = (h) => Number.isFinite(h.x) && Number.isFinite(h.y) && Number.isFinite(h.z);
+  if (!ok(a) || !ok(b)) return null;
+  return Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z) * PC_TO_LY;
+}
+
+async function warpTo(name) {
+  if (state.mode === 'warp' || state.building) return false;
+  const host = findHost(state.catalog, name);
+  if (!host) { toast('unknown host: ' + name); return false; }
+  if (host === state.host) { toast('already at ' + host.name); return false; }
+  const from = state.host;
+  const prevMode = state.mode;
+  const distanceLy = hostDistanceLy(from, host);
+  setMode('warp');
+  const swap = async () => { await setHost(host.name, { arrival: true, immediate: false }); };
+  try {
+    if (state.warp) await state.warp.run({ fromName: from.name, toName: host.name, distanceLy: distanceLy == null ? NaN : distanceLy, onMidpoint: swap });
+    else await swap();
+  } catch (err) {
+    console.error('system: warp failed', err);
+    if (state.host === from) await swap();
+  }
+  try { history.replaceState(null, '', '?host=' + encodeURIComponent(host.name)); } catch (err) { /* file: origin */ }
+  // the destination is no longer a pick target
+  if (state.pickedHost === host.name) {
+    state.pickedHost = null;
+    if (state.hud && typeof state.hud.setPickedHost === 'function') state.hud.setPickedHost(null);
+    if (state.minimap && typeof state.minimap.setPicked === 'function') state.minimap.setPicked(null);
+  }
+  const keepFlying = prevMode === 'flight' && state.ship.enabled;
+  state.mode = 'none';   // force the transition
+  setMode(keepFlying ? 'flight' : 'attract');
+  const light = distanceLy == null ? '' : ' · light takes ' + fmt(distanceLy, 1) + ' years';
+  toast('arrived at ' + host.name + light, 4000);
+  return true;
 }
 
 /* ---------------- simulation ---------------- */
 
-function positionBodies(simSeconds) {
+/** True positions (doubles) and spins for a simulation time; velocities by finite difference over real dt. */
+function positionBodies(simSeconds, dt) {
   const bodies = state.bodies;
   for (let i = 0; i < bodies.length; i++) {
     const b = bodies[i];
@@ -606,17 +1176,38 @@ function positionBodies(simSeconds) {
     const cosE = Math.cos(E), sinE = Math.sin(E);
     const x = b.aUnits * (cosE - b.e);
     const y = b.aUnits * Math.sqrt(1 - b.e * b.e) * sinE;
-    b.mesh.position.set(x, y, 0);
+    const w = b.world;
+    if (dt > 0 && b.velKnown) {
+      b.vel.x = (x - w.x) / dt; b.vel.y = (y - w.y) / dt; b.vel.z = 0;
+    } else if (dt > 0) {
+      b.velKnown = true;
+    }
+    w.x = x; w.y = y; w.z = 0;
 
     // spin is about the local y axis (the sphere's poles), which the 90 degree
     // x tilt set at build time maps to world +z; the local +x meridian then
     // points at world azimuth = rotation.y
     if (b.planet.tidally_locked) {
-      // same face toward the star: spin follows the true anomaly
       b.mesh.rotation.y = Math.atan2(y, x) + Math.PI;
     } else {
       b.mesh.rotation.y = TAU * (simSeconds / b.rotationSeconds);
     }
+  }
+}
+
+/** Floating origin: everything is drawn relative to the ship. */
+function placeRelative() {
+  const s = state.ship.pos;
+  const sx = s.x, sy = s.y, sz = s.z;
+  if (state.star) state.star.group.position.set(-sx, -sy, -sz);
+  if (state.star && state.star.light && state.star.light.parent === state.scene) state.star.light.position.set(-sx, -sy, -sz);
+  if (state.starMarker) state.starMarker.position.set(-sx, -sy, -sz);
+  const bodies = state.bodies;
+  for (let i = 0; i < bodies.length; i++) {
+    const b = bodies[i];
+    b.mesh.position.set(b.world.x - sx, b.world.y - sy, b.world.z - sz);
+    b.orbit.position.set(-sx, -sy, -sz);
+    b.marker.position.copy(b.mesh.position);
   }
 }
 
@@ -625,7 +1216,7 @@ function updateLighting(realSeconds) {
   const lc = state.lightColor;
   for (let i = 0; i < bodies.length; i++) {
     const b = bodies[i];
-    tmpDir.copy(b.mesh.position).negate();
+    tmpDir.set(-b.world.x, -b.world.y, -b.world.z);
     if (tmpDir.lengthSq() < 1e-12) tmpDir.set(1, 0, 0);
     tmpDir.normalize();
     applyLight(b.material, tmpDir, lc, realSeconds);
@@ -652,26 +1243,70 @@ function updateMarkers() {
   const bodies = state.bodies;
   for (let i = 0; i < bodies.length; i++) {
     const b = bodies[i];
-    const dist = cam.position.distanceTo(b.mesh.position);
+    const dist = b.mesh.position.length();
     const apparentPx = (b.radiusUnits / Math.max(dist, 1e-6)) * pxPerUnitAtOne * 2;
     b.marker.visible = apparentPx < MARKER_HIDE_PX;
-    if (b.marker.visible) b.marker.position.copy(b.mesh.position);
   }
-  const starDist = cam.position.length();
+  const starDist = state.starMarker ? state.starMarker.position.length() : 1;
   const starPx = (state.starRadiusUnits / Math.max(starDist, 1e-6)) * pxPerUnitAtOne * 2;
-  state.starMarker.visible = starPx < MARKER_HIDE_PX;
+  if (state.starMarker) state.starMarker.visible = starPx < MARKER_HIDE_PX;
+}
+
+function updateHud(force) {
+  const hud = state.hud;
+  if (!hud) return;
+  if (!force && state.realSeconds - hudState.hudAt < 1 / HUD_HZ) return;
+  hudState.hudAt = state.realSeconds;
+  const ship = state.ship, f = state.focus, host = state.host;
+  hudState.speedKms = ship.speedKms();
+  hudState.speedC = hudState.speedKms / 299792.458;
+  hudState.throttleLevel = ship.throttleLevel();
+  hudState.mode = state.mode;
+  if (f.mode === 'planet') {
+    const b = state.bodies[f.index];
+    hudState.targetName = b.planet.name;
+    const d = Math.hypot(ship.pos.x - b.world.x, ship.pos.y - b.world.y, ship.pos.z - b.world.z);
+    hudState.distToTargetKm = Math.max(0, d - b.radiusUnits) * KM_PER_UNIT;
+  } else if (f.mode === 'star') {
+    hudState.targetName = host.name;
+    const d = Math.hypot(ship.pos.x, ship.pos.y, ship.pos.z);
+    hudState.distToTargetKm = Math.max(0, d - state.starRadiusUnits) * KM_PER_UNIT;
+  } else {
+    hudState.targetName = null;
+    hudState.distToTargetKm = Math.hypot(ship.pos.x, ship.pos.y, ship.pos.z) * KM_PER_UNIT;
+  }
+  hudState.hostName = host.name;
+  hudState.distFromEarthLy = Number.isFinite(host.dist_pc) ? host.dist_pc * PC_TO_LY : null;
+  hudState.systemsVisited = state.visited.size;
+  hudState.totalSystems = state.catalog.hostList.length;
+  hudState.autopilot = !!ship.autopilot;
+  hudState.timeScaleLabel = timeScaleLabel();
+  hud.update(hudState);
+  // flying without pointer lock (refused, or ?flight=1): keep a visible crosshair
+  if (el.cockpit) {
+    const lock = state.mode === 'flight' && !ship.pointerLocked ? '0' : '1';
+    if (el.cockpit.dataset.lock !== lock) el.cockpit.dataset.lock = lock;
+  }
 }
 
 function step(dt) {
   if (!state.paused) state.simSeconds += dt * state.timeScale;
-  positionBodies(state.simSeconds);
+  positionBodies(state.simSeconds, dt);
+  if (state.mode === 'attract') {
+    updateAttract(dt);
+  } else if (state.mode === 'flight') {
+    state.ship.update(dt, state.shipBodies);
+    checkDiscovery();
+  }
+  state.camera.position.set(0, 0, 0);
+  state.camera.quaternion.copy(state.ship.quat);
+  placeRelative();
   updateLighting(state.realSeconds);
   if (state.star && typeof state.star.update === 'function') state.star.update(state.realSeconds);
-  updateFocus(dt);
-  state.controls.update();
-  state.sky.update(state.camera.position);
+  if (state.sky) state.sky.update(state.camera.position);
   updateMarkers();
   updateClock();
+  updateHud(dt === 0);
 }
 
 function renderFrame() {
@@ -726,7 +1361,6 @@ function resize() {
   let w = el.canvas.clientWidth;
   let h = el.canvas.clientHeight;
   if (!(w >= 2 && h >= 2)) {
-    // not laid out yet (hidden tab, display none): fall back to the stage or the viewport
     w = el.stage.clientWidth || window.innerWidth || 1280;
     h = el.stage.clientHeight || Math.round(window.innerHeight * 0.78) || 720;
   }
@@ -735,13 +1369,18 @@ function resize() {
     state.pixelRatio = pr;
     state.renderer.setPixelRatio(pr);
     if (state.sky && state.sky.setPixelRatio) state.sky.setPixelRatio(pr);
-    state.bodies.forEach((b) => { b.marker.material.size = 6 * pr; });
+    if (state.markerMat) state.markerMat.size = 6 * pr;
     if (state.starMarker) state.starMarker.material.size = 9 * pr;
   }
   state.renderer.setSize(w, h, false);
   state.camera.aspect = w / h;
   state.camera.updateProjectionMatrix();
-  if (!state.running) renderFrame();
+  if (state.orbitCam) {
+    state.orbitCam.aspect = w / h;
+    state.orbitCam.updateProjectionMatrix();
+  }
+  if (state.minimap && typeof state.minimap.resize === 'function') state.minimap.resize();
+  if (!state.running && state.ship) renderFrame();
 }
 
 /* ---------------- dossier ---------------- */
@@ -788,52 +1427,49 @@ function starImaginedRows() {
   ];
 }
 
-function renderStarLine() {
+function starLineText() {
   const host = state.host, star = state.system.star;
-  el.dHost.textContent = host.name;
   const parts = [];
   if (host.spec) parts.push(host.spec);
   parts.push(fmt(star.teff, 0) + ' K (' + srcNote(star.teff_src) + ')');
   parts.push(fmt(star.radius_km / SUN_RADIUS_KM, 3) + ' solar radii (' + srcNote(star.radius_src) + ')');
   parts.push(fmt(star.mass_msun, 3) + ' solar masses (' + srcNote(star.mass_src) + ')');
   if (Number.isFinite(host.dist_pc)) parts.push(fmt(host.dist_pc * PC_TO_LY, 1) + ' light-years from Earth');
-  el.dStar.textContent = parts.join(' · ');
+  return parts.join(' · ');
 }
 
-function renderDossier() {
-  const f = state.focus;
-  el.dMeasured.replaceChildren();
-  el.dImagined.replaceChildren();
+function renderStarLine() {
+  if (state.hud) return;             // the HUD writes the dossier head from setDossier
+  if (el.dHost) el.dHost.textContent = state.host.name;
+  if (el.dStar) el.dStar.textContent = starLineText();
+}
 
+/** Rows for the current focus: { title, measured, imagined }. */
+function dossierRows() {
+  const f = state.focus;
   if (f.mode !== 'planet') {
-    el.dFocus.textContent = f.mode === 'star'
+    const title = f.mode === 'star'
       ? 'focus: ' + state.host.name + ' (star)'
       : 'focus: whole system, ' + state.bodies.length + (state.bodies.length === 1 ? ' planet' : ' planets');
-    starMeasuredRows().forEach((r) => addRow(el.dMeasured, r.label, r.value, r.note));
     const im = starImaginedRows();
     if (f.mode === 'system') {
       im.push({ label: 'orbits', value: 'all drawn in one plane; true inclinations and orientations are not shown' });
       im.push({ label: 'orbital phases', value: 'starting positions along each orbit are assumed, not catalogued' });
       im.push({ label: 'markers', value: 'gold dots mark planets too small to see at true scale' });
     }
-    im.forEach((r) => addRow(el.dImagined, r.label, r.value, r.note));
-    return;
+    return { title, measured: starMeasuredRows(), imagined: im };
   }
 
   const b = state.bodies[f.index];
   const p = b.planet;
-  el.dFocus.textContent = 'focus: ' + p.name + ' · ' + p.cls + (p.method ? ' · ' + p.method + (p.year ? ' ' + p.year : '') : '');
+  const title = 'focus: ' + p.name + ' · ' + p.cls + (p.method ? ' · ' + p.method + (p.year ? ' ' + p.year : '') : '');
 
   let measured = [];
   try { measured = describeMeasured(p, state.system.star) || []; } catch (err) { console.error(err); }
   if (!measured.length) measured = [{ label: 'catalogue', value: 'no rows returned' }];
-  measured.forEach((r) => addRow(el.dMeasured, r.label, r.value, r.note));
 
   const im = (b.material && b.material.userData && b.material.userData.imagined) || {};
   const rows = [];
-  // assumptions made by the catalogue module (assumed star values, assumed radius,
-  // orbit or period, teq from assumed inputs); rotation and orbit shape are
-  // reported by the page below with the rendering rule attached
   let assumed = [];
   try { assumed = describeAssumed(p, state.system.star) || []; } catch (err) { console.error(err); }
   assumed.filter((r) => r.label !== 'rotation' && r.label !== 'orbit shape').forEach((r) => rows.push(r));
@@ -870,7 +1506,30 @@ function renderDossier() {
   });
   rows.push({ label: 'size', value: 'true scale' + (p.radius_src && p.radius_src !== 'measured' ? ' (radius ' + p.radius_src + ')' : '') });
   rows.push({ label: 'rings, moons', value: 'none drawn, none known' });
-  rows.forEach((r) => addRow(el.dImagined, r.label, r.value, r.note));
+  return { title, measured, imagined: rows };
+}
+
+function renderDossier() {
+  const d = dossierRows();
+  if (state.hud && typeof state.hud.setDossier === 'function') {
+    state.hud.setDossier({
+      hostLine: state.host.name,
+      starLine: starLineText(),
+      measured: d.measured,
+      imagined: d.imagined,
+      title: d.title,
+    });
+    return;
+  }
+  if (el.dFocus) el.dFocus.textContent = d.title;
+  if (el.dMeasured) {
+    el.dMeasured.replaceChildren();
+    d.measured.forEach((r) => addRow(el.dMeasured, r.label, r.value, r.note));
+  }
+  if (el.dImagined) {
+    el.dImagined.replaceChildren();
+    d.imagined.forEach((r) => addRow(el.dImagined, r.label, r.value, r.note));
+  }
 }
 
 /* ---------------- test hook ---------------- */
@@ -881,29 +1540,39 @@ function installTestHook() {
       step(0);
       renderFrame();
     },
+    /** Advance the simulation by dt real seconds without rendering (tests, hidden tabs). */
+    step(dt) {
+      const d = Math.max(0, Math.min(0.1, Number(dt) || 0));
+      state.realSeconds += d;
+      step(d);
+    },
     focus(name) {
-      const key = String(name || '').trim().toLowerCase();
-      if (key === 'star') return setFocus('star', -1, true);
-      if (key === 'system' || key === '') return setFocus('system', -1, true);
-      let idx = state.bodies.findIndex((b) => b.planet.name.toLowerCase() === key);
-      if (idx < 0) idx = state.bodies.findIndex((b) => b.planet.name.toLowerCase().endsWith(' ' + key));
-      if (idx < 0) idx = state.bodies.findIndex((b) => b.planet.name.toLowerCase().includes(key));
-      if (idx < 0) throw new Error('no such body: ' + name);
-      setFocus('planet', idx, true);
+      const f = resolveFocus(name);
+      if (!f) throw new Error('no such body: ' + name);
+      setFocus(f.mode, f.index, true);
     },
     setTime(seconds) {
       state.simSeconds = Number(seconds) || 0;
-      positionBodies(state.simSeconds);
+      positionBodies(state.simSeconds, 0);
       updateClock(true);
     },
     snapshot() {
       step(0);
+      // twice: in a hidden tab the first readback after a scene change can be a frame stale
+      renderFrame();
       renderFrame();
       return el.canvas.toDataURL('image/jpeg', 0.9);
     },
+    mode() { return state.mode; },
+    setMode,
+    setHost: (name) => setHost(name, { arrival: true, immediate: false }),
+    warpTo,
+    autopilot: autopilotByName,
+    ship: state.ship,
+    visited: () => Array.from(state.visited),
     resize,
     state,
-    constants: { KM_PER_UNIT, SUN_RADIUS_KM, AU_KM, EARTH_RADIUS_KM, JUP_RADIUS_KM },
+    constants: { KM_PER_UNIT, SUN_RADIUS_KM, AU_KM, EARTH_RADIUS_KM, JUP_RADIUS_KM, THROTTLE_STEPS },
   };
 }
 

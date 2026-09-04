@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>warp.js test</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<style>
+  body { background: #04060F; color: #d9dde8; font: 13px/1.5 "IBM Plex Mono", ui-monospace, monospace; margin: 1.5rem; }
+  h1 { font-size: 14px; font-weight: 400; color: #F5B324; }
+  .ok { color: #35D6FF; }
+  .fail { color: #ff6b6b; }
+  .stage { position: relative; width: min(900px, 100%); aspect-ratio: 16 / 9; background: #000; border: 1px solid rgba(245, 179, 36, 0.35); overflow: hidden; }
+  .stage canvas { display: block; width: 100%; height: 100%; }
+  .overlay { position: absolute; inset: 0; pointer-events: none; }
+  .ctl { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; align-items: center; }
+  button { font: inherit; font-size: 12px; background: transparent; color: #F5B324; border: 1px solid rgba(245, 179, 36, 0.5); border-radius: 2px; padding: 3px 10px; cursor: pointer; }
+  button:hover { background: rgba(245, 179, 36, 0.12); }
+  button:disabled { opacity: 0.5; cursor: default; }
+  label { color: rgba(217, 221, 232, 0.7); font-size: 12px; }
+  pre { white-space: pre-wrap; color: rgba(217, 221, 232, 0.8); }
+</style>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.159.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.159.0/examples/jsm/"
+  }
+}
+</script>
+</head>
+<body>
+<h1>explore/lib/warp.js test</h1>
+<p id="status">loading three.js</p>
+<div class="stage" id="stage">
+  <canvas id="c"></canvas>
+  <div class="overlay" id="overlay"></div>
+</div>
+<div class="ctl">
+  <button id="btn-warp">warp: WASP-96 to TRAPPIST-1 (1,120 ly)</button>
+  <button id="btn-warp2">warp: TRAPPIST-1 to Proxima Cen (36.1 ly)</button>
+  <button id="btn-cancel">cancel</button>
+  <label><input type="checkbox" id="chk-slow"> slow onMidpoint (2 s hold)</label>
+  <label><input type="checkbox" id="chk-spin" checked> camera drifts</label>
+</div>
+<pre id="out"></pre>
+<script type="module">
+  import { loadSky, makeSky } from './sky.js';
+  import { createWarp } from './warp.js';
+
+  const status = document.getElementById('status');
+  const out = document.getElementById('out');
+  const log = (s) => { out.textContent = s + '\n' + out.textContent; console.log(s); };
+
+  try {
+    const THREE = await import('three');
+    const canvas = document.getElementById('c');
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, logarithmicDepthBuffer: true, preserveDrawingBuffer: true });
+    renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.setClearColor(0x000000, 1);
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(45, 16 / 9, 0.01, 1e9);
+    camera.up.set(0, 0, 1);
+
+    // the real sky from the Sun, so the streaks play over the stars the game uses
+    let sky = null;
+    try {
+      const skyData = await loadSky('../');
+      sky = makeSky(THREE, skyData, null);
+      scene.add(sky);
+    } catch (e) {
+      log('sky unavailable (' + e.message + '); using random stars');
+      const n = 3000, p = new Float32Array(n * 3);
+      for (let i = 0; i < n; i++) {
+        const v = new THREE.Vector3().randomDirection().multiplyScalar(1e6);
+        p[i * 3] = v.x; p[i * 3 + 1] = v.y; p[i * 3 + 2] = v.z;
+      }
+      const g = new THREE.BufferGeometry();
+      g.setAttribute('position', new THREE.BufferAttribute(p, 3));
+      scene.add(new THREE.Points(g, new THREE.PointsMaterial({ color: 0xffffff, size: 2, sizeAttenuation: false })));
+    }
+    // a stand-in star so the swap at the midpoint is visible
+    const star = new THREE.Mesh(new THREE.SphereGeometry(2, 32, 16), new THREE.MeshBasicMaterial({ color: 0xffd08a }));
+    star.position.set(0, 40, 5);
+    scene.add(star);
+
+    // ?reduced=1 forces the reduced-motion crossfade for testing
+    const forceReduced = new URLSearchParams(location.search).get('reduced') === '1' ? true : undefined;
+    const warp = createWarp(THREE, { scene, camera, overlayEl: document.getElementById('overlay'), reducedMotion: forceReduced });
+    window.__warp = warp;
+
+    function resize() {
+      const r = canvas.getBoundingClientRect();
+      renderer.setSize(Math.round(r.width), Math.round(r.height), false);
+      camera.aspect = r.width / r.height;
+      camera.updateProjectionMatrix();
+    }
+    new ResizeObserver(resize).observe(canvas);
+    resize();
+
+    const chkSpin = document.getElementById('chk-spin');
+    let t0 = performance.now();
+    function frame(now) {
+      requestAnimationFrame(frame);
+      const t = (now - t0) / 1000;
+      if (chkSpin.checked) {
+        camera.quaternion.setFromEuler(new THREE.Euler(0.15 * Math.sin(t * 0.3), 0, 0.2 * t, 'ZYX'));
+      }
+      if (sky) sky.update(camera.position);
+      renderer.render(scene, camera);
+    }
+    requestAnimationFrame(frame);
+
+    const btns = [document.getElementById('btn-warp'), document.getElementById('btn-warp2')];
+    const chkSlow = document.getElementById('chk-slow');
+    async function play(fromName, toName, distanceLy, nextColor) {
+      btns.forEach((b) => { b.disabled = true; });
+      const t = performance.now();
+      log('warp start: ' + warp.describe(fromName, toName, distanceLy));
+      await warp.run({
+        fromName, toName, distanceLy,
+        onMidpoint: async () => {
+          log('midpoint at ' + ((performance.now() - t) / 1000).toFixed(2) + ' s (system swap happens here)');
+          if (chkSlow.checked) await new Promise((r) => setTimeout(r, 2000));
+          star.material.color.set(nextColor);
+          star.position.set(-30 + Math.random() * 60, 40, -10 + Math.random() * 20);
+        },
+      });
+      log('warp done at ' + ((performance.now() - t) / 1000).toFixed(2) + ' s');
+      btns.forEach((b) => { b.disabled = false; });
+    }
+    btns[0].addEventListener('click', () => play('WASP-96', 'TRAPPIST-1', 1120, 0xff9a7a));
+    btns[1].addEventListener('click', () => play('TRAPPIST-1', 'Proxima Cen', 36.1, 0xff7a5a));
+    document.getElementById('btn-cancel').addEventListener('click', () => { warp.cancel(); log('cancelled'); btns.forEach((b) => { b.disabled = false; }); });
+
+    status.textContent = 'ok · press a warp button' + ((forceReduced || window.matchMedia('(prefers-reduced-motion: reduce)').matches) ? ' · reduced motion: crossfade only' : '');
+    status.className = 'ok';
+  } catch (err) {
+    status.textContent = String(err && err.message || err);
+    status.className = 'fail';
+    console.error(err);
+  }
+</script>
+</body>
+</html>

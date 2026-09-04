@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>hud.js test</title>
+  <meta name="robots" content="noindex">
+  <style>
+    html, body { margin: 0; height: 100%; background: #04060F; }
+    iframe { display: block; border: 0; width: 100%; height: 100%; }
+  </style>
+</head>
+<body>
+  <!-- Loads system.html in a frame and drives lib/hud.js with mock state.
+       Query: ?scene=attract|flight|warp|help|map|sheet (default flight), &host=NAME, &w=390&h=760.
+       Useful with a headless screenshot at any window size. -->
+  <iframe id="f" title="system.html under test"></iframe>
+  <script>
+    const params = new URLSearchParams(location.search);
+    const scene = params.get('scene') || 'flight';
+    const host = params.get('host') || 'WASP-96';
+    const f = document.getElementById('f');
+    // optional frame size (px), e.g. ?w=390&h=760 to preview a phone inside a wider window
+    if (params.get('w')) f.style.width = Number(params.get('w')) + 'px';
+    if (params.get('h')) f.style.height = Number(params.get('h')) + 'px';
+    f.src = '../system.html?host=' + encodeURIComponent(host);
+    f.addEventListener('load', () => {
+      const doc = f.contentDocument;
+      const s = doc.createElement('script');
+      s.type = 'module';
+      s.textContent = `
+        import { createHud } from './lib/hud.js';
+        const scene = ${JSON.stringify(scene)};
+        const log = [];
+        const hud = createHud(document.getElementById('cockpit'), {
+          onTakeControls: () => log.push('take'), onRelease: () => log.push('release'),
+          onFocus: (n) => log.push('focus:' + n), onAutopilot: (n) => log.push('ap:' + n),
+          onWarp: (n) => log.push('warp:' + n), onToggleMap: () => log.push('map'),
+          onTimeScale: (s) => log.push('ts:' + s), onThrottle: (d) => log.push('thr:' + d), onBrake: () => log.push('brake'),
+        });
+        window.__hud = hud; window.__hudlog = log;
+        hud.setBodies([
+          { name: 'WASP-96 b', cls: 'gas-giant', radius_re: 13.4, swatchCss: 'rgb(200,160,110)' },
+          { name: 'WASP-96 c', cls: 'unknown', radius_re: 2.1, swatchCss: 'rgb(90,140,200)' },
+        ]);
+        hud.setDossier({
+          hostLine: 'WASP-96',
+          starLine: 'G8 · 5,540 K (measured) · 1.05 solar radii (measured) · 1,120 light-years from Earth',
+          title: 'focus: WASP-96 b · gas-giant · transit 2014',
+          measured: [
+            { label: 'radius', value: '13.4 Earth radii', note: 'measured' },
+            { label: 'period', value: '3.42 days', note: 'measured' },
+            { label: 'semi-major axis', value: '0.045 AU', note: 'measured' },
+            { label: 'equilibrium temperature', value: '1,285 K', note: 'measured' },
+          ],
+          imagined: [
+            { label: 'surface', value: 'banded clouds, imagined' },
+            { label: 'colours', value: 'warm ochre chosen from 1,285 K' },
+            { label: 'rotation', value: 'assumed tidally locked', note: 'rule: period below 20 days' },
+            { label: 'orbit', value: 'circular assumed; orientation unknown' },
+          ],
+        });
+        const base = { hostName: 'WASP-96', distFromEarthLy: 1120.4, systemsVisited: 3, totalSystems: 4741, timeScaleLabel: '' };
+        if (scene === 'attract') {
+          hud.setMode('attract');
+          hud.update({ ...base, speedKms: 0, speedC: 0, throttleLevel: 0, targetName: '', autopilot: false });
+        } else if (scene === 'warp') {
+          hud.setMode('warp');
+          hud.update({ ...base, speedKms: 3e7, speedC: 100, throttleLevel: 1, targetName: 'TRAPPIST-1', autopilot: false });
+          document.getElementById('warp-overlay').textContent = 'warp: WASP-96 to TRAPPIST-1 · 1,114 ly · light would take 1,114 years';
+        } else {
+          hud.setMode('flight');
+          hud.update({ ...base, speedKms: 4520000, speedC: 15.08, throttleLevel: 0.62, targetName: 'WASP-96 b', distToTargetKm: 3.2e6, autopilot: true });
+          hud.setPickedHost('TRAPPIST-1');
+          hud.toast('arrived at WASP-96 b', 60000);
+          if (scene === 'help') hud.showControlsHelp(true);
+          if (scene === 'map') hud.setMapVisible(true);
+          if (scene === 'sheet') hud.setDossierOpen(true);
+        }
+        // draw something in the minimap so the panel is not blank
+        const c = hud.minimapCanvas, ctx = c && c.getContext('2d');
+        if (ctx) {
+          ctx.fillStyle = '#000'; ctx.fillRect(0, 0, c.width, c.height);
+          ctx.strokeStyle = 'rgba(245,179,36,0.3)';
+          ctx.beginPath(); ctx.arc(110, 110, 30, 0, 6.283); ctx.stroke();
+          ctx.beginPath(); ctx.arc(110, 110, 100, 0, 6.283); ctx.stroke();
+          ctx.fillStyle = 'rgba(255,255,255,0.7)';
+          for (let i = 0; i < 160; i++) ctx.fillRect(Math.random() * 220, Math.random() * 220, 1, 1);
+          ctx.strokeStyle = '#F5B324'; ctx.beginPath(); ctx.arc(110, 110, 4, 0, 6.283); ctx.stroke();
+        }
+        document.title = 'hud test: ' + scene;
+      `;
+      doc.body.appendChild(s);
+    });
+  </script>
+</body>
+</html>

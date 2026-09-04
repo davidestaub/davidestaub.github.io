@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>minimap.js test</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<style>
+  body { background: #04060F; color: #d9dde8; font: 13px/1.5 "IBM Plex Mono", ui-monospace, monospace; margin: 1.5rem; }
+  h1 { font-size: 14px; font-weight: 400; color: #F5B324; }
+  .ok { color: #35D6FF; }
+  .fail { color: #ff6b6b; }
+  .row { display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-start; }
+  .panel { display: flex; flex-direction: column; gap: 8px; }
+  .panel canvas { width: 220px; height: 220px; border: 1px solid rgba(245, 179, 36, 0.35); border-radius: 2px; background: #000; display: block; }
+  .panel.big canvas { width: 440px; height: 440px; }
+  .ctl { display: flex; gap: 6px; flex-wrap: wrap; }
+  button, select { font: inherit; font-size: 12px; background: transparent; color: #F5B324; border: 1px solid rgba(245, 179, 36, 0.5); border-radius: 2px; padding: 2px 8px; cursor: pointer; }
+  button:hover { background: rgba(245, 179, 36, 0.12); }
+  select { color: #d9dde8; border-color: rgba(217, 221, 232, 0.3); max-width: 220px; }
+  pre { white-space: pre-wrap; word-break: break-word; color: rgba(217, 221, 232, 0.8); }
+  .cap { color: rgba(217, 221, 232, 0.6); font-size: 12px; }
+</style>
+</head>
+<body>
+<h1>explore/lib/minimap.js test</h1>
+<p id="status">loading catalogue</p>
+<div class="row">
+  <div class="panel">
+    <div class="cap">instance A · galaxy mode</div>
+    <canvas id="mm-galaxy"></canvas>
+    <div class="ctl"><button id="a-toggle">toggle mode</button></div>
+  </div>
+  <div class="panel">
+    <div class="cap">instance B · local mode</div>
+    <canvas id="mm-local"></canvas>
+    <div class="ctl"><button id="b-toggle">toggle mode</button></div>
+  </div>
+  <div class="panel big">
+    <div class="cap">instance C · 440 px, follows the picked host</div>
+    <canvas id="mm-big"></canvas>
+    <div class="ctl"><button id="c-toggle">toggle mode</button></div>
+  </div>
+</div>
+<p class="ctl">
+  current: <select id="sel-current"></select>
+  <button id="btn-visit">mark current visited</button>
+  <button id="btn-visit-many">visit 40 random</button>
+  <button id="btn-clear">clear visited</button>
+</p>
+<p class="cap">click or tap a host dot on any map: the picked name prints below and becomes the current system of instance C.</p>
+<pre id="out"></pre>
+<script type="module">
+  import { createMinimap } from './minimap.js';
+  import { loadCatalog } from './catalog.js';
+
+  const status = document.getElementById('status');
+  const out = document.getElementById('out');
+  const log = (s) => { out.textContent = s + '\n' + out.textContent; console.log(s); };
+
+  try {
+    const [catalog, galaxy] = await Promise.all([
+      loadCatalog('../'),
+      fetch('../data/galaxy.json').then((r) => { if (!r.ok) throw new Error('galaxy.json ' + r.status); return r.json(); }),
+    ]);
+    // contract shape: { name, x, y, z (heliocentric pc), planets: n }
+    const hosts = catalog.hostList.map((h) => ({ name: h.name, x: h.x, y: h.y, z: h.z, planets: h.planets.length }));
+    const placed = hosts.filter((h) => Number.isFinite(h.x)).length;
+
+    const opts = { hosts, galaxy, baseUrl: '../' };
+    const A = createMinimap(document.getElementById('mm-galaxy'), opts);
+    const B = createMinimap(document.getElementById('mm-local'), opts);
+    const C = createMinimap(document.getElementById('mm-big'), opts);
+    B.setMode('local');
+    C.setMode('local');
+    window.__minimaps = { A, B, C };
+
+    const visited = new Set(['TRAPPIST-1', 'HD 209458', '51 Peg', 'Proxima Cen', 'Kepler-186']);
+    const sel = document.getElementById('sel-current');
+    for (const name of ['WASP-96', 'TRAPPIST-1', 'Proxima Cen', '51 Peg', 'HD 209458', 'Kepler-186', 'KOI-351', 'OGLE-2005-BLG-390L', 'SWEEPS-11', 'HD 189733']) {
+      if (!catalog.hosts.has(name)) continue;
+      const o = document.createElement('option');
+      o.value = name; o.textContent = name;
+      sel.appendChild(o);
+    }
+    function setCurrent(name) {
+      for (const m of [A, B, C]) { m.setCurrent(name); m.setVisited(visited); }
+      sel.value = name;
+    }
+    setCurrent('WASP-96');
+    for (const m of [A, B, C]) m.onPick((name) => {
+      log('picked: ' + name);
+      C.setCurrent(name);
+      A.setPicked(name); B.setPicked(name);
+    });
+
+    sel.addEventListener('change', () => setCurrent(sel.value));
+    document.getElementById('a-toggle').addEventListener('click', () => log('A mode: ' + A.toggleMode()));
+    document.getElementById('b-toggle').addEventListener('click', () => log('B mode: ' + B.toggleMode()));
+    document.getElementById('c-toggle').addEventListener('click', () => log('C mode: ' + C.toggleMode()));
+    document.getElementById('btn-visit').addEventListener('click', () => { visited.add(sel.value); for (const m of [A, B, C]) m.setVisited(visited); });
+    document.getElementById('btn-visit-many').addEventListener('click', () => {
+      const pool = hosts.filter((h) => Number.isFinite(h.x));
+      for (let i = 0; i < 40; i++) visited.add(pool[Math.floor(Math.random() * pool.length)].name);
+      for (const m of [A, B, C]) m.setVisited(visited);
+    });
+    document.getElementById('btn-clear').addEventListener('click', () => { visited.clear(); for (const m of [A, B, C]) m.setVisited(visited); });
+
+    // calibration check against explore.js: the Sun must land r0 from the centre
+    const cal = A.calibration;
+    const sunPx = Math.hypot(galaxy.sun_px[0] - galaxy.centre_px[0], galaxy.sun_px[1] - galaxy.centre_px[1]);
+    const err = Math.abs(sunPx * cal.pc_per_px - cal.r0_pc);
+    if (err > 1) throw new Error('calibration: Sun lands ' + err.toFixed(2) + ' pc from r0');
+
+    status.textContent = 'ok · ' + hosts.length + ' hosts, ' + placed + ' with positions, drawn ' + A.count +
+      ' · pc/px ' + cal.pc_per_px.toFixed(4) + ' (file ' + galaxy.pc_per_px + ') · det ' + cal.det;
+    status.className = 'ok';
+  } catch (err) {
+    status.textContent = String(err && err.message || err);
+    status.className = 'fail';
+    console.error(err);
+  }
+</script>
+</body>
+</html>
