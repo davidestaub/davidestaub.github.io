@@ -8,13 +8,19 @@
      update(state), setDossier(d), setBodies(list), setVisited(n, total),
      toast(text, ms), setMode(mode), minimapCanvas, showControlsHelp(bool),
      // extensions beyond the contract, all optional for the caller:
-     setPickedHost(name|null), pickedHost(), setMapMode(mode),
-     setDossierOpen(bool), setSelectedBody(name), setNavHeight(), destroy()
+     setPickedHost(name|null, ly), pickedHost(), setMapMode(mode),
+     setDossierOpen(bool), setSelectedBody(name), setTargetBody(name|null),
+     showHint(text, ms), setNavHeight(), destroy()
    }
 
    callbacks (all optional): onTakeControls, onRelease, onFocus(bodyName),
    onAutopilot(bodyName), onWarp(hostName), onToggleMap, onTimeScale(scale),
-   and the extensions onThrottle(delta: +1|-1), onBrake(), onPause().
+   and the extensions onThrottle(delta: +1|-1), onBrake(), onPause(),
+   onOpenJump(tab) (the JUMP button without a destination, 'change', and
+   the phone bar's map button).
+
+   The per-frame state may carry `aligned` (bool): the reticle turns gold
+   and reads 'aligned' while the nose is on the target.
 
    Honesty rules: speed is shown in km/s, and as a multiple of c only when
    above c, with a note that this is not physical. Nothing here invents a
@@ -122,6 +128,9 @@ export function createHud(rootEl, callbacks = {}) {
     btnBrake: q('btn-brake'),
     btnAutopilot: q('btn-autopilot'),
     btnMap: q('btn-map'),
+    btnJump: q('btn-jump'),
+    btnJumpPick: q('btn-jump-pick'),
+    hintStrip: q('hud-hint-strip'),
   };
 
   const hud = {
@@ -219,13 +228,14 @@ export function createHud(rootEl, callbacks = {}) {
       root.classList.toggle('is-autopilot', ap);
     }
 
-    // target
-    if (state.targetName) {
-      const d = Number.isFinite(state.distToTargetKm) ? ' · ' + fmtDistance(state.distToTargetKm) : '';
-      setText(el.target, 'target', (ap ? 'autopilot: ' : 'target: ') + state.targetName + d);
-    } else {
-      setText(el.target, 'target', '');
+    // target: the bracket (system.js) carries the name and distance; under the reticle only
+    // the alignment word is shown, and the reticle turns gold while the nose is on the target
+    const aligned = !!state.aligned && !!state.targetName;
+    if (last.aligned !== aligned) {
+      last.aligned = aligned;
+      root.classList.toggle('is-aligned', aligned);
     }
+    setText(el.target, 'target', aligned ? 'aligned' : '');
 
     // discovery
     if (state.systemsVisited !== undefined) {
@@ -290,6 +300,7 @@ export function createHud(rootEl, callbacks = {}) {
    */
   function setBodies(list) {
     if (!el.planetList) return;
+    hud.selectedBody = null;            // a new system: the old selection names a body that no longer exists
     const frag = document.createDocumentFragment();
     (list || []).forEach((b, i) => {
       const item = document.createElement('div');
@@ -344,6 +355,27 @@ export function createHud(rootEl, callbacks = {}) {
   }
 
   function setSelectedBody(name) { hud.selectedBody = name || null; }
+
+  /** Mark the targeted body's chip (gold bracket corners), or none. */
+  function setTargetBody(name) {
+    if (!el.planetList) return;
+    const chips = el.planetList.querySelectorAll('.f-planet');
+    for (let i = 0; i < chips.length; i++) {
+      const on = !!name && chips[i].dataset.name === name;
+      if (chips[i].classList.contains('targeted') !== on) chips[i].classList.toggle('targeted', on);
+    }
+  }
+
+  /* ---------------- hint strip under the reticle ---------------- */
+
+  let hintTimer = 0;
+  function showHint(text, ms) {
+    if (!el.hintStrip) return;
+    clearTimeout(hintTimer);
+    el.hintStrip.textContent = text == null ? '' : String(text);
+    el.hintStrip.hidden = !text;
+    if (text && Number.isFinite(ms) && ms > 0) hintTimer = setTimeout(() => { el.hintStrip.hidden = true; }, ms);
+  }
 
   /* ---------------- discovery ---------------- */
 
@@ -403,14 +435,29 @@ export function createHud(rootEl, callbacks = {}) {
 
   /* ---------------- minimap panel ---------------- */
 
-  function setPickedHost(name) {
+  /**
+   * The jump destination (one state for the minimap pick, the chooser and the JUMP button).
+   * @param name  host name or null
+   * @param ly    distance from the current system in light-years, optional
+   */
+  function setPickedHost(name, ly) {
     hud.picked = name || null;
-    if (el.pick) el.pick.textContent = name ? 'selected: ' + name : 'select a system on the map';
+    if (el.pick) el.pick.textContent = name ? 'destination: ' + name : 'click a host to set the destination';
     if (el.btnWarp) {
       el.btnWarp.disabled = !name;
-      el.btnWarp.textContent = name ? 'warp to ' + name : 'warp to selected';
+      el.btnWarp.textContent = name ? 'jump to ' + name : 'jump to destination';
     }
     if (el.minimapPanel) el.minimapPanel.dataset.picked = name ? '1' : '0';
+    if (el.btnJump) {
+      const lyText = Number.isFinite(ly) ? ' · ' + fmt(ly, ly < 10 ? 1 : 0) + ' ly' : '';
+      el.btnJump.textContent = name ? 'jump: ' + name + lyText : 'jump: choose a system';
+      el.btnJump.title = name ? 'engage the jump to ' + name + ' (J)' : 'choose a system to jump to (J)';
+      el.btnJump.setAttribute('aria-label', name ? 'jump to ' + name + lyText : 'jump: no destination, choose a system');
+      // without a destination the button opens the chooser dialog; with one it engages
+      if (name) el.btnJump.removeAttribute('aria-haspopup'); else el.btnJump.setAttribute('aria-haspopup', 'dialog');
+      el.btnJump.classList.toggle('armed', !!name);
+    }
+    if (el.btnJumpPick) el.btnJumpPick.hidden = !name;
   }
 
   function setMapMode(mode) {
@@ -438,7 +485,15 @@ export function createHud(rootEl, callbacks = {}) {
     fire('onToggleMap');
   });
   on(el.btnWarp, 'click', () => { if (hud.picked) fire('onWarp', hud.picked); });
-  on(el.btnMap, 'click', () => setMapVisible(!root.classList.contains('show-map')));
+  // JUMP: with a destination it engages, without one it opens the chooser; 'change' always opens it
+  on(el.btnJump, 'click', () => { if (hud.picked) fire('onWarp', hud.picked); else fire('onOpenJump'); });
+  on(el.btnJumpPick, 'click', () => fire('onOpenJump'));
+  // phones: the bar's map button opens the chooser (the minimap is its 'map' tab); without
+  // that callback it falls back to the minimap sheet
+  on(el.btnMap, 'click', () => {
+    if (typeof cb.onOpenJump === 'function') fire('onOpenJump', 'map');
+    else setMapVisible(!root.classList.contains('show-map'));
+  });
   on(el.btnThrUp, 'click', () => fire('onThrottle', +1));
   on(el.btnThrDown, 'click', () => fire('onThrottle', -1));
   on(el.btnBrake, 'click', () => fire('onBrake'));
@@ -479,8 +534,12 @@ export function createHud(rootEl, callbacks = {}) {
   if (el.autopilot) el.autopilot.hidden = true;
   if (el.speedNote) el.speedNote.hidden = true;
 
+  if (el.hintStrip) el.hintStrip.hidden = true;
+  if (el.btnJumpPick) el.btnJumpPick.hidden = true;
+
   function destroy() {
     clearTimeout(toastTimer);
+    clearTimeout(hintTimer);
     disposers.splice(0).forEach((fn) => { try { fn(); } catch (_) { /* ignore */ } });
   }
 
@@ -500,6 +559,8 @@ export function createHud(rootEl, callbacks = {}) {
     setMapVisible,
     setDossierOpen,
     setSelectedBody,
+    setTargetBody,
+    showHint,
     setNavHeight,
     mode: () => hud.mode,
     destroy,

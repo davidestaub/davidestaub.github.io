@@ -84,6 +84,23 @@
               <div class="sys-clock" id="sys-clock">elapsed: 0 s</div>
               <div class="hud-timescale" id="hud-timescale"></div>
             </div>
+            <!-- jump: the destination and the engage button, always visible -->
+            <div class="jump-row">
+              <button type="button" class="jump-btn" id="btn-jump" aria-haspopup="dialog" aria-controls="hud-jump" title="choose a system to jump to (J)">jump: choose a system</button>
+              <button type="button" class="tool-btn jump-pick" id="btn-jump-pick" aria-label="change the destination" title="change the destination" hidden>change</button>
+            </div>
+          </div>
+
+          <!-- target bracket: placed over the targeted body every frame (system.js) -->
+          <div class="hud-bracket" id="hud-bracket" aria-hidden="true" hidden>
+            <span class="bk bk-tl"></span><span class="bk bk-tr"></span><span class="bk bk-bl"></span><span class="bk bk-br"></span>
+            <div class="bk-name" id="hud-bracket-name"></div>
+            <div class="bk-sub" id="hud-bracket-sub"></div>
+          </div>
+          <!-- edge arrow: where the target is when it is off screen -->
+          <div class="hud-edge" id="hud-edge" aria-hidden="true" hidden>
+            <span class="edge-arrow" id="hud-edge-arrow"></span>
+            <span class="edge-label" id="hud-edge-label"></span>
           </div>
 
           <!-- top right: how fast -->
@@ -110,12 +127,13 @@
               <span class="rt rt-n"></span><span class="rt rt-s"></span><span class="rt rt-w"></span><span class="rt rt-e"></span>
             </div>
             <div class="hud-target" id="hud-target"></div>
+            <div class="hud-hint-strip" id="hud-hint-strip" hidden></div>
           </div>
 
           <!-- attract mode: the invitation -->
           <div class="hud-take" id="hud-take">
             <button type="button" class="take-btn" id="btn-take-controls">Take the controls</button>
-            <div class="hud-take-hint">mouse to look · W S throttle · Q E roll · shift boost · space brake · H help</div>
+            <div class="hud-take-hint">T target · F fly to target · J jump to another system · H help</div>
           </div>
 
           <!-- flight mode: how to get out -->
@@ -174,16 +192,41 @@
               </span>
             </div>
             <canvas id="minimap-canvas" width="220" height="220" aria-label="Galaxy minimap: click a host to select it"></canvas>
-            <div class="hud-sub minimap-pick" id="hud-pick">select a system on the map</div>
-            <button type="button" class="warp-btn" id="btn-warp" disabled>warp to selected</button>
+            <div class="hud-sub minimap-pick" id="hud-pick">click a host to set the destination</div>
+            <button type="button" class="warp-btn" id="btn-warp" disabled>jump to destination</button>
+          </div>
+
+          <!-- jump chooser: search, nearest, famous, random, map -->
+          <div class="hud-jump" id="hud-jump" role="dialog" aria-modal="true" aria-label="Jump to another system" hidden>
+            <div class="jump-card">
+              <div class="jump-head">
+                <span class="d-eyebrow">jump to another system</span>
+                <button type="button" class="tool-btn" id="btn-jump-close" aria-label="close the chooser">close</button>
+              </div>
+              <input type="search" class="jump-search" id="jump-search" placeholder="system or planet name" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="search systems and planets">
+              <div class="jump-tabs" role="tablist" aria-label="Destination lists">
+                <button type="button" class="jump-tab active" data-tab="nearest" role="tab" aria-selected="true">nearest</button>
+                <button type="button" class="jump-tab" data-tab="famous" role="tab" aria-selected="false">famous</button>
+                <button type="button" class="jump-tab" data-tab="random" role="tab" aria-selected="false">random</button>
+                <button type="button" class="jump-tab" data-tab="map" role="tab" aria-selected="false">map</button>
+              </div>
+              <div class="jump-status hud-sub" id="jump-status" hidden></div>
+              <div class="jump-list" id="jump-list" role="listbox" aria-label="Systems"></div>
+              <div class="jump-map" id="jump-map" hidden>
+                <div class="hud-sub jump-map-note" id="jump-map-note">the galaxy map: click a host to set the destination, M switches local and galaxy</div>
+              </div>
+              <!-- engage from inside the card once a destination is set (a map pick leaves the card open) -->
+              <button type="button" class="jump-go" id="btn-jump-go" hidden>jump</button>
+              <div class="jump-foot hud-sub" id="jump-foot">arrows move · Enter selects · Esc closes</div>
+            </div>
           </div>
 
           <!-- first visit: what this is, before the controls -->
           <div class="hud-intro" id="hud-intro" role="dialog" aria-label="About this page" hidden>
             <div class="d-eyebrow">before you fly</div>
-            <p class="intro-line"><span class="intro-k">real</span>every star and planet here is a catalogued object, placed at its catalogued distance with its catalogued size, orbit and temperature where the archive has them. Where a number is missing it is derived or assumed, and the dossier marks each one.</p>
-            <p class="intro-line"><span class="intro-k">imagined</span>surfaces, colours, clouds and the orientation of each orbit are the renderer's assumptions. The dossier lists which is which.</p>
-            <p class="intro-line"><span class="intro-k">controls</span>mouse to look, W and S throttle, Shift boost, Space brake, H help, M map. On a phone, drag to look and use the bar below.</p>
+            <p class="intro-line"><span class="intro-k">real</span><span class="intro-text">positions and numbers from the NASA Exoplanet Archive. <span class="intro-k intro-k-inline">Imagined:</span> every surface, colour and orbit orientation; the dossier says which is which.</span></p>
+            <p class="intro-line"><span class="intro-k">navigate</span><span class="intro-text"><span class="intro-key">T</span> target · <span class="intro-key">F</span> fly to target · <span class="intro-key">J</span> jump to another system</span></p>
+            <p class="intro-line"><span class="intro-k">fly</span><span class="intro-text">mouse look · <span class="intro-key">W S</span> throttle · <span class="intro-key">Shift</span> boost · <span class="intro-key">Space</span> brake · <span class="intro-key">H</span> help</span></p>
             <div class="intro-actions">
               <button type="button" class="take-btn" id="btn-intro-take">Take the controls</button>
               <button type="button" class="intro-skip" id="btn-intro-skip">Look around first</button>
@@ -200,17 +243,22 @@
               <div><dt>mouse</dt><dd>look (pointer lock while flying)</dd></div>
               <div><dt>W / S</dt><dd>throttle up / down, exponential, 1 km/s to 100 c</dd></div>
               <div><dt>wheel</dt><dd>throttle as well</dd></div>
-              <div><dt>Q / E</dt><dd>roll</dd></div>
               <div><dt>shift</dt><dd>hold for 4x boost</dd></div>
               <div><dt>space</dt><dd>brake to zero</dd></div>
-              <div><dt>fly</dt><dd>autopilot to a planet, from its chip in the dossier; any input cancels</dd></div>
-              <div><dt>M</dt><dd>minimap: local or galaxy</dd></div>
-              <div><dt>map click</dt><dd>select a system, then warp to it</dd></div>
+              <div><dt>Q / E</dt><dd>roll</dd></div>
+              <div><dt>T</dt><dd>target the next body (planets by orbit, then the star); Shift+T the previous one</dd></div>
+              <div><dt>G</dt><dd>target the nearest planet</dd></div>
+              <div><dt>X</dt><dd>clear the target</dd></div>
+              <div><dt>click</dt><dd>a planet in the view or its chip targets it</dd></div>
+              <div><dt>F</dt><dd>fly to the target on the autopilot; any input cancels</dd></div>
+              <div><dt>J</dt><dd>jump: choose another system, then J again to engage</dd></div>
+              <div><dt>M</dt><dd>map mode: local or galaxy</dd></div>
+              <div><dt>V</dt><dd>view: coming</dd></div>
               <div><dt>H</dt><dd>this help</dd></div>
               <div><dt>Esc</dt><dd>release the controls</dd></div>
-              <div><dt>touch</dt><dd>drag to look; throttle, brake, fly and warp from the bar below</dd></div>
+              <div><dt>touch</dt><dd>drag to look; throttle, brake, fly and jump from the bar below</dd></div>
             </dl>
-            <p class="help-note">Speeds are true in km/s. Above the speed of light the readout shows the multiple of c and says so; nothing real moves that fast. A warp between systems states how long light would take.</p>
+            <p class="help-note">Speeds are true in km/s. Above the speed of light the readout shows the multiple of c and says so; nothing real moves that fast. A jump between systems states how long light would take.</p>
           </div>
 
           <!-- phones: big touch buttons -->
@@ -219,7 +267,7 @@
             <button type="button" class="m-btn" id="btn-throttle-up" aria-label="throttle up">thr +</button>
             <button type="button" class="m-btn" id="btn-brake" aria-label="brake">brake</button>
             <button type="button" class="m-btn m-cyan" id="btn-autopilot" aria-label="autopilot to the selected planet">fly</button>
-            <button type="button" class="m-btn" id="btn-map" aria-pressed="false" aria-label="show the map">map</button>
+            <button type="button" class="m-btn" id="btn-map" aria-label="jump to another system">jump</button>
           </div>
         </div>
       </div>
@@ -250,6 +298,8 @@
             sits a few stellar radii out and a one-year orbit is a large empty circle.
             The background stars are the bright-star catalogue moved to the host's position, and
             the minimap places every host at its catalogued distance and direction.
+            Press T to target a planet: a bracket marks it with its distance and the time at the
+            current speed, and F flies there on the autopilot.
           </p>
           <p>
             <strong>What is imagined.</strong> No exoplanet has ever been resolved as a disc.
@@ -262,8 +312,10 @@
             <strong>What the speeds mean.</strong> The speed readout is true: kilometres per
             second through a scene at true scale. To cross a system in minutes the ship has to
             go far faster than light, and when it does the readout says so as a multiple of c.
-            That is a convenience of the game, not physics. A warp between systems is the same
+            That is a convenience of the game, not physics. A jump between systems is the same
             fiction, and its readout states how many years light would need for the same trip.
+            Press J to choose the next system by name, from the nearest ones, from a short list of
+            well studied ones or at random, then J again to engage.
           </p>
         </div>
       </section>

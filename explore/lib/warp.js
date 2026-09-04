@@ -13,7 +13,7 @@
      decel   1.0 s   streaks shorten and fade, flash fades
    prefers-reduced-motion: no streaks; a short dark crossfade instead.
 
-   The overlay reads 'warp: A to B · N ly · light would take N years'.
+   The overlay reads 'jump: A to B · N ly · light would take N years'.
    Nothing about the crossing is invented: the years are the light
    travel time, and no ship speed is implied by the animation.
 
@@ -37,11 +37,12 @@ const CSS = `
 .warp-flash { position: absolute; inset: 0; pointer-events: none; opacity: 0;
   background: radial-gradient(ellipse at center, rgba(228, 240, 255, 0.95) 0%, rgba(160, 205, 255, 0.55) 22%, rgba(53, 214, 255, 0.10) 48%, rgba(4, 6, 15, 0) 72%); }
 .warp-dark { position: absolute; inset: 0; pointer-events: none; opacity: 0; background: #04060F; }
-.warp-text { position: absolute; left: 50%; top: 72%; transform: translate(-50%, -50%); pointer-events: none;
-  font: 12px/1.6 "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: 0.02em;
-  color: #F5B324; text-align: center; opacity: 0; text-shadow: 0 0 8px rgba(4, 6, 15, 0.9), 0 0 2px rgba(4, 6, 15, 1); white-space: nowrap; }
-.warp-text .warp-phase { display: block; color: rgba(217, 221, 232, 0.75); font-size: 11px; }
-@media (max-width: 600px) { .warp-text { font-size: 11px; white-space: normal; max-width: 90vw; } }
+.warp-text { position: absolute; left: 50%; top: 26%; transform: translate(-50%, -50%); pointer-events: none;
+  font: 500 16px/1.7 "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: 0.1em; text-transform: uppercase;
+  color: #F5B324; text-align: center; opacity: 0; text-shadow: 0 0 12px rgba(4, 6, 15, 1), 0 0 3px rgba(4, 6, 15, 1); white-space: nowrap;
+  padding: 0.5em 1.2em; border: 1px solid rgba(245, 179, 36, 0.35); background: rgba(4, 6, 15, 0.7); }
+.warp-text .warp-phase { display: block; color: rgba(217, 221, 232, 0.8); font-size: 12px; letter-spacing: 0.24em; }
+@media (max-width: 600px) { .warp-text { font-size: 12px; white-space: normal; max-width: 92vw; top: 30%; } }
 `;
 
 const VERT = /* glsl */`
@@ -206,7 +207,7 @@ export function createWarp(THREE, { scene, camera, overlayEl, reducedMotion }) {
 
   function describe(fromName, toName, distanceLy) {
     const ly = Number(distanceLy);
-    const parts = ['warp: ' + (fromName || '?') + ' to ' + (toName || '?')];
+    const parts = ['jump: ' + (fromName || '?') + ' to ' + (toName || '?')];
     if (Number.isFinite(ly)) {
       const txt = fmtNum(ly);
       parts.push(txt + ' ly');

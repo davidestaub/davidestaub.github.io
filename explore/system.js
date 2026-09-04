@@ -28,7 +28,7 @@ import {
 import { makePlanetMaterial, makeAtmosphere } from './lib/planet-shaders.js';
 import { makeStar } from './lib/star.js';
 import { loadSky, makeSky } from './lib/sky.js';
-import { createShip, THROTTLE_STEPS } from './lib/ship.js';
+import { createShip, THROTTLE_STEPS, AUTOPILOT } from './lib/ship.js';
 
 /* ---------------- constants ---------------- */
 
@@ -59,6 +59,21 @@ const CURATED_PROB = 0.7;
 const TIME_LABELS = { 1: 'real time', 3600: '1 h/s', 86400: '1 day/s', 864000: '10 days/s' };
 const ORBIT_LINE_HIDE_RADII = 20;    // hide a planet's orbit line when the ship is within this many radii of it
 const ATTRACT_HINT = 'drag to rotate · click, then scroll to zoom · right-drag to pan';
+// targeting and jumps
+const LY_KM = 9.4607e12;
+const TARGET_CLICK_PX = 24;          // a click within this many px of a body's centre targets it
+const CLICK_DRAG_PX = 4;             // a pointer that moved more than this before release is a drag, not a click
+const CLICK_MAX_MS = 600;
+const ALIGN_COS = Math.cos(THREE.MathUtils.degToRad(2));   // the reticle reads 'aligned' within 2 degrees
+const AUTOPILOT_STOP_RADII = 4;
+const BRACKET_MIN_PX = 28;
+const EDGE_MARGIN_X = 96;            // the off-screen arrow keeps inside this inset of the stage
+const EDGE_MARGIN_TOP = 150;
+const EDGE_MARGIN_BOTTOM = 96;
+const HINT_STRIP_MS = 12000;
+const NEAREST_COUNT = 12;
+const JUMP_FAMOUS = CURATED_HOSTS.concat(['51 Peg', 'Proxima Cen']);
+const HINT_STRIP_TEXT = 'T next target · F fly there · J jump systems';
 const COARSE_POINTER = typeof matchMedia === 'function' && matchMedia('(pointer: coarse)').matches;
 const REDUCED_MOTION = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -96,6 +111,12 @@ const el = {
   introSkip: $('btn-intro-skip'),
   fullMap: $('link-full-map'),
   fullMapFoot: $('link-full-map-foot'),
+  bracket: $('hud-bracket'),
+  bracketName: $('hud-bracket-name'),
+  bracketSub: $('hud-bracket-sub'),
+  edge: $('hud-edge'),
+  edgeArrow: $('hud-edge-arrow'),
+  edgeLabel: $('hud-edge-label'),
 };
 
 /* ---------------- small helpers ---------------- */
@@ -114,6 +135,27 @@ function fmtElapsed(s) {
   if (s < 2 * DAY_S) return fmt(s / 3600, 1) + ' h';
   if (s < 2 * YEAR_S) return fmt(s / DAY_S, 1) + ' days';
   return fmt(s / YEAR_S, 2) + ' years';
+}
+
+/** Distance for the target bracket: km, million km, AU, then light-years. */
+function fmtDistanceLong(km) {
+  if (!Number.isFinite(km)) return '·';
+  if (km < 1e6) return fmt(km, 0) + ' km';
+  if (km < 1e9) return fmt(km / 1e6, km < 1e7 ? 2 : 1) + ' million km';
+  const ly = km / LY_KM;
+  if (ly >= 0.05) return fmt(ly, 2) + ' ly';
+  const au = km / AU_KM;
+  return fmt(au, au < 10 ? 2 : 1) + ' AU';
+}
+
+/** A duration in s / min / h / d, two units at most: '4 min 10 s', '2 h 5 min', '3 d 4 h'. */
+function fmtDuration(s) {
+  if (!Number.isFinite(s) || s < 0) return '·';
+  if (s < 60) return Math.round(s) + ' s';
+  if (s < 3600) { const r = Math.round(s), m = Math.floor(r / 60); return m + ' min ' + (r - m * 60) + ' s'; }
+  if (s < DAY_S) { const r = Math.round(s / 60), h = Math.floor(r / 60); return h + ' h ' + (r - h * 60) + ' min'; }
+  if (s < 100 * YEAR_S) { const r = Math.round(s / 3600), d = Math.floor(r / 24); return fmt(d, 0) + ' d ' + (r - d * 24) + ' h'; }
+  return 'over 100 years';
 }
 
 /** FNV-1a hash of a string -> 0..1, a stable per-planet seed. */
@@ -303,7 +345,13 @@ const state = {
   },
   visited: new Set(),
   placedHosts: 0,       // hosts with a catalogued position: the denominator of 'systems visited'
-  pickedHost: null,
+  pickedHost: null,     // the jump destination (minimap pick, chooser row and JUMP button share it)
+  target: null,         // a state.shipBodies entry (planet or star), or null
+  jump: null,           // the system chooser (lib/jump.js)
+  jumpPool: null,       // qualifying placed hosts for 'somewhere new', built on first use
+  jumpResume: false,    // the chooser took the controls away from a flight; give them back on close
+  hintShown: false,     // the T / F / J strip has been shown this page load
+  mbarPx: 0,            // the phone bar's height in px (0 on desktop), read in resize()
   pixelRatio: 1,
   noLock: false,        // ?flight=1: fly without pointer lock
 };
@@ -311,7 +359,7 @@ const state = {
 /** Per-frame HUD state object, mutated in place. */
 const hudState = {
   speedKms: 0, speedC: 0, throttleLevel: 0,
-  targetName: null, distToTargetKm: null,
+  targetName: null, distToTargetKm: null, aligned: false,
   hostName: '', distFromEarthLy: null,
   systemsVisited: 0, totalSystems: 0,
   autopilot: false, timeScaleLabel: '', mode: 'attract',
@@ -320,7 +368,17 @@ const hudState = {
 
 // reusable temporaries: no per-frame allocation
 const tmpDir = new THREE.Vector3();
+const tmpQ = new THREE.Quaternion();
 const tmpD = { x: 0, y: 0, z: 0 };     // double-precision scratch point
+
+/** Screen projection of a body, filled by projectBody (one shared object, no allocation). */
+const proj = { sx: 0, sy: 0, front: false, discPx: 0, dist: 0, cx: 0, cy: 0, cz: 0 };
+
+/** Last values written to the target bracket and edge arrow: the DOM is touched only on change. */
+const ov = {
+  shown: false, x: -1e9, y: -1e9, size: 0, name: '', sub: '', subAt: -1, aligned: false,
+  edgeShown: false, ex: -1e9, ey: -1e9, ang: 1e9, label: '', side: '',
+};
 
 /* ---------------- first visit: which host ---------------- */
 
@@ -429,10 +487,11 @@ async function boot() {
   state.visited = loadVisited();
 
   // the cockpit modules are optional: the page renders without them
-  const [hudMod, minimapMod, warpMod, galaxy] = await Promise.all([
+  const [hudMod, minimapMod, warpMod, jumpMod, galaxy] = await Promise.all([
     optionalImport('./lib/hud.js'),
     optionalImport('./lib/minimap.js'),
     optionalImport('./lib/warp.js'),
+    optionalImport('./lib/jump.js'),
     optionalJson(BASE_URL + 'data/galaxy.json'),
   ]);
   state.galaxy = galaxy;
@@ -457,7 +516,7 @@ async function boot() {
   setStatus('building scene');
   try {
     buildRenderer();
-    buildChrome(hudMod, minimapMod, warpMod);
+    buildChrome(hudMod, minimapMod, warpMod, jumpMod);
     await setHost(host.name, { immediate: true, arrival: false });
   } catch (err) {
     console.error(err);
@@ -546,7 +605,7 @@ function buildRenderer() {
 }
 
 /** Controls that live for the whole page: time presets, star/system buttons, the cockpit modules. */
-function buildChrome(hudMod, minimapMod, warpMod) {
+function buildChrome(hudMod, minimapMod, warpMod, jumpMod) {
   // cockpit HUD (owns the buttons inside #cockpit and fires callbacks)
   const root = el.cockpit || el.stage;
   if (hudMod && typeof hudMod.createHud === 'function' && root) {
@@ -554,9 +613,14 @@ function buildChrome(hudMod, minimapMod, warpMod) {
       state.hud = hudMod.createHud(root, {
         onTakeControls: () => setMode('flight'),
         onRelease: () => setMode('attract'),
-        onFocus: (name) => focusByName(name, false),
+        // a planet chip: in attract mode the camera goes there; in flight it becomes the target
+        onFocus: (name) => {
+          const b = state.mode === 'flight' ? bodyByName(name) : null;
+          if (b) setTarget(b); else focusByName(name, false);
+        },
         onAutopilot: (name) => autopilotByName(name),
         onWarp: (name) => warpTo(name || state.pickedHost),
+        onOpenJump: (tab) => openJump(typeof tab === 'string' ? tab : undefined),
         onToggleMap: () => {
           if (!state.minimap) return;
           const m = state.minimap.toggleMode();
@@ -597,9 +661,8 @@ function buildChrome(hudMod, minimapMod, warpMod) {
       }
       const minimap = minimapMod.createMinimap(mapCanvas, { hosts, galaxy: state.galaxy, baseUrl: BASE_URL });
       minimap.onPick((name) => {
-        state.pickedHost = name;
-        if (state.hud && typeof state.hud.setPickedHost === 'function') state.hud.setPickedHost(name);
-        else toast('selected: ' + name);
+        setDestination(name);
+        if (!state.hud) toast('destination: ' + name);
       });
       minimap.setVisited(state.visited);
       // the HUD's mode button starts on 'local'; the map itself defaults to galaxy, so agree on one
@@ -630,8 +693,47 @@ function buildChrome(hudMod, minimapMod, warpMod) {
     }
   }
 
-  // keyboard: Enter warps to the picked host (H and M are handled by the HUD)
+  // the system chooser (J): rows come from the catalogue, the minimap canvas is its 'map' tab
+  if (jumpMod && typeof jumpMod.createJumpChooser === 'function' && root) {
+    try {
+      state.jump = jumpMod.createJumpChooser(root, {
+        nearest: () => nearestHostRows(NEAREST_COUNT),
+        famous: () => famousHostRows(),
+        search: (q) => searchHostRows(q),
+        random: () => randomHostName(),
+        onSelect: (name) => {
+          setDestination(name);
+          const host = findHost(state.catalog, name);
+          const ly = host ? hostDistanceLy(state.host, host) : null;
+          // phones have no J key: the JUMP button at the top engages
+          toast('destination: ' + (host ? host.name : name) + (ly == null ? '' : ' · ' + fmt(ly, ly < 10 ? 1 : 0) + ' ly') + (COARSE_POINTER ? ' · tap jump to go' : ' · J to jump'), 3600);
+        },
+        // the card's own jump button: the destination is already set, engage
+        onEngage: (name) => { setDestination(name); warpTo(name); },
+        onOpen: () => {
+          hideIntro();
+          if (state.hud) state.hud.showControlsHelp(false);
+          // the mouse has to reach the panel: leave pointer lock, but stay in flight mode
+          state.jumpResume = state.mode === 'flight';
+          if (state.mode === 'flight' && state.ship.enabled) state.ship.detach();
+        },
+        onClose: () => {
+          // the click or key that closed the panel is the user gesture the lock request needs
+          if (state.jumpResume && state.mode === 'flight' && !state.ship.enabled) state.ship.attach(state.noLock ? { lock: false } : undefined);
+          state.jumpResume = false;
+        },
+        mapCanvas,
+      });
+    } catch (err) {
+      console.error('system: jump chooser failed', err);
+      state.jump = null;
+    }
+  }
+
+  // keyboard: T / F / G / X / J and Enter (H and M are handled by the HUD, W S Q E A D by the ship)
   window.addEventListener('keydown', onPageKey);
+  // a click (not a drag) on a body in the view targets it
+  installClickTarget();
 
   if (state.hud) {
     state.hud.setVisited(state.visited.size, totalSystems());
@@ -641,12 +743,57 @@ function buildChrome(hudMod, minimapMod, warpMod) {
 }
 
 function onPageKey(e) {
-  if (state.mode !== 'flight') return;
+  if (state.mode === 'warp' || state.building) return;
   const t = e.target;
-  if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
-  if (e.code === 'Enter' || e.code === 'NumpadEnter') {
-    if (state.pickedHost) warpTo(state.pickedHost);
+  if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable)) return;
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  switch (e.code) {
+    case 'KeyT': cycleTarget(e.shiftKey ? -1 : 1); break;
+    case 'KeyF': flyToTarget(); break;
+    case 'KeyG': targetNearest(); break;
+    case 'KeyX': if (state.target) setTarget(null); else return; break;
+    case 'KeyJ':
+      if (e.shiftKey || !state.pickedHost) openJump();
+      else warpTo(state.pickedHost);
+      break;
+    case 'Enter': case 'NumpadEnter':
+      // engage only when Enter is not also activating a focused button or link (that click has its own meaning)
+      if (state.mode === 'flight' && state.pickedHost && !focusOnControl()) warpTo(state.pickedHost); else return;
+      break;
+    default: return;
   }
+  e.preventDefault();
+}
+
+/** True when keyboard focus sits on a button, link or field, where Enter and Space already mean something. */
+function focusOnControl() {
+  const a = document.activeElement;
+  if (!a || a === document.body || a === el.canvas) return false;
+  const tag = a.tagName;
+  return tag === 'BUTTON' || tag === 'A' || tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || a.isContentEditable === true;
+}
+
+/** Clicking a body in the 3D view targets it: the nearest projected body within TARGET_CLICK_PX. */
+function installClickTarget() {
+  let downX = 0, downY = 0, downAt = 0, armed = false;
+  el.canvas.addEventListener('pointerdown', (e) => {
+    armed = e.button === 0 && e.isPrimary !== false;
+    downX = e.clientX; downY = e.clientY; downAt = performance.now();
+  });
+  el.canvas.addEventListener('pointerup', (e) => {
+    if (!armed || e.button !== 0) return;
+    armed = false;
+    if (state.mode === 'warp' || state.building) return;
+    if (state.jump && state.jump.isOpen()) return;
+    if (Math.hypot(e.clientX - downX, e.clientY - downY) > CLICK_DRAG_PX) return;   // a drag
+    if (performance.now() - downAt > CLICK_MAX_MS) return;
+    const rect = el.canvas.getBoundingClientRect();
+    let px, py;
+    if (state.ship.pointerLocked) { px = rect.width / 2; py = rect.height / 2; }   // under lock the reticle is the pointer
+    else { px = e.clientX - rect.left; py = e.clientY - rect.top; }
+    const b = bodyAtScreen(px, py);
+    if (b && b !== state.target) setTarget(b);
+  });
 }
 
 /* ---------------- system build and teardown ---------------- */
@@ -846,6 +993,8 @@ async function setHost(name, opts) {
     state.focus.mode = 'system';
     state.focus.index = -1;
     state.tween.active = false;
+    state.target = null;                 // the bodies are about to be replaced
+    if (state.hud && typeof state.hud.setTargetBody === 'function') state.hud.setTargetBody(null);
     document.title = host.name + ' · Explore · Davide Staub';
     if (el.hostTitle) el.hostTitle.textContent = host.name;
     const mapHref = 'map.html?host=' + encodeURIComponent(host.name);
@@ -1199,7 +1348,16 @@ function setMode(name) {
     el.canvas.style.touchAction = 'none';        // one finger looks
     if (state.hud) state.hud.setMode('flight');
     if (el.hint) el.hint.textContent = 'mouse looks · W/S throttle · Q/E roll · shift boost · space brake · Esc releases the controls';
-    toast('you have the controls · Esc releases them · H for help');
+    // something to aim at from the first second: the nearest planet, unless a target was already chosen
+    if (!state.target) {
+      const nb = nearestPlanetBody();
+      if (nb) setTarget(nb, { quiet: true });
+    }
+    toast('you have the controls' + (state.target ? ' · F flies to ' + state.target.name : '') + ' · H for help', 3600);
+    if (!state.hintShown && state.hud && typeof state.hud.showHint === 'function') {
+      state.hintShown = true;
+      state.hud.showHint(HINT_STRIP_TEXT, HINT_STRIP_MS);
+    }
   } else if (name === 'attract') {
     state.mode = 'attract';
     ship.cancelAutopilot();
@@ -1222,26 +1380,342 @@ function setMode(name) {
     throw new Error('unknown mode: ' + name);
   }
   hudState.hudAt = -1;
+  updateTargetOverlay();               // hidden in warp mode, back on the target after it
 }
 
 /* ---------------- autopilot, discovery, warp ---------------- */
 
 function autopilotByName(name) {
-  if (state.mode === 'warp' || state.building) { toast('wait for the warp to finish'); return false; }
-  const f = resolveFocus(name);
-  if (!f || f.mode === 'system') { toast('pick a body first'); return false; }
-  const body = f.mode === 'star' ? state.shipBodies[0] : state.shipBodies[f.index + 1];
-  if (!body) return false;
+  if (state.mode === 'warp' || state.building) { toast('wait for the jump to finish'); return false; }
+  const body = bodyByName(name);
+  if (!body) { toast('pick a body first'); return false; }
+  setTarget(body, { quiet: true });
+  return flyToTarget();
+}
+
+/** F: the autopilot flies to the target (the nearest planet when nothing is targeted). */
+function flyToTarget() {
+  if (state.mode === 'warp' || state.building) { toast('wait for the jump to finish'); return false; }
+  let t = state.target;
+  if (!t) {
+    t = nearestPlanetBody();
+    if (!t) { toast('nothing to fly to in this system'); return false; }
+    setTarget(t, { quiet: true });
+  }
   if (state.mode !== 'flight') setMode('flight');
-  setFocus(f.mode, f.index, true);
-  state.ship.autopilotTo(body, { stopRadii: 4 });
-  toast('autopilot: ' + body.name);
+  const ship = state.ship;
+  if (ship.autopilot && ship.autopilotBody === t) { toast('autopilot: already flying to ' + t.name); return true; }
+  ship.autopilotTo(t, { stopRadii: AUTOPILOT_STOP_RADII });
+  hudState.hudAt = -1;
+  ov.subAt = -1;
+  toast('autopilot: flying to ' + t.name + ' · any input cancels');
   return true;
 }
 
 function onShipArrive(body) {
-  toast('arrived: ' + body.name);
+  toast('arrived at ' + body.name, 3200);
+  ov.subAt = -1;
   if (body.kind === 'planet') markVisited(state.host.name);
+}
+
+/* ---------------- target ---------------- */
+
+/** Resolve 'star' or a planet name (full, suffix letter, or substring) to a ship body, or null. */
+function bodyByName(name) {
+  const f = resolveFocus(name);
+  if (!f || f.mode === 'system') return null;
+  return f.mode === 'star' ? state.shipBodies[0] : (state.shipBodies[f.index + 1] || null);
+}
+
+/** The planet whose surface is nearest the ship, or null when the system has none. */
+function nearestPlanetBody() {
+  const ship = state.ship, sb = state.shipBodies;
+  let best = null, bestD = Infinity;
+  for (let i = 1; i < sb.length; i++) {
+    const b = sb[i];
+    const d = Math.hypot(b.pos.x - ship.pos.x, b.pos.y - ship.pos.y, b.pos.z - ship.pos.z) - b.radius_units;
+    if (d < bestD) { bestD = d; best = b; }
+  }
+  return best;
+}
+
+/**
+ * Set the target (a state.shipBodies entry) or clear it. In flight the dossier follows the
+ * target; in attract mode the camera stays where it is (the chip's focus does that).
+ */
+function setTarget(body, o) {
+  const quiet = !!(o && o.quiet);
+  const b = body || null;
+  state.target = b;
+  if (state.hud) {
+    if (typeof state.hud.setTargetBody === 'function') state.hud.setTargetBody(b && b.kind === 'planet' ? b.name : null);
+    // the phone bar's 'fly' button flies to the HUD's selected body: keep it on the target
+    if (typeof state.hud.setSelectedBody === 'function') state.hud.setSelectedBody(b ? b.name : null);
+  }
+  if (b && state.mode === 'flight') {
+    const f = state.focus;
+    const mode = b.kind === 'star' ? 'star' : 'planet';
+    const index = b.kind === 'star' ? -1 : b.index;
+    if (f.mode !== mode || f.index !== index) setFocus(mode, index, true);
+  }
+  hudState.hudAt = -1;
+  ov.subAt = -1;
+  if (!quiet) toast(b ? 'target: ' + b.name + ' · F flies there' : 'target cleared', 2600);
+  updateTargetOverlay();
+  return b;
+}
+
+/** T / Shift+T: planets in orbit order, then the star, round again. */
+function cycleTarget(dir) {
+  const sb = state.shipBodies, n = sb.length;
+  if (!n) return null;
+  // cycle index k: 0..n-2 are the planets (sb[1..]), n-1 is the star (sb[0])
+  let k = -1;
+  if (state.target) k = state.target.kind === 'star' ? n - 1 : state.target.index;
+  k = (((k + (dir < 0 ? -1 : 1)) % n) + n) % n;
+  return setTarget(sb[k < n - 1 ? k + 1 : 0]);
+}
+
+/** G: target the nearest planet. */
+function targetNearest() {
+  const nb = nearestPlanetBody();
+  if (!nb) { toast('no planet in this system'); return null; }
+  if (nb === state.target) { toast('target: ' + nb.name + ' is already the nearest · F flies there'); return nb; }
+  return setTarget(nb);
+}
+
+/**
+ * Project a body to the canvas. Camera space is the ship frame (the camera sits at the origin
+ * with the ship's orientation), so the relative position is rotated by the inverse quaternion.
+ */
+function projectBody(b) {
+  const ship = state.ship;
+  const w = el.canvas.clientWidth || 1, h = el.canvas.clientHeight || 1;
+  tmpDir.set(b.pos.x - ship.pos.x, b.pos.y - ship.pos.y, b.pos.z - ship.pos.z);
+  proj.dist = tmpDir.length();
+  tmpQ.copy(ship.quat).invert();
+  tmpDir.applyQuaternion(tmpQ);
+  proj.cx = tmpDir.x; proj.cy = tmpDir.y; proj.cz = tmpDir.z;
+  const pm = state.camera.projectionMatrix.elements;      // [0] = f / aspect, [5] = f = 1 / tan(fov / 2)
+  proj.front = tmpDir.z < 0;
+  const iz = proj.front ? 1 / -tmpDir.z : 0;
+  proj.sx = (tmpDir.x * iz * pm[0] + 1) * 0.5 * w;
+  proj.sy = (1 - tmpDir.y * iz * pm[5]) * 0.5 * h;
+  proj.discPx = (b.radius_units / Math.max(proj.dist, 1e-9)) * (h * 0.5 * pm[5]);   // apparent radius in px
+  return proj;
+}
+
+/** The body whose projected centre (or disc) is nearest a canvas point, within TARGET_CLICK_PX. */
+function bodyAtScreen(px, py) {
+  const sb = state.shipBodies;
+  let best = null, bestD = Infinity;
+  for (let i = 0; i < sb.length; i++) {
+    const p = projectBody(sb[i]);
+    if (!p.front) continue;
+    const d = Math.hypot(p.sx - px, p.sy - py);
+    const lim = Math.max(TARGET_CLICK_PX, p.discPx);
+    if (d <= lim && d < bestD) { bestD = d; best = sb[i]; }
+  }
+  return best;
+}
+
+/**
+ * Seconds the autopilot needs from a distance: the capped run at full speed, then the
+ * ease-out, whose speed law is remaining / EASE_S + CREEP * r down to ARRIVE_FRACTION radii
+ * (integrated: EASE_S * ln((R + c) / (arrive + c)) with c = CREEP * r * EASE_S).
+ * An estimate, refreshed every frame; the turn at the start is not counted.
+ */
+function autopilotEta(dist, body) {
+  const r = Math.max(1e-6, Number(body.radius_units) || 1e-6);
+  const stop = r * (1 + state.ship.autopilotStopRadii);
+  let remaining = Math.max(0, dist - stop);
+  const T = AUTOPILOT.EASE_S;
+  const capDist = AUTOPILOT.MAX_UNITS_PER_S * T;
+  let t = 0;
+  if (remaining > capDist) { t += (remaining - capDist) / AUTOPILOT.MAX_UNITS_PER_S; remaining = capDist; }
+  const c = AUTOPILOT.CREEP * r * T;
+  t += T * Math.log(Math.max(1, (remaining + c) / (AUTOPILOT.ARRIVE_FRACTION * r + c)));
+  return t;
+}
+
+function setBracketShown(on) {
+  if (ov.shown === on) return;
+  ov.shown = on;
+  el.bracket.hidden = !on;
+}
+function setEdgeShown(on) {
+  if (ov.edgeShown === on) return;
+  ov.edgeShown = on;
+  el.edge.hidden = !on;
+}
+
+/** Place the bracket over the target, or the edge arrow toward it; every DOM write is on change only. */
+function updateTargetOverlay() {
+  const t = state.target;
+  if (!el.bracket || !el.edge) { ov.aligned = false; return; }
+  if (!t || state.mode === 'warp' || state.building) {
+    setBracketShown(false);
+    setEdgeShown(false);
+    ov.aligned = false;
+    return;
+  }
+  const p = projectBody(t);
+  const w = el.canvas.clientWidth || 1, h = el.canvas.clientHeight || 1;
+  const ship = state.ship;
+  const surface = Math.max(0, p.dist - t.radius_units);
+  // the nose is on the target when the camera-space direction is close to -z
+  ov.aligned = p.dist > 1e-9 && (-p.cz / p.dist) > ALIGN_COS;
+
+  if (t.name !== ov.name) { ov.name = t.name; el.bracketName.textContent = t.name; }
+  if (ov.subAt < 0 || state.realSeconds - ov.subAt >= 1 / HUD_HZ) {
+    ov.subAt = state.realSeconds;
+    const km = surface * KM_PER_UNIT;
+    const distText = fmtDistanceLong(km);
+    let sub;
+    if (ship.autopilot && ship.autopilotBody === t) {
+      sub = 'autopilot · arriving in ' + Math.ceil(autopilotEta(p.dist, t)) + ' s';
+    } else {
+      // stopped (or parked at the target): the distance alone, no time
+      const v = ship.speedUnits();
+      const eta = v * KM_PER_UNIT >= 0.5 ? surface / v : NaN;
+      sub = Number.isFinite(eta) ? distText + ' · ' + fmtDuration(eta) + ' at this speed' : distText;
+    }
+    if (sub !== ov.sub) { ov.sub = sub; el.bracketSub.textContent = sub; }
+    const label = t.name + ' · ' + distText;
+    if (label !== ov.label) { ov.label = label; el.edgeLabel.textContent = label; }
+  }
+
+  const onScreen = p.front && p.sx >= 0 && p.sx <= w && p.sy >= 0 && p.sy <= h;
+  if (onScreen) {
+    setEdgeShown(false);
+    let size = Math.max(BRACKET_MIN_PX, Math.round(p.discPx * 2 + 14));
+    size = Math.min(size, Math.round(Math.min(w, h) * 0.8));
+    const x = Math.round(p.sx - size / 2), y = Math.round(p.sy - size / 2);
+    if (size !== ov.size) {
+      ov.size = size;
+      el.bracket.style.width = size + 'px';
+      el.bracket.style.height = size + 'px';
+    }
+    if (x !== ov.x || y !== ov.y) {
+      ov.x = x; ov.y = y;
+      el.bracket.style.transform = 'translate(' + x + 'px,' + y + 'px)';
+    }
+    setBracketShown(true);
+    return;
+  }
+
+  setBracketShown(false);
+  // direction from the screen centre: the projection when in front, the camera-space offset when behind
+  let dx, dy;
+  if (p.front) { dx = p.sx - w / 2; dy = p.sy - h / 2; } else { dx = p.cx; dy = -p.cy; }
+  let len = Math.hypot(dx, dy);
+  if (len < 1e-9) { dx = 0; dy = 1; len = 1; }
+  dx /= len; dy /= len;
+  const cx = w / 2, cy = h / 2;
+  const bot = EDGE_MARGIN_BOTTOM + state.mbarPx;
+  let tx = Infinity, ty = Infinity;
+  if (dx > 1e-9) tx = (w - EDGE_MARGIN_X - cx) / dx; else if (dx < -1e-9) tx = (EDGE_MARGIN_X - cx) / dx;
+  if (dy > 1e-9) ty = (h - bot - cy) / dy; else if (dy < -1e-9) ty = (EDGE_MARGIN_TOP - cy) / dy;
+  const tt = Math.max(0, Math.min(tx, ty));
+  const ex = Math.round(cx + dx * tt), ey = Math.round(cy + dy * tt);
+  const ang = Math.round(Math.atan2(dy, dx) * 180 / Math.PI);
+  if (ex !== ov.ex || ey !== ov.ey) {
+    ov.ex = ex; ov.ey = ey;
+    el.edge.style.transform = 'translate(' + ex + 'px,' + ey + 'px)';
+  }
+  if (ang !== ov.ang) { ov.ang = ang; el.edgeArrow.style.transform = 'rotate(' + ang + 'deg)'; }
+  // the label sits on the inward side of the edge the arrow rests on, so it is never clipped
+  const side = tx < ty ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'bottom' : 'top');
+  if (side !== ov.side) { ov.side = side; el.edge.dataset.side = side; }
+  setEdgeShown(true);
+}
+
+/* ---------------- jump: destination and chooser ---------------- */
+
+function placedHost(h) { return !!h && Number.isFinite(h.x) && Number.isFinite(h.y) && Number.isFinite(h.z); }
+
+function hostRow(h) {
+  return { name: h.name, planets: h.planets.length, ly: hostDistanceLy(state.host, h), current: h === state.host };
+}
+
+/** The n nearest hosts with a catalogued position, nearest first. */
+function nearestHostRows(n) {
+  const cur = state.host;
+  if (!placedHost(cur)) return [];
+  const best = [], d2s = [];
+  for (const h of state.catalog.hostList) {
+    if (h === cur || !placedHost(h)) continue;
+    const dx = h.x - cur.x, dy = h.y - cur.y, dz = h.z - cur.z;
+    const d2 = dx * dx + dy * dy + dz * dz;
+    if (best.length >= n && d2 >= d2s[best.length - 1]) continue;
+    let i = best.length;
+    while (i > 0 && d2s[i - 1] > d2) i--;
+    best.splice(i, 0, h);
+    d2s.splice(i, 0, d2);
+    if (best.length > n) { best.pop(); d2s.pop(); }
+  }
+  return best.map(hostRow);
+}
+
+function famousHostRows() {
+  const rows = [];
+  for (const name of JUMP_FAMOUS) {
+    const h = findHost(state.catalog, name);
+    if (h && h !== state.host && placedHost(h)) rows.push(hostRow(h));
+  }
+  return rows;
+}
+
+/** Search: findHost's own resolution, then host and planet name prefixes, then substrings, 8 at most. */
+function searchHostRows(query) {
+  const key = String(query == null ? '' : query).trim().toLowerCase();
+  if (!key) return [];
+  const list = state.catalog.hostList;
+  const seen = new Set();
+  const rows = [];
+  const add = (h) => {
+    if (!h || seen.has(h) || rows.length >= 8) return;
+    seen.add(h);
+    rows.push(hostRow(h));
+  };
+  add(findHost(state.catalog, query));
+  for (let i = 0; i < list.length && rows.length < 8; i++) if (list[i].name.toLowerCase().startsWith(key)) add(list[i]);
+  for (let i = 0; i < list.length && rows.length < 8; i++) {
+    const ps = list[i].planets;
+    for (let k = 0; k < ps.length; k++) if (String(ps[k].name).toLowerCase().startsWith(key)) { add(list[i]); break; }
+  }
+  for (let i = 0; i < list.length && rows.length < 8; i++) if (list[i].name.toLowerCase().includes(key)) add(list[i]);
+  return rows;
+}
+
+/** 'somewhere new': a random host that qualifies (catalogued distance, a measured planet) and is placed. */
+function randomHostName() {
+  if (!state.jumpPool) state.jumpPool = state.catalog.hostList.filter((h) => hostQualifies(h) && placedHost(h));
+  const pool = state.jumpPool;
+  if (!pool.length) return null;
+  for (let k = 0; k < 12; k++) {
+    const h = pool[Math.floor(Math.random() * pool.length)];
+    if (h !== state.host) return h.name;
+  }
+  return null;
+}
+
+/** One destination for the minimap pick, the chooser and the JUMP button. */
+function setDestination(name) {
+  const host = name ? findHost(state.catalog, name) : null;
+  state.pickedHost = host ? host.name : null;
+  const ly = host ? hostDistanceLy(state.host, host) : null;
+  if (state.hud && typeof state.hud.setPickedHost === 'function') state.hud.setPickedHost(state.pickedHost, ly == null ? NaN : ly);
+  if (state.minimap && typeof state.minimap.setPicked === 'function') state.minimap.setPicked(state.pickedHost);
+  if (state.jump) state.jump.setDestination(state.pickedHost);
+  return state.pickedHost;
+}
+
+function openJump(tab) {
+  if (!state.jump) { toast('the system chooser did not load; pick a host on the map'); return false; }
+  if (state.mode === 'warp' || state.building) { toast('wait for the jump to finish'); return false; }
+  state.jump.open(tab);
+  return true;
 }
 
 function loadVisited() {
@@ -1290,7 +1764,9 @@ async function warpTo(name) {
   const from = state.host;
   const prevMode = state.mode;
   const distanceLy = hostDistanceLy(from, host);
-  const keepFlying = prevMode === 'flight' && state.ship.enabled;
+  // a flight resumes after the jump (the chooser may have detached the ship for the mouse)
+  const keepFlying = prevMode === 'flight';
+  if (state.jump && state.jump.isOpen()) { state.jumpResume = false; state.jump.close(); }
   setMode('warp');
   const swap = async () => { await setHost(host.name, { arrival: true, immediate: false }); };
   let arrived = false;
@@ -1311,12 +1787,8 @@ async function warpTo(name) {
     arrived = state.host !== from;
     if (arrived) {
       writeHostToUrl(host.name);
-      // the destination is no longer a pick target
-      if (state.pickedHost === host.name) {
-        state.pickedHost = null;
-        if (state.hud && typeof state.hud.setPickedHost === 'function') state.hud.setPickedHost(null);
-        if (state.minimap && typeof state.minimap.setPicked === 'function') state.minimap.setPicked(null);
-      }
+      // the destination has been reached; the distances of any other pick changed with the system
+      setDestination(null);
     }
   } finally {
     // whatever happened, never leave the page in warp mode: every recovering control is hidden there
@@ -1325,9 +1797,12 @@ async function warpTo(name) {
     setMode(keepFlying ? 'flight' : 'attract');
   }
   if (!arrived) return false;
+  // the new system's nearest planet is the target from the first frame
+  const nb = state.target || nearestPlanetBody();
+  if (nb && nb !== state.target) setTarget(nb, { quiet: true });
   const yrs = fmt(distanceLy, 1);
   const light = distanceLy == null ? '' : ' · light takes ' + yrs + (yrs === '1' ? ' year' : ' years');
-  toast('arrived at ' + host.name + light, 4000);
+  toast('arrived at ' + host.name + light + (nb ? ' · target: ' + nb.name + ' · F flies there' : ''), 5000);
   return true;
 }
 
@@ -1429,24 +1904,20 @@ function updateHud(force) {
   if (!hud) return;
   if (!force && state.realSeconds - hudState.hudAt < 1 / HUD_HZ) return;
   hudState.hudAt = state.realSeconds;
-  const ship = state.ship, f = state.focus, host = state.host;
+  const ship = state.ship, host = state.host, t = state.target;
   hudState.speedKms = ship.speedKms();
   hudState.speedC = hudState.speedKms / 299792.458;
   hudState.throttleLevel = ship.throttleLevel();
   hudState.mode = state.mode;
-  if (f.mode === 'planet') {
-    const b = state.bodies[f.index];
-    hudState.targetName = b.planet.name;
-    const d = Math.hypot(ship.pos.x - b.world.x, ship.pos.y - b.world.y, ship.pos.z - b.world.z);
-    hudState.distToTargetKm = Math.max(0, d - b.radiusUnits) * KM_PER_UNIT;
-  } else if (f.mode === 'star') {
-    hudState.targetName = host.name;
-    const d = Math.hypot(ship.pos.x, ship.pos.y, ship.pos.z);
-    hudState.distToTargetKm = Math.max(0, d - state.starRadiusUnits) * KM_PER_UNIT;
+  if (t) {
+    hudState.targetName = t.name;
+    const d = Math.hypot(ship.pos.x - t.pos.x, ship.pos.y - t.pos.y, ship.pos.z - t.pos.z);
+    hudState.distToTargetKm = Math.max(0, d - t.radius_units) * KM_PER_UNIT;
   } else {
     hudState.targetName = null;
     hudState.distToTargetKm = Math.hypot(ship.pos.x, ship.pos.y, ship.pos.z) * KM_PER_UNIT;
   }
+  hudState.aligned = ov.aligned;
   hudState.hostName = host.name;
   hudState.distFromEarthLy = Number.isFinite(host.dist_pc) ? host.dist_pc * PC_TO_LY : null;
   hudState.systemsVisited = state.visited.size;
@@ -1477,6 +1948,7 @@ function step(dt) {
   if (state.star && typeof state.star.update === 'function') state.star.update(state.realSeconds);
   if (state.sky) state.sky.update(state.camera.position);
   updateMarkers();
+  updateTargetOverlay();
   updateClock();
   updateHud(dt === 0);
 }
@@ -1552,6 +2024,9 @@ function resize() {
     state.orbitCam.updateProjectionMatrix();
   }
   if (state.minimap && typeof state.minimap.resize === 'function') state.minimap.resize();
+  // the phone bar's height keeps the edge arrow above it
+  try { state.mbarPx = parseFloat(getComputedStyle(document.body).getPropertyValue('--mbar-h')) || 0; } catch (err) { state.mbarPx = 0; }
+  ov.x = -1e9; ov.ex = -1e9;             // re-place the overlays for the new size
   if (!state.running && state.ship) renderFrame();
 }
 
@@ -1753,6 +2228,25 @@ function installTestHook() {
     setHost: (name) => setHost(name, { arrival: true, immediate: false }),
     warpTo,
     autopilot: autopilotByName,
+    /** Target a body by name ('star', 'b', 'WASP-96 b'), or null to clear; returns the target's name. */
+    target(name) {
+      if (name == null) { setTarget(null); return null; }
+      const b = bodyByName(name);
+      if (!b) throw new Error('no such body: ' + name);
+      return setTarget(b).name;
+    },
+    targetName: () => (state.target ? state.target.name : null),
+    cycleTarget,
+    targetNearest,
+    flyToTarget,
+    openJump,
+    closeJump: () => { if (state.jump) state.jump.close(); },
+    jumpOpen: () => !!(state.jump && state.jump.isOpen()),
+    /** Set the destination and engage the jump; resolves like warpTo. */
+    jump: (name) => { setDestination(name); return warpTo(name); },
+    setDestination,
+    destination: () => state.pickedHost,
+    overlay: ov,
     ship: state.ship,
     visited: () => Array.from(state.visited),
     resize,

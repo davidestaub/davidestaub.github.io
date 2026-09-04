@@ -54,6 +54,8 @@ const REPEAT_EVERY = 0.12;       // s between repeated throttle steps
 const WHEEL_STEP = 48;           // accumulated deltaY per throttle step
 const AP_MAX = (MAX_KMS * BOOST) / KM_PER_UNIT;   // autopilot speed cap, units/s (about 400 c)
 const AP_T = 1.1;                // s: autopilot speed = remaining distance / AP_T (ease-out)
+/** Autopilot speed law, exported so the page can estimate the time to arrival honestly. */
+export const AUTOPILOT = Object.freeze({ MAX_UNITS_PER_S: AP_MAX, EASE_S: AP_T, CREEP: 0.05, ARRIVE_FRACTION: 0.03 });
 const AP_APPROACH = 4.0;         // 1/s, velocity approach rate under autopilot
 const AP_TURN = 2.6;             // 1/s, orientation slerp rate under autopilot
 const AP_CANCEL_PX = 2.5;        // a mouse motion larger than this cancels the autopilot
@@ -143,6 +145,7 @@ export function createShip(THREE, opts) {
     touchLook: { start: touchStart, move: touchMove, end: touchEnd },
     get autopilot() { return ap.active; },
     get autopilotBody() { return ap.active ? ap.body : null; },
+    get autopilotStopRadii() { return ap.stopRadii; },
     get anchored() { return anchor; },
     get frameBody() { return ap.active ? ap.body : anchor; },
     get pointerLocked() { return locked; },
