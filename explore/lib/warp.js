@@ -27,8 +27,9 @@ const DECEL_S = 1.0;
 const REDUCED_FADE_S = 0.35;
 const REDUCED_HOLD_S = 0.9;
 
-// cylinder around the view axis, scene units (1 unit = 1,000 km); the
-// camera near plane is 0.01 so anything past a few units is safe
+// cylinder around the view axis, scene units (1 unit = 1,000 km); the field
+// starts 2 units ahead of the camera, well past the chase view's ship model
+// (0.16 units ahead of the camera, 0.06 long) and the cockpit interior
 const R_MIN = 0.35, R_MAX = 9.0;
 const Z_NEAR = 2.0, Z_FAR = 60.0;
 

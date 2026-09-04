@@ -119,6 +119,9 @@
               <span class="hud-sub" id="hud-throttle-label">throttle 0 %</span>
               <span class="hud-autopilot" id="hud-autopilot" hidden>autopilot</span>
             </div>
+            <div class="hud-view-row">
+              <button type="button" class="tool-btn" id="btn-view" title="switch to the cockpit view (V)" aria-label="view: chase, switch to cockpit">view: chase</button>
+            </div>
           </div>
 
           <!-- centre: reticle and target -->
@@ -133,7 +136,7 @@
           <!-- attract mode: the invitation -->
           <div class="hud-take" id="hud-take">
             <button type="button" class="take-btn" id="btn-take-controls">Take the controls</button>
-            <div class="hud-take-hint">T target · F fly to target · J jump to another system · H help</div>
+            <div class="hud-take-hint">T target · F fly to target · J jump to another system · V view · H help</div>
           </div>
 
           <!-- flight mode: how to get out -->
@@ -226,7 +229,7 @@
             <div class="d-eyebrow">before you fly</div>
             <p class="intro-line"><span class="intro-k">real</span><span class="intro-text">positions and numbers from the NASA Exoplanet Archive. <span class="intro-k intro-k-inline">Imagined:</span> every surface, colour and orbit orientation; the dossier says which is which.</span></p>
             <p class="intro-line"><span class="intro-k">navigate</span><span class="intro-text"><span class="intro-key">T</span> target · <span class="intro-key">F</span> fly to target · <span class="intro-key">J</span> jump to another system</span></p>
-            <p class="intro-line"><span class="intro-k">fly</span><span class="intro-text">mouse look · <span class="intro-key">W S</span> throttle · <span class="intro-key">Shift</span> boost · <span class="intro-key">Space</span> brake · <span class="intro-key">H</span> help</span></p>
+            <p class="intro-line"><span class="intro-k">fly</span><span class="intro-text">mouse look · <span class="intro-key">W S</span> throttle · <span class="intro-key">Shift</span> boost · <span class="intro-key">Space</span> brake · <span class="intro-key">V</span> chase or cockpit view · <span class="intro-key">H</span> help</span></p>
             <div class="intro-actions">
               <button type="button" class="take-btn" id="btn-intro-take">Take the controls</button>
               <button type="button" class="intro-skip" id="btn-intro-skip">Look around first</button>
@@ -253,7 +256,7 @@
               <div><dt>F</dt><dd>fly to the target on the autopilot; any input cancels</dd></div>
               <div><dt>J</dt><dd>jump: choose another system, then J again to engage</dd></div>
               <div><dt>M</dt><dd>map mode: local or galaxy</dd></div>
-              <div><dt>V</dt><dd>view: coming</dd></div>
+              <div><dt>V</dt><dd>view: chase (the ship from behind) or cockpit (from the seat); attract mode always shows the ship</dd></div>
               <div><dt>H</dt><dd>this help</dd></div>
               <div><dt>Esc</dt><dd>release the controls</dd></div>
               <div><dt>touch</dt><dd>drag to look; throttle, brake, fly and jump from the bar below</dd></div>
@@ -268,6 +271,7 @@
             <button type="button" class="m-btn" id="btn-brake" aria-label="brake">brake</button>
             <button type="button" class="m-btn m-cyan" id="btn-autopilot" aria-label="autopilot to the selected planet">fly</button>
             <button type="button" class="m-btn" id="btn-map" aria-label="jump to another system">jump</button>
+            <button type="button" class="m-btn" id="btn-view-m" aria-label="view: chase, tap for cockpit">view</button>
           </div>
         </div>
       </div>
@@ -299,7 +303,9 @@
             The background stars are the bright-star catalogue moved to the host's position, and
             the minimap places every host at its catalogued distance and direction.
             Press T to target a planet: a bracket marks it with its distance and the time at the
-            current speed, and F flies there on the autopilot.
+            current speed, and F flies there on the autopilot. The one thing not to scale is the
+            ship itself, drawn about 60 km long so it can be seen; V switches between the chase
+            view and the cockpit.
           </p>
           <p>
             <strong>What is imagined.</strong> No exoplanet has ever been resolved as a disc.

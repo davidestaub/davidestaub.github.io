@@ -421,6 +421,8 @@
   transition: transform 0.12s linear;
 }
 .hud-throttle-row { display: flex; justify-content: flex-end; align-items: baseline; gap: 0.8rem; }
+.hud-view-row { display: flex; justify-content: flex-end; margin-top: 0.5rem; }
+.hud-view-row .tool-btn { pointer-events: auto; }
 .hud-autopilot {
   font-size: 0.6rem;
   letter-spacing: 0.2em;
@@ -1054,6 +1056,18 @@
 .help-list dd { margin: 0; color: var(--ink); }
 .help-note { margin: 0.8rem 0 0; font-size: 0.62rem; color: var(--faint); line-height: 1.55; letter-spacing: 0.04em; }
 
+/* ---------------- cockpit view: the interior carries the instruments ---------------- */
+
+/* the dashboard screens show the target, the speed and the system, so the corner panels go;
+   the bracket, edge arrow, reticle, toasts, chooser, time row and the JUMP row stay */
+.cockpit[data-view="cockpit"] .hud-tl,
+.cockpit[data-view="cockpit"] .hud-bl,
+.cockpit[data-view="cockpit"] .hud-br { display: none; }
+.cockpit[data-view="cockpit"] .hud-tr { background: rgba(4, 6, 15, 0.45); border-color: transparent; }
+.cockpit[data-view="cockpit"] .hud-tr::before { display: none; }
+.cockpit[data-view="cockpit"] .cockpit-frame { border-color: transparent; }
+.cockpit[data-view="cockpit"] .cf-corner { opacity: 0.35; }
+
 /* ---------------- warp mode: quieten the instruments ---------------- */
 
 .cockpit[data-mode="warp"] .hud-bl,
@@ -1142,7 +1156,7 @@
     bottom: 0;
     height: var(--mbar-h);
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(6, 1fr);
     gap: 1px;
     background: var(--hair-2);
     border-top: 1px solid var(--hair-2);

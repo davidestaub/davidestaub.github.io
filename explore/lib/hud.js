@@ -10,14 +10,20 @@
      // extensions beyond the contract, all optional for the caller:
      setPickedHost(name|null, ly), pickedHost(), setMapMode(mode),
      setDossierOpen(bool), setSelectedBody(name), setTargetBody(name|null),
-     showHint(text, ms), setNavHeight(), destroy()
+     setView(preferred, shown), view(), showHint(text, ms), setNavHeight(), destroy()
    }
 
    callbacks (all optional): onTakeControls, onRelease, onFocus(bodyName),
    onAutopilot(bodyName), onWarp(hostName), onToggleMap, onTimeScale(scale),
    and the extensions onThrottle(delta: +1|-1), onBrake(), onPause(),
    onOpenJump(tab) (the JUMP button without a destination, 'change', and
-   the phone bar's map button).
+   the phone bar's map button), onToggleView (the 'view' buttons in the
+   speed panel and the phone bar; the V key belongs to the page).
+
+   setView(preferred, shown): the buttons name the preferred view; the
+   root's data-view carries the view actually rendered (attract mode is
+   always the chase view), which the stylesheet uses to thin the HUD out
+   inside the cockpit.
 
    The per-frame state may carry `aligned` (bool): the reticle turns gold
    and reads 'aligned' while the nose is on the target.
@@ -131,6 +137,8 @@ export function createHud(rootEl, callbacks = {}) {
     btnJump: q('btn-jump'),
     btnJumpPick: q('btn-jump-pick'),
     hintStrip: q('hud-hint-strip'),
+    btnView: q('btn-view'),
+    btnViewM: q('btn-view-m'),
   };
 
   const hud = {
@@ -140,6 +148,7 @@ export function createHud(rootEl, callbacks = {}) {
     selectedBody: null,
     lastState: {},
     helpOpen: false,
+    view: 'chase',
   };
 
   const last = {};        // last rendered text per key: the DOM is only touched on change
@@ -473,6 +482,26 @@ export function createHud(rootEl, callbacks = {}) {
     if (el.btnMap) el.btnMap.setAttribute('aria-pressed', show ? 'true' : 'false');
   }
 
+  /* ---------------- view: chase or cockpit ---------------- */
+
+  /**
+   * @param preferred  'chase' | 'cockpit', what the buttons say and what V toggles
+   * @param shown      the view rendered now (attract mode shows chase); defaults to preferred
+   */
+  function setView(preferred, shown) {
+    const p = preferred === 'cockpit' ? 'cockpit' : 'chase';
+    const s = shown === 'cockpit' || shown === 'chase' ? shown : p;
+    hud.view = p;
+    root.dataset.view = s;
+    const other = p === 'chase' ? 'cockpit' : 'chase';
+    if (el.btnView) {
+      el.btnView.textContent = 'view: ' + p;
+      el.btnView.title = 'switch to the ' + other + ' view (V)';
+      el.btnView.setAttribute('aria-label', 'view: ' + p + ', switch to ' + other);
+    }
+    if (el.btnViewM) el.btnViewM.setAttribute('aria-label', 'view: ' + p + ', tap for ' + other);
+  }
+
   /* ---------------- wiring ---------------- */
 
   on(el.take, 'click', () => fire('onTakeControls'));
@@ -497,6 +526,8 @@ export function createHud(rootEl, callbacks = {}) {
   on(el.btnThrUp, 'click', () => fire('onThrottle', +1));
   on(el.btnThrDown, 'click', () => fire('onThrottle', -1));
   on(el.btnBrake, 'click', () => fire('onBrake'));
+  on(el.btnView, 'click', () => fire('onToggleView'));
+  on(el.btnViewM, 'click', () => fire('onToggleView'));
   on(el.btnAutopilot, 'click', () => {
     const name = hud.selectedBody || (hud.lastState && hud.lastState.targetName) || null;
     if (name) fire('onAutopilot', name);
@@ -526,6 +557,7 @@ export function createHud(rootEl, callbacks = {}) {
   setMode('attract');
   setPickedHost(null);
   setMapMode('local');
+  setView('chase', 'chase');
   setVisited(0, TOTAL_SYSTEMS_DEFAULT);
   const narrow = window.matchMedia && window.matchMedia('(max-width: 820px)').matches;
   setDossierOpen(!narrow);
@@ -560,6 +592,8 @@ export function createHud(rootEl, callbacks = {}) {
     setDossierOpen,
     setSelectedBody,
     setTargetBody,
+    setView,
+    view: () => hud.view,
     showHint,
     setNavHeight,
     mode: () => hud.mode,

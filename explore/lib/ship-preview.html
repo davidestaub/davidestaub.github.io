@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ship preview: candidate GLBs</title>
+<!--
+  /explore/lib/ship-preview.html : side-by-side viewer for candidate ship models.
+
+  Default: the ship the game uses, through lib/ship-mesh.js loadShip(), one
+  viewport per angle with ?angle=all. With ?candidates=1 it loads every GLB
+  listed in CANDIDATES from ../models/candidates/ side by side instead (the
+  files are not in the repo any more; see ../models/CREDITS.md). Same lights
+  in every cell: a warm key light, a blue rim light from behind, and a faint
+  hemisphere fill, on black. The label gives the name and the triangle count.
+
+  Query: ?candidates=1                 compare candidate GLBs instead of the ship
+         ?angle=front|rear|side|top|low|front2   (default front, a three-quarter view;
+                                      for the ship, angle=all shows every view at once)
+         ?throttle=0..1                the ship's drive level (default 0.8)
+         ?lights=star                 only the point light and a faint fill, as in the game
+         ?spin=1                      slow turntable
+         ?post=<name>                 after everything has loaded, POST a JPEG of
+                                      the canvas to http://127.0.0.1:8124/<name>
+                                      (the local capture server; ignored if down)
+         ?final=1                     show the shipped asset via ship-mesh.js
+  Test hook: window.__preview.snapshot() -> data URL of the current frame,
+             window.__preview.ready (Promise), window.__preview.stats
+-->
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  html, body { margin: 0; height: 100%; background: #000; color: #cfd6e4; font: 12px/1.4 "IBM Plex Mono", ui-monospace, Menlo, monospace; }
+  #stage { position: fixed; inset: 0; display: block; }
+  #labels { position: fixed; inset: 0; pointer-events: none; }
+  .lbl { position: absolute; padding: 6px 8px; letter-spacing: 0.04em; text-transform: lowercase; }
+  .lbl b { color: #F5B324; font-weight: 500; }
+  .lbl i { color: #35D6FF; font-style: normal; }
+  .lbl small { color: #7d8797; }
+  #status { position: fixed; left: 8px; bottom: 6px; color: #7d8797; }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://unpkg.com/three@0.159.0/build/three.module.js",
+  "three/addons/": "https://unpkg.com/three@0.159.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<canvas id="stage"></canvas>
+<div id="labels"></div>
+<div id="status">loading</div>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+const CANDIDATES = [
+  { id: 'Jqfed124pQ', note: 'Quaternius, textured atlas' },
+  { id: 'VSxUAFhzbA', note: 'Quaternius, textured atlas' },
+  { id: 'u105mYHLHU', note: 'Quaternius, textured atlas' },
+  { id: 'uCeLfsdmNP', note: 'Quaternius, textured atlas' },
+  { id: 'PQzePrvBCD', note: 'Quaternius, flat colours' },
+  { id: 'DbGajMHrvp', note: 'Quaternius, flat colours' },
+  { id: 'xNbtFQwirO', note: 'Quaternius, flat colours' },
+];
+
+const q = new URLSearchParams(location.search);
+const ANGLE = q.get('angle') || 'front';
+const SPIN = q.get('spin') === '1';
+const POST = q.get('post');
+// default: the shipped asset. ?candidates=1 shows the poly.pizza GLBs, which were removed
+// from the repo after the choice (none was good enough); put them back under
+// ../models/candidates/<id>.glb to compare again.
+const FINAL = q.get('candidates') !== '1';
+const LIGHTS = q.get('lights') || 'studio';   // 'star': the in-game case, one point light and a faint fill
+
+const canvas = document.getElementById('stage');
+const labels = document.getElementById('labels');
+const status = document.getElementById('status');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.15;
+renderer.setScissorTest(true);
+
+/* one scene per candidate so the lights and the framing are identical */
+function makeCell() {
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x000000);
+  const key = new THREE.PointLight(0xffd9a0, 30, 0, 2);      // warm key, the star
+  key.position.set(2.2, 1.8, 2.6);
+  const fill = new THREE.HemisphereLight(0x223a66, 0x05070f, LIGHTS === 'star' ? 0.12 : 0.35);
+  scene.add(key, fill);
+  if (LIGHTS !== 'star') {
+    const rim = new THREE.DirectionalLight(0x35d6ff, 2.4);    // blue rim from behind, low
+    rim.position.set(-2.0, 0.8, -2.5);
+    scene.add(rim);
+  }
+  const camera = new THREE.PerspectiveCamera(32, 1, 0.01, 100);
+  const pivot = new THREE.Group();
+  scene.add(pivot);
+  return { scene, camera, pivot, tris: 0, name: '', ok: false };
+}
+
+function countTris(obj) {
+  let n = 0;
+  obj.traverse((o) => {
+    if (!o.isMesh || !o.geometry) return;
+    const g = o.geometry;
+    n += g.index ? g.index.count / 3 : (g.attributes.position ? g.attributes.position.count / 3 : 0);
+  });
+  return Math.round(n);
+}
+
+/** Scale and centre so the longest axis spans 1 unit and the model sits at the origin. */
+function normalise(obj) {
+  const box = new THREE.Box3().setFromObject(obj);
+  const size = new THREE.Vector3(); box.getSize(size);
+  const c = new THREE.Vector3(); box.getCenter(c);
+  const s = 1 / Math.max(size.x, size.y, size.z, 1e-6);
+  const holder = new THREE.Group();
+  holder.add(obj);
+  obj.position.sub(c);
+  holder.scale.setScalar(s);
+  return { holder, size: size.multiplyScalar(s) };
+}
+
+const loader = new GLTFLoader();
+const cells = [];
+
+async function loadCandidate(c) {
+  const cell = makeCell();
+  cell.name = c.id;
+  cells.push(cell);
+  try {
+    const gltf = await loader.loadAsync('../models/candidates/' + c.id + '.glb');
+    const { holder } = normalise(gltf.scene);
+    cell.pivot.add(holder);
+    cell.tris = countTris(gltf.scene);
+    cell.ok = true;
+  } catch (err) {
+    console.error(c.id, err);
+    cell.name = c.id + ' (failed)';
+  }
+  return cell;
+}
+
+/* the shipped asset, once per angle so one capture shows it all round */
+async function loadFinal() {
+  const { loadShip } = await import('./ship-mesh.js');
+  const angles = ANGLE === 'all' ? ['front', 'rear', 'side', 'low', 'top', 'front2'] : [ANGLE];
+  const thr = Number(q.get('throttle') || 0.8);
+  for (const a of angles) {
+    const cell = makeCell();
+    cells.push(cell);
+    const ship = await loadShip(THREE, '../');
+    const { holder } = normalise(ship.group);
+    cell.pivot.add(holder);
+    cell.tris = countTris(ship.group);
+    cell.name = 'loadShip · ' + ship.source + ' · ' + a;
+    cell.note = 'length ' + ship.length_units + ' units, throttle ' + thr;
+    cell.angle = a;
+    cell.ok = true;
+    if (ship.group.userData.setThrottle) ship.group.userData.setThrottle(thr);
+    cell.ship = ship;
+  }
+  return cells;
+}
+
+/* camera placement per angle; the model's longest axis is 1 unit after normalise() */
+function placeCamera(cam, angle, t) {
+  const d = 2.1;
+  let dir;
+  // the ship's nose points along -z, so a "front" view puts the camera at negative z
+  switch (angle) {
+    case 'rear': dir = new THREE.Vector3(-0.7, 0.45, 0.9); break;
+    case 'side': dir = new THREE.Vector3(1.0, 0.25, -0.05); break;
+    case 'top': dir = new THREE.Vector3(0.05, 1.0, -0.25); break;
+    case 'low': dir = new THREE.Vector3(0.8, -0.35, -0.9); break;
+    case 'front2': dir = new THREE.Vector3(-0.55, 0.3, -1.0); break;   // three-quarter from the other side
+    default: dir = new THREE.Vector3(0.8, 0.5, -0.95);
+  }
+  if (SPIN) dir.applyAxisAngle(new THREE.Vector3(0, 1, 0), t * 0.5);
+  dir.normalize().multiplyScalar(d);
+  cam.position.copy(dir);
+  cam.up.set(0, 1, 0);
+  cam.lookAt(0, 0, 0);
+}
+
+function layout() {
+  const w = window.innerWidth, h = window.innerHeight;
+  renderer.setSize(w, h, false);
+  const n = Math.max(1, cells.length);
+  const cols = n <= 1 ? 1 : (n <= 4 ? 2 : (n <= 6 ? 3 : 4));
+  const rows = Math.ceil(n / cols);
+  const cw = Math.floor(w / cols), ch = Math.floor(h / rows);
+  labels.replaceChildren();
+  cells.forEach((cell, i) => {
+    const col = i % cols, row = Math.floor(i / cols);
+    cell.vp = { x: col * cw, y: h - (row + 1) * ch, w: cw, h: ch, top: row * ch, left: col * cw };
+    cell.camera.aspect = cw / ch;
+    cell.camera.updateProjectionMatrix();
+    const l = document.createElement('div');
+    l.className = 'lbl';
+    l.style.left = (col * cw) + 'px';
+    l.style.top = (row * ch) + 'px';
+    l.style.width = (cw - 16) + 'px';
+    l.innerHTML = '<b>' + cell.name + '</b> <i>' + cell.tris.toLocaleString('en-GB') + ' tris</i>' +
+      (cell.note ? ' <small>' + cell.note + '</small>' : '');
+    labels.appendChild(l);
+  });
+}
+
+let t0 = performance.now();
+function frame() {
+  const t = (performance.now() - t0) / 1000;
+  renderer.setClearColor(0x000000, 1);
+  for (const cell of cells) {
+    if (!cell.vp) continue;
+    const { x, y, w, h } = cell.vp;
+    renderer.setViewport(x, y, w, h);
+    renderer.setScissor(x, y, w, h);
+    placeCamera(cell.camera, cell.angle || ANGLE, t);
+    if (cell.ship && cell.ship.group.userData.update) cell.ship.group.userData.update(1 / 60, t);
+    renderer.render(cell.scene, cell.camera);
+  }
+  requestAnimationFrame(frame);
+}
+
+function snapshot(quality) {
+  // draw once more so the buffer is current, then read it back
+  for (const cell of cells) {
+    if (!cell.vp) continue;
+    const { x, y, w, h } = cell.vp;
+    renderer.setViewport(x, y, w, h);
+    renderer.setScissor(x, y, w, h);
+    renderer.render(cell.scene, cell.camera);
+  }
+  return canvas.toDataURL('image/jpeg', Number.isFinite(quality) ? quality : 0.9);
+}
+
+const ready = (async () => {
+  if (FINAL) await loadFinal();
+  else {
+    // sequential so the cell order matches CANDIDATES
+    for (const c of CANDIDATES) { const cell = await loadCandidate(c); cell.note = c.note; }
+  }
+  layout();
+  status.textContent = cells.filter((c) => c.ok).length + ' of ' + cells.length + ' loaded · angle ' + ANGLE;
+  window.__preview.stats = cells.map((c) => ({ name: c.name, tris: c.tris, ok: c.ok }));
+  // let a couple of frames render before a capture
+  await new Promise((r) => setTimeout(r, 400));
+  if (POST) {
+    try {
+      const r = await fetch('http://127.0.0.1:8124/' + encodeURIComponent(POST), { method: 'POST', body: snapshot(0.92) });
+      status.textContent += ' · posted ' + POST + ' (' + r.status + ')';
+    } catch (err) {
+      status.textContent += ' · post failed';
+    }
+  }
+  return window.__preview.stats;
+})();
+
+window.__preview = { snapshot, ready, cells, stats: null, THREE };
+window.addEventListener('resize', layout);
+frame();
+</script>
+</body>
+</html>

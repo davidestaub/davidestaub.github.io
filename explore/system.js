@@ -6,17 +6,25 @@
    seen from the host's position. Every rendering choice that is not
    backed by a catalogued number is reported in the dossier as imagined.
 
-   Floating origin: the camera never leaves the scene origin. The ship
-   keeps its true position in doubles (ship.pos) and every frame each
-   body, orbit line and the star group is placed at (body - ship), so
-   there is no Float32 jitter a million units from the star.
+   Floating origin: the ship is the scene origin. The ship keeps its
+   true position in doubles (ship.pos) and every frame each body, orbit
+   line and the star group is placed at (body - ship), so there is no
+   Float32 jitter a million units from the star. The rendering camera
+   sits at a small offset from that origin: at it in the cockpit view,
+   a fraction of a unit behind and above it in the chase view.
 
    Modes
      attract  the camera orbits the focused body (OrbitControls driven
               on a hidden camera in a frame centred on the focus; the
-              ship's position and orientation are derived from it)
+              ship's position and orientation are derived from it); the
+              ship model flies in front of the camera, along the orbit
      flight   the ship module drives position and orientation
      warp     frozen while the warp effect plays and the system swaps
+
+   Views (V, persisted in localStorage 'explore.view')
+     chase    the ship model at the origin, a lagging camera behind it
+     cockpit  the camera at the origin inside lib/cockpit.js's interior
+   Attract mode always shows the chase view.
    =================================================================== */
 
 import * as THREE from 'three';
@@ -73,9 +81,31 @@ const EDGE_MARGIN_BOTTOM = 96;
 const HINT_STRIP_MS = 12000;
 const NEAREST_COUNT = 12;
 const JUMP_FAMOUS = CURATED_HOSTS.concat(['51 Peg', 'Proxima Cen']);
-const HINT_STRIP_TEXT = 'T next target · F fly there · J jump systems';
+const HINT_STRIP_TEXT = 'T next target · F fly there · J jump systems · V view';
 const COARSE_POINTER = typeof matchMedia === 'function' && matchMedia('(pointer: coarse)').matches;
 const REDUCED_MOTION = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+// views
+const VIEW_KEY = 'explore.view';
+const CAMERA_NEAR = 0.001;           // the cockpit interior sits 0.03 units ahead of the camera
+const CHASE_BACK = 0.16;             // chase camera: behind the ship, in ship space (units)
+const CHASE_UP = 0.05;               // and above it
+const CHASE_AHEAD = 0.4;             // the chase camera looks at a point this far ahead of the ship
+const CHASE_TAU = 0.25;              // s, the camera position's lag toward its target
+const CHASE_MAX_LAG = 0.045;         // units: the lag is capped so a fast turn never swings the ship out of frame
+const BANK_MAX = THREE.MathUtils.degToRad(18);   // the model rolls into a yaw, visual only
+const BANK_GAIN = 0.4;               // rad of bank per rad/s of yaw
+const BANK_TAU = 0.35;               // s
+const PITCH_MAX = THREE.MathUtils.degToRad(4);   // and pitches into throttle changes
+const PITCH_GAIN = 0.8;              // rad per unit of throttle step not yet absorbed
+const PITCH_TAU = 0.6;               // s, how long a throttle change takes to be absorbed
+const GLOW_RISE_TAU = 0.12;          // s, engine glow response
+const GLOW_FALL_TAU = 0.45;
+const BOOST_FLARE = 0.35;            // engine glow added while boosting
+const ATTRACT_GLOW = 0.3;            // cruising glow in attract mode
+const ATTRACT_MODEL_OFFSET = new THREE.Vector3(0, -0.045, -0.20);   // attract: the model in front of and below the camera
+const ATTRACT_BANK = THREE.MathUtils.degToRad(16);   // banked into the orbit round the focus
+const ATTRACT_POSE_TAU = 0.35;       // s, smoothing of the tangential pose
+const VIEW_BLEND_S = 0.8;            // s, the model's pose blends across a mode change
 
 /** Device pixel ratio to render at: capped at 2, and at 1.5 on touch devices (the planet shaders are per-pixel heavy). */
 function pixelRatioCap() {
@@ -354,6 +384,28 @@ const state = {
   mbarPx: 0,            // the phone bar's height in px (0 on desktop), read in resize()
   pixelRatio: 1,
   noLock: false,        // ?flight=1: fly without pointer lock
+  view: 'chase',        // 'chase' | 'cockpit', the player's preference (attract mode shows chase regardless)
+  shipModel: null,      // the ship's mesh group (lib/ship-mesh.js), at the origin in the chase view
+  shipApi: null,        // { setThrottle, update, source, ... } from loadShip
+  cockpit: null,        // { group, update } from lib/cockpit.js
+  hemi: null,           // faint hemisphere fill so the ship's shadow side is not pure black
+  pickedLy: null,       // distance to the jump destination in light-years (for the cockpit screen)
+};
+
+/** Camera and model pose state for the views (scene units, all relative to the ship origin). */
+const cam = {
+  pos: new THREE.Vector3(),          // the rendering camera's current offset
+  init: false,                       // false: snap to the target on the next update (teleports)
+  qSmooth: new THREE.Quaternion(),   // the model's smoothed pose
+  pSmooth: new THREE.Vector3(),
+  poseInit: false,
+  fromQ: new THREE.Quaternion(),     // the pose at the last mode change, blended out over VIEW_BLEND_S
+  fromP: new THREE.Vector3(),
+  blendT: VIEW_BLEND_S,
+  bank: 0, pitch: 0, throttleEased: 0, glow: 0,
+  prevFwd: new THREE.Vector3(0, 0, -1), prevFwdValid: false,
+  prevOrbit: new THREE.Vector3(), prevOrbitValid: false,
+  tangent: new THREE.Vector3(1, 0, 0), tangentValid: false,
 };
 
 /** Per-frame HUD state object, mutated in place. */
@@ -370,9 +422,23 @@ const hudState = {
 const tmpDir = new THREE.Vector3();
 const tmpQ = new THREE.Quaternion();
 const tmpD = { x: 0, y: 0, z: 0 };     // double-precision scratch point
+const vFwd = new THREE.Vector3(), vUp = new THREE.Vector3(), vRight = new THREE.Vector3();
+const vA = new THREE.Vector3(), vB = new THREE.Vector3();
+const qA = new THREE.Quaternion(), qB = new THREE.Quaternion();
+const mA = new THREE.Matrix4();
+const V_ZERO = new THREE.Vector3(0, 0, 0);
+const AX_X = new THREE.Vector3(1, 0, 0), AX_Z = new THREE.Vector3(0, 0, 1);
 
-/** Screen projection of a body, filled by projectBody (one shared object, no allocation). */
-const proj = { sx: 0, sy: 0, front: false, discPx: 0, dist: 0, cx: 0, cy: 0, cz: 0 };
+/** Screen projection of a body, filled by projectBody (one shared object, no allocation).
+    dist is from the ship, nose the cosine between the ship's forward axis and the body direction;
+    sx, sy, front, discPx and cx, cy, cz are in the rendering camera's frame. */
+const proj = { sx: 0, sy: 0, front: false, discPx: 0, dist: 0, nose: 0, cx: 0, cy: 0, cz: 0 };
+
+/** State handed to the cockpit interior's screens (mutated in place). */
+const cockpitState = {
+  now: 0, aspect: 1.78, targetName: null, targetSub: '', targetDistKm: NaN, aligned: false, autopilot: false, boosting: false,
+  speedKms: 0, speedC: 0, throttleLevel: 0, hostName: '', distFromEarthLy: null, destination: null, destinationLy: null,
+};
 
 /** Last values written to the target bracket and edge arrow: the DOM is touched only on change. */
 const ov = {
@@ -487,14 +553,17 @@ async function boot() {
   state.visited = loadVisited();
 
   // the cockpit modules are optional: the page renders without them
-  const [hudMod, minimapMod, warpMod, jumpMod, galaxy] = await Promise.all([
+  const [hudMod, minimapMod, warpMod, jumpMod, shipMeshMod, cockpitMod, galaxy] = await Promise.all([
     optionalImport('./lib/hud.js'),
     optionalImport('./lib/minimap.js'),
     optionalImport('./lib/warp.js'),
     optionalImport('./lib/jump.js'),
+    optionalImport('./lib/ship-mesh.js'),
+    optionalImport('./lib/cockpit.js'),
     optionalJson(BASE_URL + 'data/galaxy.json'),
   ]);
   state.galaxy = galaxy;
+  state.view = loadView();
 
   let host;
   if (hostParam) {
@@ -517,7 +586,9 @@ async function boot() {
   try {
     buildRenderer();
     buildChrome(hudMod, minimapMod, warpMod, jumpMod);
+    await buildViews(shipMeshMod, cockpitMod);
     await setHost(host.name, { immediate: true, arrival: false });
+    warmUpViews();
   } catch (err) {
     console.error(err);
     setStatus('could not build the scene: ' + (err && err.message ? err.message : err), true);
@@ -562,11 +633,19 @@ function buildRenderer() {
   scene.background = new THREE.Color(0x000000);
   state.scene = scene;
 
-  // the rendering camera: always at the origin, orientation from the ship
-  const camera = new THREE.PerspectiveCamera(45, 1, 0.01, 1e9);
+  // the rendering camera: at the ship origin (cockpit) or a small offset behind it (chase),
+  // orientation from the ship; the near plane admits the cockpit interior at 0.03 units
+  const camera = new THREE.PerspectiveCamera(45, 1, CAMERA_NEAR, 1e9);
   camera.up.set(0, 0, 1);
   camera.position.set(0, 0, 0);
   state.camera = camera;
+
+  // a very faint sky and ground fill: the star is the only real light, but a hull with a
+  // pure black shadow side reads as a hole in the sky (planet shaders ignore scene lights)
+  const hemi = new THREE.HemisphereLight(0x223a66, 0x05070f, 0.12);
+  hemi.name = 'fill';
+  scene.add(hemi);
+  state.hemi = hemi;
 
   // the attract-mode camera: OrbitControls drives this one in a frame centred on the focus
   const orbitCam = new THREE.PerspectiveCamera(45, 1, 0.01, 1e9);
@@ -604,6 +683,295 @@ function buildRenderer() {
   state.starBody = { name: '', pos: { x: 0, y: 0, z: 0 }, vel: { x: 0, y: 0, z: 0 }, radius_units: 1, kind: 'star', index: -1 };
 }
 
+/** The ship model (chase view) and the cockpit interior (cockpit view); both optional. */
+async function buildViews(shipMeshMod, cockpitMod) {
+  const scene = state.scene;
+  if (shipMeshMod && typeof shipMeshMod.loadShip === 'function') {
+    try {
+      const api = await shipMeshMod.loadShip(THREE, BASE_URL);
+      state.shipApi = api;
+      state.shipModel = api.group;
+      api.group.name = 'ship-model';
+      api.group.visible = false;
+      scene.add(api.group);
+      if (typeof api.setThrottle === 'function') api.setThrottle(0);
+    } catch (err) {
+      console.error('system: ship model failed', err);
+      state.shipModel = null;
+      state.shipApi = null;
+    }
+  }
+  if (cockpitMod && typeof cockpitMod.makeCockpit === 'function') {
+    try {
+      const c = cockpitMod.makeCockpit(THREE);
+      c.group.visible = false;
+      scene.add(c.group);
+      state.cockpit = c;
+    } catch (err) {
+      console.error('system: cockpit failed', err);
+      state.cockpit = null;
+    }
+  }
+  applyViewDom();
+}
+
+/**
+ * Compile both views' shaders against the real light set (the star's point light exists only
+ * once a system is built; three keys its programs on the light counts, and the cockpit adds
+ * two point lights of its own), so neither the first chase frame nor the first V press stalls.
+ * The hull's environment cube is converted here too. Called once, after the first setHost.
+ */
+function warmUpViews() {
+  const model = state.shipModel, c = state.cockpit;
+  if (!model && !c) return;
+  const mv = model ? model.visible : false, cv = c ? c.group.visible : false;
+  try {
+    if (c) { c.group.position.copy(state.camera.position); c.group.quaternion.copy(state.camera.quaternion); }
+    for (const view of ['chase', 'cockpit']) {
+      if (model) model.visible = view === 'chase';
+      if (c) c.group.visible = view === 'cockpit';
+      state.renderer.compile(state.scene, state.camera);
+      state.renderer.render(state.scene, state.camera);      // uploads the textures as well
+    }
+  } catch (err) {
+    console.warn('system: view warm-up failed', err);
+  } finally {
+    if (model) model.visible = mv;
+    if (c) c.group.visible = cv;
+    renderFrame();
+  }
+}
+
+/* ---------------- views: chase and cockpit ---------------- */
+
+function loadView() {
+  try { return localStorage.getItem(VIEW_KEY) === 'cockpit' ? 'cockpit' : 'chase'; } catch (err) { return 'chase'; }
+}
+
+/** The view actually rendered: attract mode always shows the ship from outside. */
+function activeView() {
+  return state.mode === 'attract' ? 'chase' : state.view;
+}
+
+/** Tell the HUD (button labels, data-view for the CSS) which view is preferred and which is shown. */
+function applyViewDom() {
+  const shown = activeView();
+  if (state.hud && typeof state.hud.setView === 'function') state.hud.setView(state.view, shown);
+  else if (el.cockpit) el.cockpit.dataset.view = shown;
+}
+
+/**
+ * Set the view preference. In attract mode it takes effect when the controls are taken.
+ * @param name  'chase' | 'cockpit'
+ * @param o     { quiet: no toast }
+ */
+function setView(name, o) {
+  const v = name === 'cockpit' ? 'cockpit' : (name === 'chase' ? 'chase' : null);
+  if (!v) throw new Error('unknown view: ' + name);
+  const changed = v !== state.view;
+  state.view = v;
+  try { localStorage.setItem(VIEW_KEY, v); } catch (err) { /* private mode */ }
+  applyViewDom();
+  if (changed) {
+    hudState.hudAt = -1;
+    ov.x = -1e9; ov.ex = -1e9;         // the overlays re-place for the new camera
+    // a cut, not an ease: the camera would otherwise pass through the hull on its way to or
+    // from the seat (the model's pose is the same in both views, so nothing else blends)
+    cam.init = false;
+  }
+  if (!(o && o.quiet)) {
+    toast('view: ' + v + (state.mode === 'attract' ? ' · shown once you take the controls' : ''), 2400);
+  }
+  return v;
+}
+
+function toggleView() {
+  return setView(state.view === 'chase' ? 'cockpit' : 'chase');
+}
+
+/** Start blending the model's pose from where it is now to where the mode wants it. */
+function beginPoseBlend() {
+  const g = state.shipModel;
+  // a hidden model (cockpit view) has no current pose to blend from: it snaps when next shown
+  if (!g || !cam.poseInit || !g.visible) return;
+  cam.fromQ.copy(g.quaternion);
+  cam.fromP.copy(g.position);
+  cam.blendT = 0;
+}
+
+/** A teleport: the camera and the model snap to their targets on the next update. */
+function snapViews() {
+  cam.init = false;
+  cam.poseInit = false;
+  cam.blendT = VIEW_BLEND_S;
+  cam.prevFwdValid = false;
+  cam.prevOrbitValid = false;
+  cam.tangentValid = false;
+  cam.bank = 0; cam.pitch = 0;
+}
+
+/**
+ * Place the rendering camera for the active view. Every projection elsewhere uses ship.pos as
+ * the origin and the camera's own small offset and quaternion, so nothing jitters.
+ */
+function updateCamera(dt) {
+  const ship = state.ship, camera = state.camera;
+  const view = activeView();
+  vFwd.set(0, 0, -1).applyQuaternion(ship.quat);
+  vUp.set(0, 1, 0).applyQuaternion(ship.quat);
+  vRight.set(1, 0, 0).applyQuaternion(ship.quat);
+  const chase = view === 'chase' && state.mode !== 'attract';
+  if (chase) vA.copy(vUp).multiplyScalar(CHASE_UP).addScaledVector(vFwd, -CHASE_BACK);
+  else vA.set(0, 0, 0);
+  if (!cam.init || dt <= 0 && !cam.init) {
+    cam.pos.copy(vA);
+    cam.init = true;
+  } else {
+    cam.pos.lerp(vA, 1 - Math.exp(-dt / CHASE_TAU));
+    vB.subVectors(cam.pos, vA);
+    const lag = vB.length();
+    // the cap is for fast turns; across a mode change the camera has the whole offset to
+    // travel while the model blends poses, and capping that would make it pop
+    if (lag > CHASE_MAX_LAG && cam.blendT >= VIEW_BLEND_S) cam.pos.copy(vA).addScaledVector(vB, CHASE_MAX_LAG / lag);
+  }
+  camera.position.copy(cam.pos);
+  if (chase) {
+    // look at a point ahead of the ship, with the ship's up: the reticle at the screen centre
+    // is close to the nose direction and the view swings with the lagging position
+    vB.copy(vFwd).multiplyScalar(CHASE_AHEAD);
+    mA.lookAt(cam.pos, vB, vUp);
+    camera.quaternion.setFromRotationMatrix(mA);
+  } else {
+    camera.quaternion.copy(ship.quat);
+  }
+}
+
+/** The ship model's pose (bank, pitch, the attract-mode tangent) and engine glow. */
+function updateShipModel(dt) {
+  const g = state.shipModel;
+  if (!g) return;
+  const ship = state.ship;
+  const view = activeView();
+  g.visible = view === 'chase';
+  if (!g.visible) {
+    // while hidden the pose is not tracked: a blend begun before (a mode change) would otherwise
+    // resume from a stale pose when the model is next shown, so it snaps instead
+    cam.prevFwdValid = false;
+    cam.poseInit = false;
+    cam.blendT = VIEW_BLEND_S;
+    return;
+  }
+  const attract = state.mode === 'attract';
+
+  if (attract) {
+    // the ship flies along the orbit: nose along the orbit camera's motion, banked toward the focus
+    const oc = state.orbitCam.position;
+    if (cam.prevOrbitValid && dt > 0) {
+      vA.subVectors(oc, cam.prevOrbit);
+      if (vA.lengthSq() > 1e-14) { cam.tangent.copy(vA).normalize(); cam.tangentValid = true; }
+    }
+    cam.prevOrbit.copy(oc);
+    cam.prevOrbitValid = true;
+    if (!cam.tangentValid) cam.tangent.copy(vRight).negate();
+    // up: the camera's up leaned toward the focus (the view direction) by the bank angle
+    vB.copy(vUp).multiplyScalar(Math.cos(ATTRACT_BANK)).addScaledVector(vFwd, Math.sin(ATTRACT_BANK));
+    vA.crossVectors(cam.tangent, vB);
+    if (vA.lengthSq() < 1e-6) vB.copy(vUp);
+    mA.lookAt(V_ZERO, cam.tangent, vB);
+    qA.setFromRotationMatrix(mA);
+    vA.copy(ATTRACT_MODEL_OFFSET).applyQuaternion(ship.quat);
+    cam.bank = 0; cam.pitch = 0;
+    cam.prevFwdValid = false;
+    const k = dt > 0 ? 1 - Math.exp(-dt / ATTRACT_POSE_TAU) : 1;
+    if (!cam.poseInit) { cam.qSmooth.copy(qA); cam.pSmooth.copy(vA); }
+    else { cam.qSmooth.slerp(qA, k); cam.pSmooth.lerp(vA, k); }
+  } else {
+    // bank into the yaw rate (measured from the forward axis's motion), pitch into throttle changes
+    let bankTarget = 0;
+    if (cam.prevFwdValid && dt > 0) {
+      vA.subVectors(vFwd, cam.prevFwd);
+      const yawRate = vA.dot(vRight) / dt;
+      bankTarget = Math.max(-BANK_MAX, Math.min(BANK_MAX, -yawRate * BANK_GAIN));
+    }
+    cam.prevFwd.copy(vFwd);
+    cam.prevFwdValid = true;
+    const lvl = ship.throttleLevel();
+    if (dt > 0) {
+      cam.bank += (bankTarget - cam.bank) * (1 - Math.exp(-dt / BANK_TAU));
+      cam.throttleEased += (lvl - cam.throttleEased) * (1 - Math.exp(-dt / PITCH_TAU));
+    } else {
+      cam.throttleEased = lvl;
+    }
+    let pitchTarget = (lvl - cam.throttleEased) * PITCH_GAIN + (ship.boosting ? PITCH_MAX * 0.4 : 0);
+    pitchTarget = Math.max(-PITCH_MAX, Math.min(PITCH_MAX, pitchTarget));
+    cam.pitch += (pitchTarget - cam.pitch) * (dt > 0 ? 1 - Math.exp(-dt / BANK_TAU) : 1);
+    qA.copy(ship.quat);
+    if (cam.bank !== 0) { qB.setFromAxisAngle(AX_Z, cam.bank); qA.multiply(qB); }
+    if (cam.pitch !== 0) { qB.setFromAxisAngle(AX_X, cam.pitch); qA.multiply(qB); }
+    cam.qSmooth.copy(qA);
+    cam.pSmooth.set(0, 0, 0);
+  }
+  cam.poseInit = true;
+
+  // a mode change blends the old pose out over VIEW_BLEND_S
+  if (cam.blendT < VIEW_BLEND_S) {
+    cam.blendT += dt;
+    const u = Math.max(0, Math.min(1, cam.blendT / VIEW_BLEND_S));
+    const s = u * u * (3 - 2 * u);
+    g.quaternion.slerpQuaternions(cam.fromQ, cam.qSmooth, s);
+    g.position.lerpVectors(cam.fromP, cam.pSmooth, s);
+  } else {
+    g.quaternion.copy(cam.qSmooth);
+    g.position.copy(cam.pSmooth);
+  }
+
+  // engine glow: the throttle level, a flare while boosting, a cruising glow in attract mode
+  let glowTarget;
+  if (attract) glowTarget = ATTRACT_GLOW;
+  else if (ship.braking) glowTarget = 0;
+  else glowTarget = Math.min(1, ship.throttleLevel() + (ship.boosting ? BOOST_FLARE : 0));
+  if (dt > 0) {
+    const tau = glowTarget > cam.glow ? GLOW_RISE_TAU : GLOW_FALL_TAU;
+    cam.glow += (glowTarget - cam.glow) * (1 - Math.exp(-dt / tau));
+  } else {
+    cam.glow = glowTarget;
+  }
+  const api = state.shipApi;
+  if (api) {
+    if (typeof api.setThrottle === 'function') api.setThrottle(cam.glow);
+    // the plume flicker is a continuous animation: off under prefers-reduced-motion
+    if (typeof api.update === 'function' && !REDUCED_MOTION) api.update(dt, state.realSeconds);
+  }
+}
+
+/** The cockpit interior follows the camera; its screens read the HUD state at 4 Hz. */
+function updateCockpit() {
+  const c = state.cockpit;
+  if (!c) return;
+  const on = activeView() === 'cockpit';
+  c.group.visible = on;
+  if (!on) return;
+  c.group.position.copy(state.camera.position);
+  c.group.quaternion.copy(state.camera.quaternion);
+  const cs = cockpitState;
+  cs.now = state.realSeconds;
+  cs.aspect = state.camera.aspect;
+  cs.targetName = hudState.targetName;
+  cs.targetSub = state.target ? ov.sub : '';
+  cs.targetDistKm = hudState.distToTargetKm;
+  cs.aligned = ov.aligned;
+  cs.autopilot = hudState.autopilot;
+  cs.boosting = !!state.ship.boosting;
+  cs.speedKms = hudState.speedKms;
+  cs.speedC = hudState.speedC;
+  cs.throttleLevel = hudState.throttleLevel;
+  cs.hostName = hudState.hostName;
+  cs.distFromEarthLy = hudState.distFromEarthLy;
+  cs.destination = state.pickedHost;
+  cs.destinationLy = state.pickedLy;
+  c.update(cs);
+}
+
 /** Controls that live for the whole page: time presets, star/system buttons, the cockpit modules. */
 function buildChrome(hudMod, minimapMod, warpMod, jumpMod) {
   // cockpit HUD (owns the buttons inside #cockpit and fires callbacks)
@@ -631,6 +999,7 @@ function buildChrome(hudMod, minimapMod, warpMod, jumpMod) {
         onPause: () => setPaused(!state.paused),
         onThrottle: (delta) => { if (state.ship) state.ship.throttleStep(delta); },
         onBrake: () => { if (state.ship) state.ship.brake(); },
+        onToggleView: () => toggleView(),
         onTouchLook: state.ship ? state.ship.touchLook : null,
       });
     } catch (err) {
@@ -739,6 +1108,7 @@ function buildChrome(hudMod, minimapMod, warpMod, jumpMod) {
     state.hud.setVisited(state.visited.size, totalSystems());
     state.hud.setMode('attract');
   }
+  applyViewDom();
   updateClock(true);
 }
 
@@ -752,6 +1122,7 @@ function onPageKey(e) {
     case 'KeyF': flyToTarget(); break;
     case 'KeyG': targetNearest(); break;
     case 'KeyX': if (state.target) setTarget(null); else return; break;
+    case 'KeyV': toggleView(); break;
     case 'KeyJ':
       if (e.shiftKey || !state.pickedHost) openJump();
       else warpTo(state.pickedHost);
@@ -1011,6 +1382,7 @@ async function setHost(name, opts) {
     ship.setVelocity(null);
     ship.setThrottleIndex(0);
     if (o.arrival !== false) placeShipAtArrival();
+    snapViews();                         // a teleport: no camera lag or pose blend across it
 
     if (state.mode === 'attract') {
       // the attract frame starts from wherever the ship is; the focus tween takes it to the system view
@@ -1347,7 +1719,7 @@ function setMode(name) {
     ship.attach(attachOpts);
     el.canvas.style.touchAction = 'none';        // one finger looks
     if (state.hud) state.hud.setMode('flight');
-    if (el.hint) el.hint.textContent = 'mouse looks · W/S throttle · Q/E roll · shift boost · space brake · Esc releases the controls';
+    if (el.hint) el.hint.textContent = 'mouse looks · W/S throttle · Q/E roll · shift boost · space brake · V view · Esc releases the controls';
     // something to aim at from the first second: the nearest planet, unless a target was already chosen
     if (!state.target) {
       const nb = nearestPlanetBody();
@@ -1380,6 +1752,8 @@ function setMode(name) {
     throw new Error('unknown mode: ' + name);
   }
   hudState.hudAt = -1;
+  applyViewDom();                      // attract shows the chase view whatever the preference
+  beginPoseBlend();                    // the model eases between its attract and flight poses
   updateTargetOverlay();               // hidden in warp mode, back on the target after it
 }
 
@@ -1485,23 +1859,29 @@ function targetNearest() {
 }
 
 /**
- * Project a body to the canvas. Camera space is the ship frame (the camera sits at the origin
- * with the ship's orientation), so the relative position is rotated by the inverse quaternion.
+ * Project a body to the canvas. The relative position is taken from ship.pos in doubles, then
+ * the camera's small offset from the ship origin is subtracted and the result rotated into
+ * the camera's frame (at the origin with the ship's orientation in the cockpit view, behind
+ * and above it in the chase view). The nose alignment is measured in the ship's own frame.
  */
 function projectBody(b) {
-  const ship = state.ship;
+  const ship = state.ship, camera = state.camera;
   const w = el.canvas.clientWidth || 1, h = el.canvas.clientHeight || 1;
   tmpDir.set(b.pos.x - ship.pos.x, b.pos.y - ship.pos.y, b.pos.z - ship.pos.z);
   proj.dist = tmpDir.length();
-  tmpQ.copy(ship.quat).invert();
+  vA.set(0, 0, -1).applyQuaternion(ship.quat);
+  proj.nose = proj.dist > 1e-9 ? tmpDir.dot(vA) / proj.dist : 0;
+  tmpDir.sub(camera.position);
+  const camDist = tmpDir.length();
+  tmpQ.copy(camera.quaternion).invert();
   tmpDir.applyQuaternion(tmpQ);
   proj.cx = tmpDir.x; proj.cy = tmpDir.y; proj.cz = tmpDir.z;
-  const pm = state.camera.projectionMatrix.elements;      // [0] = f / aspect, [5] = f = 1 / tan(fov / 2)
+  const pm = camera.projectionMatrix.elements;      // [0] = f / aspect, [5] = f = 1 / tan(fov / 2)
   proj.front = tmpDir.z < 0;
   const iz = proj.front ? 1 / -tmpDir.z : 0;
   proj.sx = (tmpDir.x * iz * pm[0] + 1) * 0.5 * w;
   proj.sy = (1 - tmpDir.y * iz * pm[5]) * 0.5 * h;
-  proj.discPx = (b.radius_units / Math.max(proj.dist, 1e-9)) * (h * 0.5 * pm[5]);   // apparent radius in px
+  proj.discPx = (b.radius_units / Math.max(camDist, 1e-9)) * (h * 0.5 * pm[5]);   // apparent radius in px
   return proj;
 }
 
@@ -1563,8 +1943,8 @@ function updateTargetOverlay() {
   const w = el.canvas.clientWidth || 1, h = el.canvas.clientHeight || 1;
   const ship = state.ship;
   const surface = Math.max(0, p.dist - t.radius_units);
-  // the nose is on the target when the camera-space direction is close to -z
-  ov.aligned = p.dist > 1e-9 && (-p.cz / p.dist) > ALIGN_COS;
+  // the nose is on the target when the body direction is close to the ship's forward axis
+  ov.aligned = p.dist > 1e-9 && p.nose > ALIGN_COS;
 
   if (t.name !== ov.name) { ov.name = t.name; el.bracketName.textContent = t.name; }
   if (ov.subAt < 0 || state.realSeconds - ov.subAt >= 1 / HUD_HZ) {
@@ -1705,6 +2085,7 @@ function setDestination(name) {
   const host = name ? findHost(state.catalog, name) : null;
   state.pickedHost = host ? host.name : null;
   const ly = host ? hostDistanceLy(state.host, host) : null;
+  state.pickedLy = ly;
   if (state.hud && typeof state.hud.setPickedHost === 'function') state.hud.setPickedHost(state.pickedHost, ly == null ? NaN : ly);
   if (state.minimap && typeof state.minimap.setPicked === 'function') state.minimap.setPicked(state.pickedHost);
   if (state.jump) state.jump.setDestination(state.pickedHost);
@@ -1941,8 +2322,7 @@ function step(dt) {
     state.ship.update(dt, state.shipBodies);
     checkDiscovery();
   }
-  state.camera.position.set(0, 0, 0);
-  state.camera.quaternion.copy(state.ship.quat);
+  updateCamera(dt);
   placeRelative();
   updateLighting(state.realSeconds);
   if (state.star && typeof state.star.update === 'function') state.star.update(state.realSeconds);
@@ -1951,6 +2331,8 @@ function step(dt) {
   updateTargetOverlay();
   updateClock();
   updateHud(dt === 0);
+  updateShipModel(dt);
+  updateCockpit();
 }
 
 function renderFrame() {
@@ -2117,6 +2499,7 @@ function dossierRows() {
       im.push({ label: 'orbital phases', value: 'starting positions along each orbit are assumed, not catalogued' });
       im.push({ label: 'markers', value: 'gold dots mark planets too small to see at true scale' });
     }
+    im.push(shipRow());
     return { title, measured: starMeasuredRows(), imagined: im };
   }
 
@@ -2166,7 +2549,14 @@ function dossierRows() {
   });
   rows.push({ label: 'size', value: 'true scale' + (p.radius_src && p.radius_src !== 'measured' ? ' (radius ' + p.radius_src + ')' : '') });
   rows.push({ label: 'rings, moons', value: 'none drawn, none known' });
+  rows.push(shipRow());
   return { title, measured, imagined: rows };
+}
+
+/** The one thing in the scene that is not to scale: the ship, drawn at a display size. */
+function shipRow() {
+  const km = state.shipApi && Number.isFinite(state.shipApi.length_units) ? state.shipApi.length_units * KM_PER_UNIT : 60;
+  return { label: 'the ship', value: 'not to scale: drawn about ' + fmt(km, 0) + ' km long so it can be seen next to a planet; the cockpit is a display too' };
 }
 
 function renderDossier() {
@@ -2225,6 +2615,14 @@ function installTestHook() {
     },
     mode() { return state.mode; },
     setMode,
+    /** The view preference ('chase' | 'cockpit'); attract mode shows chase regardless (activeView). */
+    view() { return state.view; },
+    setView: (name) => setView(name, { quiet: true }),
+    activeView,
+    get shipModel() { return state.shipModel; },
+    get cockpit() { return state.cockpit; },
+    camera: state.camera,
+    cameraState: cam,
     setHost: (name) => setHost(name, { arrival: true, immediate: false }),
     warpTo,
     autopilot: autopilotByName,
