@@ -1,0 +1,15 @@
+{
+  "image": "img/milky-way-map.jpg",
+  "credit": "NASA/JPL-Caltech/R. Hurt (SSC/Caltech), artist's concept",
+  "source": "JPL Photojournal PIA10748 (ssc2008-10b), unannotated 5600 px release resampled to 2048 px",
+  "px_w": 2048,
+  "px_h": 2048,
+  "sun_px": [1024.2, 1416.5],
+  "centre_px": [1024.2, 1024.3],
+  "pc_per_px": 20.85,
+  "x_gal_dir_px": [0.0, -1.0],
+  "y_gal_dir_px": [-1.0, 0.0],
+  "artwork_r0_pc": 7987,
+  "grid_pc_per_px": 20.38,
+  "notes": "View from the north galactic pole, not mirrored: on the annotated PIA10748 the galactic longitude grid is centred on the Sun with l=0 (toward the Galactic Centre) straight up, l=90 to the left, l=180 down, l=270 to the right, so +x_gal is image up and +y_gal is image left. Annotated (1280 px) and unannotated (5600 px) releases share the same framing (cross-correlation shift 0 px, scale 1.000), so positions were measured on the annotated grid and scaled by 2048/1280. Sun = intersection of the l=0 and l=90/270 spokes, coincident with the Sun marker; centre = brightness centroid of the bulge core (within 0.5 px of the image centre). The grid rings are 5,000 ly apart (75.22 px at 2048 px, i.e. 20.38 pc/px) and put the marked Sun 26,050 ly = 7,987 pc from the centre, the artwork's own ~26,000 ly convention. pc_per_px is instead anchored so that the marked Sun sits at exactly r0_pc = 8178 pc from centre_px (8178 / 392.2 px); this stretches the artwork's grid by 2.4 percent, which is below the accuracy of an artist's concept. Sun-marker positional uncertainty about 1 px, scale uncertainty about 0.3 percent, orientation exact to within 0.1 degrees."
+}

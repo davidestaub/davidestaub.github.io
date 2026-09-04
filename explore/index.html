@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Explore · Davide Staub</title>
+  <meta name="description" content="Every confirmed exoplanet with a measured distance, at its catalogued position on a map of the Milky Way. Positions from the NASA Exoplanet Archive and Gaia.">
+  <meta property="og:title" content="Explore · Davide Staub">
+  <meta property="og:description" content="Every confirmed exoplanet with a measured distance, at its catalogued position on a map of the Milky Way.">
+  <meta property="og:image" content="https://davidestaub.github.io/assets/img/og-card.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="robots" content="noindex">
+  <link rel="canonical" href="https://davidestaub.github.io/explore/index.html">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪐</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://unpkg.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/site.css">
+  <link rel="stylesheet" href="explore.css">
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.159.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.159.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body class="page-explore">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <canvas id="starfield" aria-hidden="true"></canvas>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="nav-name" href="../index.html">Davide Staub</a>
+      <div class="nav-links">
+        <a href="../research.html">Research</a>
+        <a href="../teaching.html">Teaching</a>
+        <a href="../blog/index.html">Blog</a>
+        <a href="../CV_Davide_Staub.pdf">CV</a>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main">
+
+    <div class="wrap">
+      <section class="section explore-head">
+        <p class="eyebrow cyan">Explore <span class="wip">work in progress · stage 1: the map</span></p>
+        <h1>The known planets, on the map</h1>
+        <p class="lede">
+          Every confirmed exoplanet with a measured distance, drawn at its catalogued position
+          in the Galaxy. Distances are the system distances compiled by the NASA Exoplanet
+          Archive, mostly Gaia parallaxes; the microlensing planets toward the bulge carry
+          model-based lens distances with large uncertainties. The backdrop is an artist's
+          concept of the Milky Way seen from above the north galactic pole, calibrated so the
+          Sun and the Galactic Centre sit where they should. Each point is a host star,
+          coloured by its temperature.
+        </p>
+      </section>
+    </div>
+
+    <section class="map-section" aria-label="Galaxy map">
+      <div class="map-stage" id="map-stage">
+        <canvas id="map-canvas" aria-label="Interactive map of exoplanet host stars in the Milky Way"></canvas>
+
+        <div class="map-labels" id="map-labels" aria-hidden="true">
+          <div class="map-label sun" id="label-sun">Sun</div>
+          <div class="map-label ring" id="label-ring-0">100 ly</div>
+          <div class="map-label ring" id="label-ring-1">1,000 ly</div>
+          <div class="map-label ring" id="label-ring-2">10,000 ly</div>
+          <div class="map-marker" id="map-marker"></div>
+        </div>
+
+        <div class="map-status" id="map-status" role="status">loading catalogue</div>
+
+        <div class="map-toolbar">
+          <div class="view-toggle" role="group" aria-label="View">
+            <button type="button" class="view-btn active" id="view-local" data-view="local" aria-pressed="true">Local</button>
+            <button type="button" class="view-btn" id="view-galaxy" data-view="galaxy" aria-pressed="false">Galaxy</button>
+          </div>
+          <div class="map-hint" id="map-hint">drag to rotate · click, then scroll to zoom · right-drag to pan · click a star</div>
+        </div>
+
+        <div class="map-tooltip" id="map-tooltip" hidden>
+          <div class="tt-host" id="tt-host"></div>
+          <div class="tt-line" id="tt-dist"></div>
+          <div class="tt-line" id="tt-star"></div>
+          <div class="tt-line" id="tt-count"></div>
+          <ul class="tt-planets" id="tt-planets"></ul>
+        </div>
+
+        <aside class="readout" id="readout" aria-label="Catalogue readout">
+          <div class="ro-row"><span class="ro-k">planets in catalogue</span><span class="ro-v" id="ro-count">·</span></div>
+          <div class="ro-row"><span class="ro-k">with measured distance, shown</span><span class="ro-v" id="ro-shown">·</span></div>
+          <div class="ro-row"><span class="ro-k">host stars drawn</span><span class="ro-v" id="ro-hosts">·</span></div>
+          <div class="ro-row"><span class="ro-k">median distance</span><span class="ro-v" id="ro-median">·</span></div>
+          <div class="ro-row"><span class="ro-k">99% within</span><span class="ro-v" id="ro-p99">·</span></div>
+          <div class="ro-row"><span class="ro-k">catalogue retrieved</span><span class="ro-v" id="ro-date">·</span></div>
+          <div class="ro-legend">
+            <span class="sw sw-cool"></span>3,000 K
+            <span class="sw sw-sun"></span>5,800 K
+            <span class="sw sw-hot"></span>10,000 K
+            <span class="ro-legend-note">host colour, blackbody approximation</span>
+          </div>
+          <p class="ro-credit">
+            Positions: NASA Exoplanet Archive (PSCompPars) and Gaia.
+            Backdrop: NASA/JPL-Caltech/R. Hurt (SSC/Caltech), artist's concept.
+          </p>
+        </aside>
+      </div>
+    </section>
+
+    <div class="wrap">
+      <section class="section explore-notes">
+        <p class="eyebrow">Notes</p>
+        <div class="notes-grid">
+          <p>
+            <strong>What is real.</strong> Every point is a confirmed planet host with a
+            catalogued distance, placed by converting its sky position and distance into
+            galactic coordinates. The scale rings are centred on the Sun at 100, 1,000 and
+            10,000 light-years. The spike of stars in one direction is the Kepler field,
+            where thousands of planets were found along a single line of sight. The chain of
+            points running from the Sun toward the Galactic Centre is the microlensing sample;
+            their distances are model estimates, not parallaxes.
+          </p>
+          <p>
+            <strong>What is a model.</strong> The backdrop is an artist's concept of the
+            Milky Way, not a photograph. It is calibrated so that the marked Sun sits
+            8,178 parsecs from the Galactic Centre and the galactic longitude directions
+            match, but the spiral arms are illustrative. Point colours are a blackbody
+            approximation from the host star's effective temperature; hosts without a
+            temperature are drawn in neutral white.
+          </p>
+        </div>
+      </section>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <span>© 2026 Davide Staub</span>
+      <span>
+        <a href="mailto:dds25@ic.ac.uk">Email</a> ·
+        <a href="https://www.linkedin.com/in/davide-staub/" target="_blank" rel="noopener">LinkedIn</a> ·
+        <a href="https://github.com/davidestaub" target="_blank" rel="noopener">GitHub</a>
+      </span>
+    </div>
+  </footer>
+
+  <script src="../assets/js/starfield.js"></script>
+  <script type="module" src="explore.js"></script>
+</body>
+</html>
