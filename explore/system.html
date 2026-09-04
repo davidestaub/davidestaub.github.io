@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>System · Davide Staub</title>
+  <meta name="description" content="A confirmed exoplanet system drawn to scale from its catalogued numbers, with every invented detail listed as such.">
+  <meta property="og:title" content="System · Davide Staub">
+  <meta property="og:description" content="A confirmed exoplanet system drawn to scale from its catalogued numbers, with every invented detail listed as such.">
+  <meta property="og:image" content="https://davidestaub.github.io/assets/img/og-card.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="robots" content="noindex">
+  <link rel="canonical" href="https://davidestaub.github.io/explore/system.html">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪐</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://unpkg.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/site.css">
+  <link rel="stylesheet" href="system.css">
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.159.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.159.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body class="page-explore page-system">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <canvas id="starfield" aria-hidden="true"></canvas>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="nav-name" href="../index.html">Davide Staub</a>
+      <div class="nav-links">
+        <a href="../research.html">Research</a>
+        <a href="../teaching.html">Teaching</a>
+        <a href="../blog/index.html">Blog</a>
+        <a href="../CV_Davide_Staub.pdf">CV</a>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main">
+
+    <div class="wrap">
+      <section class="section system-head">
+        <p class="eyebrow cyan">Explore <span class="wip">work in progress · stage 2: the system</span></p>
+        <h1 id="host-title">System</h1>
+        <p class="lede" id="host-lede">
+          One star and its confirmed planets, drawn to scale from the catalogue. Sizes and orbits
+          are true to the numbers; nobody knows what any of these planets looks like, so every
+          surface, colour and cloud is an assumption and is listed as one in the dossier below.
+        </p>
+        <p class="sys-links"><a href="index.html">Back to the map</a></p>
+      </section>
+    </div>
+
+    <section class="system-section" aria-label="Star system">
+      <div class="system-stage" id="system-stage">
+        <canvas id="system-canvas" aria-label="Interactive 3D view of the star system"></canvas>
+
+        <div class="sys-status" id="sys-status" role="status">loading catalogue</div>
+
+        <div class="hud hud-top" id="hud-top">
+          <div class="time-ctl" role="group" aria-label="Time scale">
+            <button type="button" class="t-btn" data-scale="1" aria-pressed="false">real time</button>
+            <button type="button" class="t-btn active" data-scale="3600" aria-pressed="true">1 h/s</button>
+            <button type="button" class="t-btn" data-scale="86400" aria-pressed="false">1 day/s</button>
+            <button type="button" class="t-btn" data-scale="864000" aria-pressed="false">10 days/s</button>
+            <button type="button" class="t-btn t-pause" id="btn-pause" aria-pressed="false">pause</button>
+          </div>
+          <div class="sys-clock" id="sys-clock">elapsed: 0 s</div>
+        </div>
+
+        <div class="hud hud-side" id="hud-side">
+          <div class="focus-list" id="focus-list" role="group" aria-label="Focus">
+            <div class="focus-row">
+              <button type="button" class="f-btn f-star" id="btn-star" data-focus="star" aria-pressed="false">Star</button>
+              <button type="button" class="f-btn f-system active" id="btn-system" data-focus="system" aria-pressed="true">System</button>
+            </div>
+            <div class="planet-list" id="planet-list"></div>
+          </div>
+          <div class="sys-hint" id="sys-hint">drag to rotate · scroll to zoom · right-drag to pan</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="wrap">
+      <section class="dossier" id="dossier" aria-label="Dossier">
+        <div class="dossier-head">
+          <div class="d-eyebrow">dossier</div>
+          <div class="d-host" id="d-host">·</div>
+          <div class="d-star" id="d-star">·</div>
+        </div>
+        <div class="d-focus" id="d-focus">·</div>
+        <div class="dossier-cols">
+          <div class="d-col">
+            <div class="d-col-title">measured</div>
+            <dl class="d-list" id="d-measured"></dl>
+          </div>
+          <div class="d-col d-col-imagined">
+            <div class="d-col-title">imagined</div>
+            <dl class="d-list" id="d-imagined"></dl>
+          </div>
+        </div>
+        <p class="d-credit" id="d-credit">Catalogue: NASA Exoplanet Archive (PSCompPars). Sky: HYG database. Rendering assumptions are listed under "imagined".</p>
+      </section>
+
+      <section class="section explore-notes">
+        <p class="eyebrow">Notes</p>
+        <div class="notes-grid">
+          <p>
+            <strong>What is real.</strong> The star's radius, temperature and mass, and each
+            planet's radius, mass, orbital period, semi-major axis and eccentricity come from the
+            catalogue where they exist. Where one of a pair is missing it is derived from the other
+            and marked so. The scene is at true scale: one scene unit is 1,000 km, so a hot Jupiter
+            sits a few stellar radii out and a one-year orbit is a large empty circle.
+            The background stars are the bright-star catalogue moved to the host's position.
+          </p>
+          <p>
+            <strong>What is a model.</strong> No exoplanet has ever been resolved as a disc.
+            Surface pattern, colour, cloud cover, spin, the orientation of the orbit and the
+            starting position along it are all chosen by the renderer from rules based on the
+            planet's class and equilibrium temperature. Those rules are stated in the dossier;
+            treat them as an illustration, not as a prediction.
+          </p>
+        </div>
+      </section>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <span>© 2026 Davide Staub</span>
+      <span>
+        <a href="mailto:dds25@ic.ac.uk">Email</a> ·
+        <a href="https://www.linkedin.com/in/davide-staub/" target="_blank" rel="noopener">LinkedIn</a> ·
+        <a href="https://github.com/davidestaub" target="_blank" rel="noopener">GitHub</a>
+      </span>
+    </div>
+  </footer>
+
+  <script src="../assets/js/starfield.js"></script>
+  <script type="module" src="system.js"></script>
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>catalog.js test</title>
+<meta name="robots" content="noindex">
+<style>
+  body { background: #04060F; color: #d9dde8; font: 13px/1.5 "IBM Plex Mono", ui-monospace, monospace; margin: 1.5rem; }
+  h1 { font-size: 14px; font-weight: 400; color: #F5B324; }
+  .ok { color: #35D6FF; }
+  .fail { color: #ff6b6b; }
+  pre { white-space: pre-wrap; word-break: break-word; }
+</style>
+</head>
+<body>
+<h1>explore/lib/catalog.js self test</h1>
+<p id="status">loading catalogue</p>
+<pre id="out"></pre>
+<script type="module">
+  import { loadCatalog, deriveSystem, findHost, describeMeasured, describeAssumed, teffToRGB, KM_PER_UNIT } from './catalog.js';
+
+  const HOSTS = ['TRAPPIST-1', 'WASP-96', 'HD 209458', '51 Peg', 'Kepler-90'];
+  const status = document.getElementById('status');
+  const out = document.getElementById('out');
+
+  function assert(cond, msg) {
+    if (!cond) throw new Error('ASSERT: ' + msg);
+  }
+  function finitePos(v) { return typeof v === 'number' && Number.isFinite(v) && v > 0; }
+
+  // Compact view of one system: same shape as tools/check_catalog_lib.py prints.
+  function view(sys) {
+    return {
+      star: {
+        name: sys.star.name,
+        radius_km: sys.star.radius_km, radius_src: sys.star.radius_src,
+        teff: sys.star.teff, teff_src: sys.star.teff_src,
+        mass_msun: sys.star.mass_msun, mass_src: sys.star.mass_src,
+        color: sys.star.color.map((c) => Number(c.toFixed(3))),
+      },
+      planets: sys.planets.map((p) => ({
+        name: p.name, cls: p.cls,
+        radius_km: p.radius_km, radius_src: p.radius_src,
+        mass_me: p.mass_me,
+        a_km: p.a_km, a_src: p.a_src,
+        period_days: p.period_days, period_src: p.period_src,
+        e: p.e, e_src: p.e_src,
+        teq: p.teq, teq_src: p.teq_src,
+        tidally_locked: p.tidally_locked, rotation_hours: p.rotation_hours,
+      })),
+    };
+  }
+
+  try {
+    const cat = await loadCatalog('../');
+    const lines = [];
+    lines.push('catalogue: ' + cat.meta.count + ' rows, ' + cat.hosts.size + ' hosts, retrieved ' + cat.meta.retrieved);
+    lines.push('KM_PER_UNIT ' + KM_PER_UNIT + ', teffToRGB(5800) ' + JSON.stringify(teffToRGB(5800).map((c) => Number(c.toFixed(3)))));
+
+    const result = {};
+    for (const name of HOSTS) {
+      const host = findHost(cat, name);
+      assert(host, 'host missing from catalogue: ' + name);
+      if (host.name !== name) lines.push(name + ' resolved to host ' + host.name);
+      const sys = deriveSystem(host);
+      result[name] = view(sys);
+      // the dossier helpers must not throw on any of these
+      for (const p of sys.planets) { describeMeasured(p, sys.star); describeAssumed(p, sys.star); }
+    }
+    console.log(JSON.stringify(result, null, 1));
+    lines.push(JSON.stringify(result, null, 1));
+
+    // --- assertions on the named hosts ------------------------------------
+    const t1 = result['TRAPPIST-1'];
+    assert(t1.planets.length === 7, 'TRAPPIST-1 should have 7 planets, got ' + t1.planets.length);
+    for (const p of t1.planets) {
+      assert(p.a_src === 'measured', p.name + ' a_src should be measured, got ' + p.a_src);
+      assert(p.radius_src === 'measured', p.name + ' radius_src should be measured, got ' + p.radius_src);
+    }
+    // 51 Peg b does not transit. PSCompPars still lists a pl_rade for it
+    // (a value the archive calculated from mass), and planets.json keeps
+    // that number without the archive's flag. So: if the row has no radius
+    // the module must say 'from mass' or 'assumed'; if the row has one the
+    // module reports it as catalogued and the fallback is exercised below.
+    const peg = result['51 Peg'].planets.find((p) => p.name === '51 Peg b');
+    assert(peg, '51 Peg b missing');
+    const pegRaw = cat.hosts.get('51 Peg').planets[0].raw;
+    if (pegRaw.pl_rade == null) {
+      assert(peg.radius_src === 'from mass' || peg.radius_src === 'assumed',
+        '51 Peg b radius_src should be from mass or assumed, got ' + peg.radius_src);
+    } else {
+      assert(peg.radius_src === 'measured', '51 Peg b has a catalogued radius but radius_src is ' + peg.radius_src);
+      lines.push('51 Peg b: catalogue row carries pl_rade = ' + pegRaw.pl_rade + ' (archive-calculated, planet does not transit)');
+    }
+
+    // --- assertions on the whole catalogue -------------------------------
+    let n = 0;
+    for (const host of cat.hostList) {
+      const sys = deriveSystem(host);
+      let prev = -1;
+      for (const p of sys.planets) {
+        n++;
+        assert(finitePos(p.a_km), p.name + ' a_km not finite positive: ' + p.a_km);
+        assert(finitePos(p.radius_km), p.name + ' radius_km not finite positive: ' + p.radius_km);
+        assert(finitePos(p.period_days), p.name + ' period_days not finite positive: ' + p.period_days);
+        assert(finitePos(p.teq), p.name + ' teq not finite positive: ' + p.teq);
+        assert(p.e >= 0 && p.e < 1, p.name + ' eccentricity out of range: ' + p.e);
+        assert(p.a_km >= prev, host.name + ' planets not sorted by a_km');
+        prev = p.a_km;
+      }
+      assert(finitePos(sys.star.radius_km) && finitePos(sys.star.teff) && finitePos(sys.star.mass_msun), host.name + ' star values not finite positive');
+    }
+    lines.push('checked ' + n + ' planets across ' + cat.hostList.length + ' hosts');
+
+    // --- 51 Peg b with its radius removed must fall back to 'from mass' --
+    {
+      const host = cat.hosts.get('51 Peg');
+      const clone = { ...host, _raw: host._raw.map((r) => ({ ...r, pl_rade: null })) };
+      const sys = deriveSystem(clone);
+      assert(sys.planets[0].radius_src === 'from mass', '51 Peg b without pl_rade should be from mass');
+      lines.push('51 Peg b without catalogued radius: ' + sys.planets[0].radius_km.toFixed(0) + ' km from mass');
+      const clone2 = { ...host, _raw: host._raw.map((r) => ({ ...r, pl_rade: null, pl_bmasse: null })) };
+      const sys2 = deriveSystem(clone2);
+      assert(sys2.planets[0].radius_src === 'assumed', '51 Peg b without radius and mass should be assumed');
+    }
+
+    status.textContent = 'all assertions passed';
+    status.className = 'ok';
+    out.textContent = lines.join('\n');
+  } catch (err) {
+    status.textContent = String(err && err.message || err);
+    status.className = 'fail';
+    console.error(err);
+    throw err;
+  }
+</script>
+</body>
+</html>

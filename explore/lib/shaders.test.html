@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>shader test</title>
+<meta name="robots" content="noindex">
+<style>
+  :root {
+    --bg: #04060F; --ink: #F7FAFF; --muted: #A8B6D0; --faint: #6B7A99;
+    --gold: #F5B324; --cyan: #35D6FF; --line: rgba(255,255,255,0.10);
+    --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font-family: var(--mono); font-size: 12px; overflow: hidden; }
+  #stage { position: fixed; inset: 0; }
+  #stage canvas { display: block; width: 100%; height: 100%; }
+  .label { position: absolute; transform: translate(-50%, 0); color: var(--muted); white-space: nowrap; pointer-events: none; letter-spacing: 0.02em; }
+  .label b { color: var(--ink); font-weight: 500; }
+  #hud { position: fixed; left: 12px; bottom: 12px; color: var(--faint); max-width: 46ch; line-height: 1.5; }
+  #hud .k { color: var(--gold); }
+  #err { position: fixed; left: 12px; top: 12px; right: 12px; max-height: 60vh; overflow: auto; white-space: pre-wrap; color: #ff7a6a; background: rgba(0,0,0,0.7); padding: 8px 10px; border: 1px solid rgba(255,122,106,0.4); display: none; }
+  #dossier { position: fixed; right: 12px; top: 12px; width: 34ch; max-height: 90vh; overflow: auto; color: var(--muted); line-height: 1.45; border-left: 1px solid var(--line); padding-left: 10px; }
+  #dossier h2 { margin: 0 0 6px; font-size: 12px; font-weight: 500; color: var(--gold); letter-spacing: 0.06em; text-transform: uppercase; }
+  #dossier .row { margin: 0 0 10px; }
+  #dossier .row .n { color: var(--ink); }
+  #dossier .row .i { color: var(--faint); }
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<div id="labels"></div>
+<pre id="err"></pre>
+<div id="dossier"><h2>imagined</h2></div>
+<div id="hud"></div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://unpkg.com/three@0.159.0/build/three.module.js",
+  "three/addons/": "https://unpkg.com/three@0.159.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { makePlanetMaterial, makeAtmosphere } from './planet-shaders.js';
+import { makeStar } from './star.js';
+
+const errBox = document.getElementById('err');
+function showError(text) {
+  errBox.style.display = 'block';
+  errBox.textContent += text + '\n';
+}
+window.addEventListener('error', (e) => showError('error: ' + e.message));
+window.addEventListener('unhandledrejection', (e) => showError('rejection: ' + (e.reason && e.reason.message || e.reason)));
+
+const stage = document.getElementById('stage');
+/* ?webgl1=1 forces the WebGL1 code path (three 0.159 still ships WebGL1Renderer). */
+const params = new URLSearchParams(location.search);
+const RendererClass = params.get('webgl1') === '1' && THREE.WebGL1Renderer ? THREE.WebGL1Renderer : THREE.WebGLRenderer;
+const renderer = new RendererClass({ antialias: true, logarithmicDepthBuffer: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.0;
+renderer.debug.onShaderError = (gl, program, vs, fs) => {
+  const log = gl.getProgramInfoLog(program) || '';
+  const vlog = gl.getShaderInfoLog(vs) || '';
+  const flog = gl.getShaderInfoLog(fs) || '';
+  showError('shader error\nprogram: ' + log + '\nvertex: ' + vlog + '\nfragment: ' + flog);
+};
+stage.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x04060F);
+const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.01, 1e9);
+camera.position.set(0, 0, 11);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+
+/* One light direction for every sphere; the star sits along it. */
+const starPos = new THREE.Vector3(-9, 5.5, 2);
+const lightDir = starPos.clone().normalize();
+
+const star = makeStar(THREE, { radius_units: 1.0, teff: 5200, color: [1.0, 0.86, 0.70] });
+star.group.position.copy(starPos);
+scene.add(star.group);
+const lightColor = star.light.color;
+
+const cases = [
+  { name: 'gas giant, hot', cls: 'gas-giant', teq: 1450, radius_km: 90000, seed: 0.13, tidally_locked: true },
+  { name: 'gas giant, temperate', cls: 'gas-giant', teq: 550, radius_km: 70000, seed: 0.71, tidally_locked: false },
+  { name: 'gas giant, cold', cls: 'gas-giant', teq: 120, radius_km: 60000, seed: 0.42, tidally_locked: false },
+  { name: 'neptune-like', cls: 'neptune-like', teq: 260, radius_km: 24000, seed: 0.58, tidally_locked: false },
+  { name: 'super-earth, lava', cls: 'super-earth', teq: 1900, radius_km: 11000, seed: 0.27, tidally_locked: true },
+  { name: 'terrestrial, rock', cls: 'terrestrial', teq: 300, radius_km: 6400, seed: 0.83, tidally_locked: false },
+  { name: 'terrestrial, warm rock', cls: 'terrestrial', teq: 650, radius_km: 5000, seed: 0.35, tidally_locked: true },
+  { name: 'terrestrial, ice', cls: 'terrestrial', teq: 110, radius_km: 6000, seed: 0.66, tidally_locked: false },
+];
+
+const R = 1.05;
+const cols = 4, rows = 2, dx = 3.1, dy = 3.4;
+const geo = new THREE.SphereGeometry(R, 96, 64);
+const items = [];
+const labelsRoot = document.getElementById('labels');
+const dossier = document.getElementById('dossier');
+
+cases.forEach((c, i) => {
+  const mat = makePlanetMaterial(THREE, c);
+  mat.uniforms.uLightDir.value.copy(lightDir);
+  mat.uniforms.uLightColor.value.copy(lightColor);
+  const mesh = new THREE.Mesh(geo, mat);
+  const col = i % cols, row = Math.floor(i / cols);
+  mesh.position.set((col - (cols - 1) / 2) * dx, ((rows - 1) / 2 - row) * dy - 0.4, 0);
+  mesh.rotation.z = 0.2;
+  scene.add(mesh);
+
+  let atmo = null;
+  const sug = mat.userData.suggestAtmosphere;
+  if (sug) {
+    atmo = makeAtmosphere(THREE, { radius_units: R, color: sug.color, strength: sug.strength });
+    atmo.material.uniforms.uLightDir.value.copy(lightDir);
+    atmo.position.copy(mesh.position);
+    atmo.rotation.copy(mesh.rotation);
+    scene.add(atmo);
+  }
+
+  const label = document.createElement('div');
+  label.className = 'label';
+  label.innerHTML = '<b>' + c.name + '</b><br>' + c.cls + ' / ' + c.teq + ' K' + (c.tidally_locked ? ' / locked' : '');
+  labelsRoot.appendChild(label);
+
+  const im = mat.userData.imagined;
+  const row_ = document.createElement('div');
+  row_.className = 'row';
+  row_.innerHTML = '<div class="n">' + c.name + '</div>'
+    + '<div class="i">surface: ' + im.surface + '</div>'
+    + '<div class="i">colours: ' + im.colours + '</div>'
+    + '<div class="i">atmosphere: ' + im.atmosphere + '</div>'
+    + '<div class="i">clouds: ' + im.clouds + '</div>';
+  dossier.appendChild(row_);
+
+  items.push({ mesh, atmo, mat, label });
+});
+
+/* ?focus=N (0..7) frames one sphere; ?focus=star frames the star. */
+const focus = params.get('focus');
+if (focus === 'star') {
+  controls.target.copy(starPos);
+  camera.position.copy(starPos).add(new THREE.Vector3(0, 0, 4.5));
+} else if (focus !== null && items[+focus]) {
+  const p = items[+focus].mesh.position;
+  controls.target.copy(p);
+  camera.position.copy(p).add(new THREE.Vector3(0, 0, 2.6));
+}
+
+const hud = document.getElementById('hud');
+hud.innerHTML = '<span class="k">shaders.test</span> ' + (renderer.capabilities.isWebGL2 ? 'webgl2' : 'webgl1')
+  + ' / log depth on / ACES / drag to orbit<br>light from the star at top left; star 5,200 K; every surface is invented';
+
+const tmp = new THREE.Vector3();
+const clock = new THREE.Clock();
+function frame() {
+  const t = clock.getElapsedTime();
+  star.update(t);
+  for (const it of items) {
+    it.mat.uniforms.uTime.value = t;
+    it.mesh.rotation.y = t * 0.03;
+    if (it.atmo) it.atmo.rotation.y = it.mesh.rotation.y;
+    tmp.copy(it.mesh.position);
+    tmp.y -= R * 1.15;
+    tmp.project(camera);
+    const x = (tmp.x * 0.5 + 0.5) * window.innerWidth;
+    const y = (-tmp.y * 0.5 + 0.5) * window.innerHeight;
+    it.label.style.left = x + 'px';
+    it.label.style.top = y + 'px';
+    it.label.style.display = tmp.z < 1 ? 'block' : 'none';
+  }
+  controls.update();
+  renderer.render(scene, camera);
+  requestAnimationFrame(frame);
+}
+frame();
+
+/* a hidden tab can report a 0 x 0 window: fall back to a fixed size so the canvas is never empty */
+function fit(w, h) {
+  const W = w || window.innerWidth || 1280;
+  const H = h || window.innerHeight || 720;
+  camera.aspect = W / H;
+  camera.updateProjectionMatrix();
+  renderer.setSize(W, H);
+}
+if (!window.innerWidth || !window.innerHeight) fit();
+
+/* test hook: render one frame on demand and return a JPEG data URL */
+window.__shaders = {
+  render() { star.update(1); renderer.render(scene, camera); },
+  resize: fit,
+  debug() {
+    return {
+      size: [renderer.domElement.width, renderer.domElement.height],
+      aspect: camera.aspect, pos: camera.position.toArray(), target: controls.target.toArray(),
+      proj: Array.from(camera.projectionMatrix.elements).map((v) => +v.toFixed(3)),
+      calls: renderer.info.render.calls, triangles: renderer.info.render.triangles,
+      programs: renderer.info.programs.length, webgl2: renderer.capabilities.isWebGL2,
+      lost: renderer.getContext().isContextLost(),
+    };
+  },
+  snapshot(w, h) {
+    if (w || !renderer.domElement.width) fit(w, h);
+    star.update(1); renderer.render(scene, camera);
+    return renderer.domElement.toDataURL('image/jpeg', 0.9);
+  },
+};
+
+window.addEventListener('resize', () => fit());
+</script>
+</body>
+</html>
