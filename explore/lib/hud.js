@@ -1,7 +1,7 @@
 /* ===================================================================
    /explore/lib/hud.js : cockpit HUD (stage 3)
 
-   Owns the cockpit overlay markup in system.html (#cockpit and its
+   Owns the cockpit overlay markup in index.html (formerly system.html) (#cockpit and its
    children) and nothing in the 3D scene. Pure DOM: no THREE dependency.
 
    createHud(rootEl, callbacks) -> {
@@ -284,6 +284,10 @@ export function createHud(rootEl, callbacks = {}) {
 
   /* ---------------- bodies ---------------- */
 
+  /**
+   * @param list [{ name, host?, cls, radius_re, swatchCss }]. When the planet's name starts with
+   *   the host name the chip shows only the suffix ('b', 'c'); the full name is the accessible name.
+   */
   function setBodies(list) {
     if (!el.planetList) return;
     const frag = document.createDocumentFragment();
@@ -303,11 +307,16 @@ export function createHud(rootEl, callbacks = {}) {
       if (b.swatchCss) { sw.style.background = b.swatchCss; sw.style.boxShadow = '0 0 6px ' + b.swatchCss; }
       const name = document.createElement('span');
       name.className = 'p-name';
-      name.textContent = b.name;
+      const host = typeof b.host === 'string' ? b.host : '';
+      const full = String(b.name == null ? '' : b.name);
+      name.textContent = host && full.startsWith(host + ' ') ? full.slice(host.length + 1) : full;
       const meta = document.createElement('span');
       meta.className = 'p-meta';
+      meta.setAttribute('aria-hidden', 'true');
       const re = Number(b.radius_re);
       meta.textContent = (b.cls || '') + (Number.isFinite(re) ? ' · ' + fmt(re, 2) + ' Re' : '');
+      btn.setAttribute('aria-label', full + (meta.textContent ? ', ' + meta.textContent : ''));
+      btn.title = full;
       btn.append(sw, name, meta);
       btn.addEventListener('click', () => {
         hud.selectedBody = b.name;
@@ -338,10 +347,16 @@ export function createHud(rootEl, callbacks = {}) {
 
   /* ---------------- discovery ---------------- */
 
+  const narrowQuery = window.matchMedia ? window.matchMedia('(max-width: 820px)') : null;
+
   function setVisited(count, total) {
     const n = Number.isFinite(count) ? count : 0;
     const t = Number.isFinite(total) && total > 0 ? total : TOTAL_SYSTEMS_DEFAULT;
-    setText(el.visited, 'visited', 'systems visited: ' + fmt(n, 0) + ' of ' + fmt(t, 0));
+    // phones: the short form fits the top-left panel on one line, under the time controls
+    const text = narrowQuery && narrowQuery.matches
+      ? 'visited ' + fmt(n, 0) + ' / ' + fmt(t, 0)
+      : 'systems visited: ' + fmt(n, 0) + ' of ' + fmt(t, 0);
+    setText(el.visited, 'visited', text);
   }
 
   /* ---------------- toast ---------------- */
@@ -376,9 +391,14 @@ export function createHud(rootEl, callbacks = {}) {
   /* ---------------- help ---------------- */
 
   function showControlsHelp(show) {
+    const wasOpen = hud.helpOpen;
+    // if focus is inside the dialog when it closes, hand it back to the button that opened it
+    const focusInside = !!(el.help && document.activeElement && el.help.contains(document.activeElement));
     hud.helpOpen = !!show;
     if (el.help) el.help.hidden = !show;
     if (el.btnHelp) el.btnHelp.setAttribute('aria-expanded', show ? 'true' : 'false');
+    if (show && el.helpClose && typeof el.helpClose.focus === 'function') el.helpClose.focus();
+    else if (!show && wasOpen && focusInside && el.btnHelp && typeof el.btnHelp.focus === 'function') el.btnHelp.focus();
   }
 
   /* ---------------- minimap panel ---------------- */

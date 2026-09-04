@@ -25,6 +25,12 @@
 
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  // the loop pauses while the tab is hidden and while an opaque stage marked
+  // data-covers-starfield (the cockpit's 3D view) fills most of the viewport
+  let covered = false;
+  let looping = false;
+  function paused() { return document.hidden || covered; }
+
   function draw(now) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     const t = (now || 0) / 1000;
@@ -35,13 +41,27 @@
       ctx.arc(s.x * canvas.width, s.y * canvas.height, s.r * devicePixelRatio, 0, Math.PI * 2);
       ctx.fill();
     });
-    if (!reduced) requestAnimationFrame(draw);
+    if (!reduced && !paused()) requestAnimationFrame(draw);
+    else looping = false;
+  }
+  function start() {
+    if (looping || reduced) return;
+    looping = true;
+    requestAnimationFrame(draw);
   }
 
   size();
-  requestAnimationFrame(draw);
-  if (reduced) draw(0);
+  if (reduced) draw(0); else start();
   window.addEventListener('resize', () => { size(); if (reduced) draw(0); });
+  document.addEventListener('visibilitychange', () => { if (!paused()) start(); });
+  const cover = document.querySelector('[data-covers-starfield]');
+  if (cover && 'IntersectionObserver' in window) {
+    new IntersectionObserver((entries) => {
+      const e = entries[entries.length - 1];
+      covered = e.isIntersecting && e.intersectionRect.height >= window.innerHeight * 0.8;
+      if (!paused()) start();
+    }, { threshold: [0, 0.2, 0.4, 0.6, 0.8, 1] }).observe(cover);
+  }
 })();
 
 // Reveal .bubble and .reveal elements as they scroll into view.

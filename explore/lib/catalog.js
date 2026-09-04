@@ -23,8 +23,10 @@
      period_src  'measured' | 'from semi-major axis' | 'assumed'
      e_src       'measured' | 'assumed circular'
      teq_src     'measured' | 'computed' | 'assumed'
-     star.radius_src, star.teff_src, star.mass_src
+     star.radius_src, star.mass_src
                  'measured' | 'assumed'
+     star.teff_src
+                 'measured' | 'from spectral type' | 'assumed'
 
    The python script tools/check_catalog_lib.py re-implements the same
    rules independently; keep the two in step.
@@ -50,6 +52,21 @@ export const ASSUMED = Object.freeze({
   locked_below_days: 20,
   rotation_hours_free: 24,
 });
+
+/* Rough effective temperature per spectral class letter, used only when
+   the catalogue has a spectral type but no temperature. A single value
+   per class (about the middle of the class), flagged 'from spectral type'. */
+export const SPECTRAL_TEFF = Object.freeze({
+  O: 30000, B: 20000, A: 8500, F: 6500, G: 5500, K: 4500, M: 3200, L: 2000, T: 1200, Y: 500,
+});
+
+/** Class letter of a spectral type string ('M5.5/M6' -> 'M', 'K2.5 V' -> 'K'), or null.
+    Strings that start with anything else (white dwarfs 'WD', 'DA', 'DC', subdwarf prefixes) give null. */
+export function spectralClass(spec) {
+  if (spec == null) return null;
+  const m = /^([OBAFGKMLTY])(?![A-Z])/.exec(String(spec).trim());
+  return m ? m[1] : null;
+}
 
 /* ------------------------------------------------------------------
    Loading
@@ -162,7 +179,8 @@ export function findHost(catalog, query) {
 /**
  * Stellar parameters with defaults.
  *   missing st_rad  -> 1.0 solar radii, radius_src 'assumed'
- *   missing st_teff -> 5500 K,          teff_src   'assumed'
+ *   missing st_teff -> SPECTRAL_TEFF[class letter] when st_spec has one,
+ *                      teff_src 'from spectral type'; else 5500 K, 'assumed'
  *   missing st_mass -> 1.0 solar masses, mass_src  'assumed'
  */
 export function deriveStar(host) {
@@ -170,7 +188,11 @@ export function deriveStar(host) {
   const hasTeff = isPos(host.teff);
   const hasMass = isPos(host.st_mass);
   const rad_rsun = hasRad ? host.st_rad : ASSUMED.st_rad;
-  const teff = hasTeff ? host.teff : ASSUMED.st_teff;
+  const specClass = hasTeff ? null : spectralClass(host.spec);
+  let teff, teff_src;
+  if (hasTeff) { teff = host.teff; teff_src = 'measured'; }
+  else if (specClass) { teff = SPECTRAL_TEFF[specClass]; teff_src = 'from spectral type'; }
+  else { teff = ASSUMED.st_teff; teff_src = 'assumed'; }
   const mass_msun = hasMass ? host.st_mass : ASSUMED.st_mass;
   return {
     name: host.name,
@@ -178,7 +200,7 @@ export function deriveStar(host) {
     radius_rsun: rad_rsun,
     radius_src: hasRad ? 'measured' : 'assumed',
     teff,
-    teff_src: hasTeff ? 'measured' : 'assumed',
+    teff_src,
     mass_msun,
     mass_src: hasMass ? 'measured' : 'assumed',
     spec: host.spec,
@@ -278,13 +300,14 @@ export function derivePlanet(raw, index, star) {
   //            the archive's number, not ours)
   // computed : Teq = Teff * sqrt(Rs / (2 a)), Rs and a in km, Bond albedo 0,
   //            full redistribution. Flagged 'assumed' instead of 'computed'
-  //            when any input (Teff, Rs, a) was itself assumed.
+  //            when any input (Teff, Rs, a) was itself assumed or, for
+  //            Teff, only read off the spectral type.
   let teq, teq_src;
   if (isPos(raw.pl_eqt)) {
     teq = raw.pl_eqt; teq_src = 'measured';
   } else {
     teq = star.teff * Math.sqrt(star.radius_km / (2 * a_km));
-    const inputsAssumed = star.teff_src === 'assumed' || star.radius_src === 'assumed' || a_src === 'assumed';
+    const inputsAssumed = star.teff_src !== 'measured' || star.radius_src === 'assumed' || a_src === 'assumed';
     teq_src = inputsAssumed ? 'assumed' : 'computed';
   }
 
@@ -387,11 +410,12 @@ export function describeMeasured(planet, star) {
 
   const dist_pc = isPos(raw.dist_pc) ? raw.dist_pc : (star && isPos(star.dist_pc) ? star.dist_pc : null);
   if (dist_pc != null) {
-    rows.push({ label: 'distance from Earth', value: fmt(dist_pc * LY_PER_PC, 3) + ' light-years', note: fmt(dist_pc, 3) + ' pc, measured' });
+    rows.push({ label: 'distance from Earth', value: fmt(dist_pc * LY_PER_PC, 3) + ' light-years', note: fmt(dist_pc, 3) + ' pc, catalogued' });
   }
 
   if (star) {
     if (star.teff_src === 'measured') rows.push({ label: 'star temperature', value: fmt(star.teff, 4) + ' K', note: 'measured' });
+    else if (star.teff_src === 'from spectral type') rows.push({ label: 'star temperature', value: fmt(star.teff, 4) + ' K', note: 'rough value from the catalogued spectral type ' + (star.spec || '') });
     if (star.radius_src === 'measured') rows.push({ label: 'star radius', value: fmt(star.radius_rsun, 3) + ' solar radii', note: 'measured' });
     if (star.mass_src === 'measured') rows.push({ label: 'star mass', value: fmt(star.mass_msun, 3) + ' solar masses', note: 'measured' });
     if (star.spec) rows.push({ label: 'spectral type', value: star.spec, note: 'catalogued' });
@@ -424,7 +448,9 @@ export function describeMeasured(planet, star) {
   if (planet.a_src !== 'assumed') {
     let note = planet.a_src;
     if (planet.a_src === 'from period') note += massNote(star);
-    const inRs = star ? ', ' + fmt(planet.a_km / star.radius_km, 3) + ' star radii' : '';
+    const inRs = star
+      ? ', ' + fmt(planet.a_km / star.radius_km, 3) + ' star radii' + (star.radius_src === 'assumed' ? ', using an assumed star radius' : '')
+      : '';
     rows.push({ label: 'semi-major axis', value: fmt(planet.a_au, 3) + ' AU', note: note + inRs });
   }
 

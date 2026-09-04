@@ -51,7 +51,21 @@ const DISCOVER_RADII = 6;            // within this many radii of a planet count
 const RELEASE_FOCUS_RADII = 30;      // on Esc, focus the planet the ship is parked next to
 const HUD_HZ = 30;
 const VISITED_KEY = 'explore.visited';
+const INTRO_KEY = 'explore.intro';     // sessionStorage: the intro overlay has been shown this session
+// first visit without ?host=: 70 percent one of these, else a random qualifying host
+const CURATED_HOSTS = ['TRAPPIST-1', 'WASP-96', 'HD 209458', 'WASP-39', 'WASP-17', 'K2-18',
+  '55 Cnc', 'HD 189733', 'GJ 1214', 'Kepler-16', 'LHS 1140', 'TOI-700'];
+const CURATED_PROB = 0.7;
 const TIME_LABELS = { 1: 'real time', 3600: '1 h/s', 86400: '1 day/s', 864000: '10 days/s' };
+const ORBIT_LINE_HIDE_RADII = 20;    // hide a planet's orbit line when the ship is within this many radii of it
+const ATTRACT_HINT = 'drag to rotate · click, then scroll to zoom · right-drag to pan';
+const COARSE_POINTER = typeof matchMedia === 'function' && matchMedia('(pointer: coarse)').matches;
+const REDUCED_MOTION = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/** Device pixel ratio to render at: capped at 2, and at 1.5 on touch devices (the planet shaders are per-pixel heavy). */
+function pixelRatioCap() {
+  return Math.min(COARSE_POINTER ? 1.5 : 2, window.devicePixelRatio || 1);
+}
 
 /* ---------------- DOM (every element optional: the cockpit markup is built elsewhere) ---------------- */
 
@@ -77,6 +91,11 @@ const el = {
   dImagined: $('d-imagined'),
   toast: $('hud-toast'),
   warpOverlay: $('warp-overlay'),
+  intro: $('hud-intro'),
+  introTake: $('btn-intro-take'),
+  introSkip: $('btn-intro-skip'),
+  fullMap: $('link-full-map'),
+  fullMapFoot: $('link-full-map-foot'),
 };
 
 /* ---------------- small helpers ---------------- */
@@ -283,6 +302,7 @@ const state = {
     fromQuat: new THREE.Quaternion(), slerp: false,
   },
   visited: new Set(),
+  placedHosts: 0,       // hosts with a catalogued position: the denominator of 'systems visited'
   pickedHost: null,
   pixelRatio: 1,
   noLock: false,        // ?flight=1: fly without pointer lock
@@ -302,11 +322,93 @@ const hudState = {
 const tmpDir = new THREE.Vector3();
 const tmpD = { x: 0, y: 0, z: 0 };     // double-precision scratch point
 
+/* ---------------- first visit: which host ---------------- */
+
+/** A host qualifies when it has a catalogued distance and at least one planet with a catalogued radius and equilibrium temperature. */
+function hostQualifies(host) {
+  if (!host || !Number.isFinite(host.dist_pc)) return false;
+  for (const p of host.planets) {
+    if (p.radius_src === 'measured' && p.teq_src === 'measured') return true;
+  }
+  return false;
+}
+
+/**
+ * Pick the host for a visit without ?host=: with CURATED_PROB one of the
+ * curated names that is in the catalogue and qualifies, otherwise a random
+ * qualifying host. @param rnd  a () => [0, 1) source, Math.random by default.
+ */
+function chooseInitialHost(catalog, rnd) {
+  const r = typeof rnd === 'function' ? rnd : Math.random;
+  const curated = [];
+  for (const name of CURATED_HOSTS) {
+    const h = findHost(catalog, name);
+    if (h && hostQualifies(h)) curated.push(h);
+  }
+  if (curated.length && r() < CURATED_PROB) return curated[Math.floor(r() * curated.length)];
+  const pool = catalog.hostList.filter(hostQualifies);
+  if (pool.length) return pool[Math.floor(r() * pool.length)];
+  if (curated.length) return curated[0];
+  return findHost(catalog, DEFAULT_HOST) || catalog.hostList[0] || null;
+}
+
+/** Set ?host= and keep every other query parameter and the hash (?flight=1, ?intro=0, #main). */
+function writeHostToUrl(name) {
+  try {
+    const p = new URLSearchParams(location.search);
+    p.set('host', name);
+    history.replaceState(null, '', '?' + p.toString() + location.hash);
+  } catch (err) { /* file: origin */ }
+}
+
+/** Hosts that can be reached from the minimap: those with a catalogued position. */
+function totalSystems() {
+  if (state.placedHosts) return state.placedHosts;
+  return state.catalog ? state.catalog.hostList.length : 0;
+}
+
+/* ---------------- intro overlay (once per session) ---------------- */
+
+function introSeen() {
+  try { return sessionStorage.getItem(INTRO_KEY) === '1'; } catch (err) { return false; }
+}
+
+function showIntro() {
+  if (!el.intro) return;
+  el.intro.hidden = false;
+  if (el.cockpit) el.cockpit.classList.add('intro-open');
+  try { sessionStorage.setItem(INTRO_KEY, '1'); } catch (err) { /* private mode */ }
+  // a dialog: move focus into it
+  if (el.introTake && typeof el.introTake.focus === 'function') el.introTake.focus();
+}
+
+function hideIntro() {
+  if (!el.intro || el.intro.hidden) return;
+  el.intro.hidden = true;
+  if (el.cockpit) el.cockpit.classList.remove('intro-open');
+}
+
+function installIntro(params) {
+  if (!el.intro) return;
+  if (el.introTake) el.introTake.addEventListener('click', () => { hideIntro(); setMode('flight'); });
+  if (el.introSkip) el.introSkip.addEventListener('click', () => hideIntro());
+  // Escape closes it, like the help
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && el.intro && !el.intro.hidden) { hideIntro(); e.preventDefault(); }
+  });
+  // ?flight=1 (tests) and ?intro=0 skip it; ?intro=1 forces it
+  const force = params.get('intro') === '1';
+  const skip = params.get('intro') === '0' || params.get('flight') === '1';
+  if (force || (!skip && !introSeen())) showIntro();
+}
+
 /* ---------------- boot ---------------- */
 
 async function boot() {
+  // index.html arms a timer that reports a three.js load failure; this module evaluating means it loaded
+  if (window.__sysBootTimer) { clearTimeout(window.__sysBootTimer); window.__sysBootTimer = 0; }
   const params = new URLSearchParams(location.search);
-  const hostParam = (params.get('host') || DEFAULT_HOST).trim();
+  const hostParam = (params.get('host') || '').trim();
 
   if (!el.canvas) {
     setStatus('no #system-canvas on the page', true);
@@ -323,6 +425,7 @@ async function boot() {
   }
   state.catalog = catalog;
   state.skyData = skyData;
+  state.placedHosts = catalog.hostList.filter((h) => Number.isFinite(h.x) && Number.isFinite(h.y) && Number.isFinite(h.z)).length;
   state.visited = loadVisited();
 
   // the cockpit modules are optional: the page renders without them
@@ -334,11 +437,21 @@ async function boot() {
   ]);
   state.galaxy = galaxy;
 
-  const host = findHost(catalog, hostParam);
-  if (!host) {
-    setStatus('host "' + hostParam + '" is not in the catalogue', true);
-    if (el.hostTitle) el.hostTitle.textContent = 'Unknown host';
-    return;
+  let host;
+  if (hostParam) {
+    host = findHost(catalog, hostParam);
+    if (!host) {
+      setStatus('host "' + hostParam + '" is not in the catalogue', true);
+      if (el.hostTitle) el.hostTitle.textContent = 'Unknown host';
+      return;
+    }
+  } else {
+    host = chooseInitialHost(catalog);
+    if (!host) {
+      setStatus('the catalogue has no host to show', true);
+      return;
+    }
+    writeHostToUrl(host.name);
   }
 
   setStatus('building scene');
@@ -355,6 +468,7 @@ async function boot() {
   hideStatus();
   installLoop();
   installTestHook();
+  installIntro(params);
 
   // ?flight=1: start with the controls, without pointer lock (mouse motion looks); for testing
   if (params.get('flight') === '1') {
@@ -366,11 +480,19 @@ async function boot() {
 /* ---------------- renderer, cameras, ship (built once) ---------------- */
 
 function buildRenderer() {
+  // no preserveDrawingBuffer: snapshot() renders synchronously right before toDataURL
   const renderer = new THREE.WebGLRenderer({
-    canvas: el.canvas, antialias: true, logarithmicDepthBuffer: true, preserveDrawingBuffer: true,
+    canvas: el.canvas, antialias: true, logarithmicDepthBuffer: true,
   });
-  state.pixelRatio = Math.min(2, window.devicePixelRatio || 1);
+  state.pixelRatio = pixelRatioCap();
   renderer.setPixelRatio(state.pixelRatio);
+  // context loss (memory pressure on phones): stop the loop and say so instead of running blind on a black canvas
+  el.canvas.addEventListener('webglcontextlost', (e) => {
+    e.preventDefault();
+    setRunning(false);
+    setStatus('graphics context lost, reload the page', true);
+  });
+  el.canvas.addEventListener('webglcontextrestored', () => location.reload());
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.0;
@@ -398,10 +520,19 @@ function buildRenderer() {
   controls.rotateSpeed = 0.6;
   controls.zoomSpeed = 0.9;
   controls.screenSpacePanning = true;
-  controls.maxDistance = 5e8;
-  controls.autoRotate = true;
+  controls.maxDistance = 5e8;                  // raised per system in buildSystem for wide orbits
+  controls.autoRotate = !REDUCED_MOTION;
   controls.autoRotateSpeed = ATTRACT_ROTATE_SPEED;
-  controls.touches = { ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN };
+  // phones: one finger scrolls the page (the canvas is touch-action: pan-y in attract mode),
+  // two fingers rotate and zoom; in flight the ship's own touch handlers take over
+  controls.touches = { ONE: -1, TWO: THREE.TOUCH.DOLLY_ROTATE };
+  // desktop: the wheel scrolls the page until the reader clicks into the stage, as on the map page
+  controls.enableZoom = false;
+  el.canvas.addEventListener('pointerdown', () => { controls.enableZoom = true; });
+  el.canvas.addEventListener('pointerleave', () => { controls.enableZoom = false; });
+  // OrbitControls writes an inline touch-action: none on its element, which beats the stylesheet;
+  // setMode() switches this between pan-y (attract, warp) and none (flight)
+  el.canvas.style.touchAction = 'pan-y';
   state.controls = controls;
 
   const ship = createShip(THREE, { camera, element: el.canvas });
@@ -503,7 +634,7 @@ function buildChrome(hudMod, minimapMod, warpMod) {
   window.addEventListener('keydown', onPageKey);
 
   if (state.hud) {
-    state.hud.setVisited(state.visited.size, state.catalog.hostList.length);
+    state.hud.setVisited(state.visited.size, totalSystems());
     state.hud.setMode('attract');
   }
   updateClock(true);
@@ -653,13 +784,14 @@ function buildSystem() {
     marker.renderOrder = 5;
     scene.add(marker);
 
-    const periodSeconds = Math.max(1, p.period_days) * DAY_S;
+    // the true period, sub-day ones included (55 Cnc e orbits in 17.7 h); only a missing value falls back
+    const periodSeconds = (p.period_days > 0 ? p.period_days : 1) * DAY_S;
     const body = {
       planet: p, mesh, material, atmosphere, orbit, marker,
       radiusUnits: rUnits, aUnits, e, seed,
       periodSeconds,
       meanAnomaly0: seed * TAU,            // starting phase: not in the catalogue, assumed
-      rotationSeconds: Math.max(1, p.rotation_hours) * 3600,
+      rotationSeconds: (p.rotation_hours > 0 ? p.rotation_hours : 24) * 3600,
       swatch: dominantColour(material, p),
       atmosphereShown: showAtm,
       atmosphereColour: showAtm ? atmosphereColour(p) : null,
@@ -672,6 +804,14 @@ function buildSystem() {
   }
   state.bodies = bodies;
   state.outerRadius = outer;
+
+  // camera limits per system: a planet at 19,000 AU needs a far plane and an orbit radius the
+  // defaults do not reach (the logarithmic depth buffer keeps precision; the sky sits at 2e7 units)
+  const need = systemDistance() * 1.5;
+  state.controls.maxDistance = Math.max(5e8, need);
+  state.camera.far = state.orbitCam.far = Math.max(1e9, outer * 8);
+  state.camera.updateProjectionMatrix();
+  state.orbitCam.updateProjectionMatrix();
 
   // the ship's view of the system: star first, then the planets (positions shared by reference)
   const sb = state.starBody;
@@ -706,8 +846,11 @@ async function setHost(name, opts) {
     state.focus.mode = 'system';
     state.focus.index = -1;
     state.tween.active = false;
-    document.title = host.name + ' · System · Davide Staub';
+    document.title = host.name + ' · Explore · Davide Staub';
     if (el.hostTitle) el.hostTitle.textContent = host.name;
+    const mapHref = 'map.html?host=' + encodeURIComponent(host.name);
+    if (el.fullMap) el.fullMap.href = mapHref;
+    if (el.fullMapFoot) el.fullMapFoot.href = mapHref;
 
     buildSystem();
     buildPlanetButtons();
@@ -793,7 +936,8 @@ function buildPlanetButtons() {
   }
   if (state.hud && typeof state.hud.setBodies === 'function') {
     state.hud.setBodies(state.bodies.map((b) => ({
-      name: b.planet.name, cls: b.planet.cls, radius_re: b.planet.radius_km / EARTH_RADIUS_KM, swatchCss: rgbCss(b.swatch),
+      name: b.planet.name, host: state.host.name, cls: b.planet.cls,
+      radius_re: b.planet.radius_km / EARTH_RADIUS_KM, swatchCss: rgbCss(b.swatch),
     })));
   }
 }
@@ -940,7 +1084,7 @@ function setFocus(mode, index, immediate) {
     }
   }
 
-  if (mode === 'planet') markVisited(state.host.name);
+  // a visit is earned in flight (checkDiscovery) or by an autopilot arrival (onShipArrive), not by focusing a chip
 
   focusButtons().forEach((btn) => {
     const on = (btn.dataset.focus === mode) || (mode === 'planet' && Number(btn.dataset.index) === index);
@@ -1044,6 +1188,7 @@ function setMode(name) {
     return;
   }
   if (name === 'flight') {
+    hideIntro();
     state.mode = 'flight';
     state.tween.active = false;
     state.controls.enabled = false;
@@ -1051,6 +1196,7 @@ function setMode(name) {
     ship.setVelocity(null);
     ship.setThrottleIndex(0);
     ship.attach(attachOpts);
+    el.canvas.style.touchAction = 'none';        // one finger looks
     if (state.hud) state.hud.setMode('flight');
     if (el.hint) el.hint.textContent = 'mouse looks · W/S throttle · Q/E roll · shift boost · space brake · Esc releases the controls';
     toast('you have the controls · Esc releases them · H for help');
@@ -1060,14 +1206,17 @@ function setMode(name) {
     if (ship.enabled) ship.detach();
     enterAttractFromShip();
     state.controls.enabled = true;
+    el.canvas.style.touchAction = 'pan-y';       // one finger scrolls the page, two fingers rotate and zoom
     if (state.hud) state.hud.setMode('attract');
-    if (el.hint) el.hint.textContent = 'drag to rotate · scroll to zoom · right-drag to pan';
+    if (el.hint) el.hint.textContent = ATTRACT_HINT;
   } else if (name === 'warp') {
     state.mode = 'warp';
     state.tween.active = false;
     state.controls.enabled = false;
     ship.cancelAutopilot();
     ship.setVelocity(null);
+    if (typeof ship.resetInputs === 'function') ship.resetInputs();   // no stored look input is applied on arrival
+    el.canvas.style.touchAction = 'pan-y';
     if (state.hud) state.hud.setMode('warp');
   } else {
     throw new Error('unknown mode: ' + name);
@@ -1078,6 +1227,7 @@ function setMode(name) {
 /* ---------------- autopilot, discovery, warp ---------------- */
 
 function autopilotByName(name) {
+  if (state.mode === 'warp' || state.building) { toast('wait for the warp to finish'); return false; }
   const f = resolveFocus(name);
   if (!f || f.mode === 'system') { toast('pick a body first'); return false; }
   const body = f.mode === 'star' ? state.shipBodies[0] : state.shipBodies[f.index + 1];
@@ -1107,7 +1257,7 @@ function markVisited(hostName) {
   if (!hostName || state.visited.has(hostName)) return;
   state.visited.add(hostName);
   try { localStorage.setItem(VISITED_KEY, JSON.stringify(Array.from(state.visited))); } catch (err) { /* private mode */ }
-  const total = state.catalog ? state.catalog.hostList.length : 0;
+  const total = totalSystems();
   if (state.hud) state.hud.setVisited(state.visited.size, total);
   if (state.minimap) { state.minimap.setVisited(state.visited); state.minimap.draw(); }
   toast('system visited: ' + hostName + ' · ' + state.visited.size + ' of ' + total.toLocaleString('en-GB'));
@@ -1140,26 +1290,43 @@ async function warpTo(name) {
   const from = state.host;
   const prevMode = state.mode;
   const distanceLy = hostDistanceLy(from, host);
+  const keepFlying = prevMode === 'flight' && state.ship.enabled;
   setMode('warp');
   const swap = async () => { await setHost(host.name, { arrival: true, immediate: false }); };
+  let arrived = false;
   try {
-    if (state.warp) await state.warp.run({ fromName: from.name, toName: host.name, distanceLy: distanceLy == null ? NaN : distanceLy, onMidpoint: swap });
-    else await swap();
-  } catch (err) {
-    console.error('system: warp failed', err);
-    if (state.host === from) await swap();
+    try {
+      if (state.warp) await state.warp.run({ fromName: from.name, toName: host.name, distanceLy: distanceLy == null ? NaN : distanceLy, onMidpoint: swap });
+      else await swap();
+    } catch (err) {
+      console.error('system: warp failed', err);
+    }
+    // warp.js swallows a failing onMidpoint: retry the swap once, and report rather than throw
+    if (state.host === from) {
+      try { await swap(); } catch (err) {
+        console.error('system: system swap failed', err);
+        setStatus('could not build ' + host.name + ': ' + (err && err.message ? err.message : err), true);
+      }
+    }
+    arrived = state.host !== from;
+    if (arrived) {
+      writeHostToUrl(host.name);
+      // the destination is no longer a pick target
+      if (state.pickedHost === host.name) {
+        state.pickedHost = null;
+        if (state.hud && typeof state.hud.setPickedHost === 'function') state.hud.setPickedHost(null);
+        if (state.minimap && typeof state.minimap.setPicked === 'function') state.minimap.setPicked(null);
+      }
+    }
+  } finally {
+    // whatever happened, never leave the page in warp mode: every recovering control is hidden there
+    if (typeof state.ship.resetInputs === 'function') state.ship.resetInputs();
+    state.mode = 'none';   // force the transition
+    setMode(keepFlying ? 'flight' : 'attract');
   }
-  try { history.replaceState(null, '', '?host=' + encodeURIComponent(host.name)); } catch (err) { /* file: origin */ }
-  // the destination is no longer a pick target
-  if (state.pickedHost === host.name) {
-    state.pickedHost = null;
-    if (state.hud && typeof state.hud.setPickedHost === 'function') state.hud.setPickedHost(null);
-    if (state.minimap && typeof state.minimap.setPicked === 'function') state.minimap.setPicked(null);
-  }
-  const keepFlying = prevMode === 'flight' && state.ship.enabled;
-  state.mode = 'none';   // force the transition
-  setMode(keepFlying ? 'flight' : 'attract');
-  const light = distanceLy == null ? '' : ' · light takes ' + fmt(distanceLy, 1) + ' years';
+  if (!arrived) return false;
+  const yrs = fmt(distanceLy, 1);
+  const light = distanceLy == null ? '' : ' · light takes ' + yrs + (yrs === '1' ? ' year' : ' years');
   toast('arrived at ' + host.name + light, 4000);
   return true;
 }
@@ -1246,6 +1413,11 @@ function updateMarkers() {
     const dist = b.mesh.position.length();
     const apparentPx = (b.radiusUnits / Math.max(dist, 1e-6)) * pxPerUnitAtOne * 2;
     b.marker.visible = apparentPx < MARKER_HIDE_PX;
+    // shader level of detail: the disc's height as a fraction of the canvas (the shader picks a threshold)
+    const u = b.material && b.material.uniforms && b.material.uniforms.uDetail;
+    if (u) u.value = Math.min(1, apparentPx / h);
+    // the orbit line is Float32 world vertices plus a translation: near a wide-orbit planet it jitters, so hide it there
+    b.orbit.visible = dist > b.radiusUnits * ORBIT_LINE_HIDE_RADII;
   }
   const starDist = state.starMarker ? state.starMarker.position.length() : 1;
   const starPx = (state.starRadiusUnits / Math.max(starDist, 1e-6)) * pxPerUnitAtOne * 2;
@@ -1278,7 +1450,7 @@ function updateHud(force) {
   hudState.hostName = host.name;
   hudState.distFromEarthLy = Number.isFinite(host.dist_pc) ? host.dist_pc * PC_TO_LY : null;
   hudState.systemsVisited = state.visited.size;
-  hudState.totalSystems = state.catalog.hostList.length;
+  hudState.totalSystems = totalSystems();
   hudState.autopilot = !!ship.autopilot;
   hudState.timeScaleLabel = timeScaleLabel();
   hud.update(hudState);
@@ -1364,7 +1536,7 @@ function resize() {
     w = el.stage.clientWidth || window.innerWidth || 1280;
     h = el.stage.clientHeight || Math.round(window.innerHeight * 0.78) || 720;
   }
-  const pr = Math.min(2, window.devicePixelRatio || 1);
+  const pr = pixelRatioCap();
   if (pr !== state.pixelRatio) {
     state.pixelRatio = pr;
     state.renderer.setPixelRatio(pr);
@@ -1401,13 +1573,15 @@ function addRow(dl, label, value, note) {
   dl.appendChild(row);
 }
 
+/** MEASURED column for the star and system focus: catalogued values only; assumed ones go to starImaginedRows. */
 function starMeasuredRows() {
   const host = state.host, star = state.system.star;
   const rows = [];
   if (host.spec) rows.push({ label: 'spectral type', value: host.spec, note: 'catalogued' });
-  rows.push({ label: 'temperature', value: fmt(star.teff, 0) + ' K', note: srcNote(star.teff_src) });
-  rows.push({ label: 'radius', value: fmt(star.radius_km / SUN_RADIUS_KM, 3) + ' solar radii', note: srcNote(star.radius_src) });
-  rows.push({ label: 'mass', value: fmt(star.mass_msun, 3) + ' solar masses', note: srcNote(star.mass_src) });
+  if (star.teff_src === 'measured') rows.push({ label: 'temperature', value: fmt(star.teff, 0) + ' K', note: 'measured' });
+  else if (star.teff_src === 'from spectral type') rows.push({ label: 'temperature', value: fmt(star.teff, 0) + ' K', note: 'rough value from the spectral type; not in catalogue' });
+  if (star.radius_src === 'measured') rows.push({ label: 'radius', value: fmt(star.radius_km / SUN_RADIUS_KM, 3) + ' solar radii', note: 'measured' });
+  if (star.mass_src === 'measured') rows.push({ label: 'mass', value: fmt(star.mass_msun, 3) + ' solar masses', note: 'measured' });
   if (Number.isFinite(host.dist_pc)) {
     rows.push({ label: 'distance from Earth', value: fmt(host.dist_pc * PC_TO_LY, 1) + ' light-years', note: fmt(host.dist_pc, 1) + ' pc, catalogued' });
   } else {
@@ -1417,14 +1591,25 @@ function starMeasuredRows() {
   return rows;
 }
 
+/** IMAGINED column for the star and system focus: assumed stellar values first, then the rendering choices. */
 function starImaginedRows() {
-  return [
+  const star = state.system.star;
+  const rows = [];
+  if (star.teff_src === 'assumed') rows.push({ label: 'temperature', value: fmt(star.teff, 0) + ' K', note: 'assumed, not in catalogue' });
+  if (star.radius_src === 'assumed') rows.push({ label: 'radius', value: fmt(star.radius_km / SUN_RADIUS_KM, 3) + ' solar radii', note: 'assumed, not in catalogue' });
+  if (star.mass_src === 'assumed') rows.push({ label: 'mass', value: fmt(star.mass_msun, 3) + ' solar masses', note: 'assumed, not in catalogue' });
+  const teffWord = star.teff_src === 'measured' ? '' : (star.teff_src === 'from spectral type' ? ' (from the spectral type)' : ' (assumed)');
+  rows.push(
     { label: 'surface', value: 'limb darkening and a slow granulation pattern, imagined' },
-    { label: 'colour', value: 'blackbody approximation from ' + fmt(state.system.star.teff, 0) + ' K' },
+    { label: 'colour', value: 'blackbody approximation from ' + fmt(star.teff, 0) + ' K' + teffWord },
     { label: 'glow', value: 'soft corona drawn at about 1.6 radii, imagined' },
-    { label: 'activity', value: 'no spots, flares or rotation drawn' },
-    { label: 'size', value: 'true scale' },
-  ];
+    { label: 'activity', value: 'a few dark spots drawn on stars cooler than 6,000 K as a look; no flares or rotation drawn' },
+    {
+      label: 'size',
+      value: star.radius_src === 'measured' ? 'true scale' : 'radius assumed (1 solar radius), size not to scale',
+    },
+  );
+  return rows;
 }
 
 function starLineText() {
@@ -1572,6 +1757,12 @@ function installTestHook() {
     visited: () => Array.from(state.visited),
     resize,
     state,
+    chooseInitialHost: (rnd) => chooseInitialHost(state.catalog, rnd),
+    hostQualifies,
+    curatedHosts: CURATED_HOSTS.slice(),
+    introOpen: () => !!(el.intro && !el.intro.hidden),
+    showIntro,
+    hideIntro,
     constants: { KM_PER_UNIT, SUN_RADIUS_KM, AU_KM, EARTH_RADIUS_KM, JUP_RADIUS_KM, THROTTLE_STEPS },
   };
 }

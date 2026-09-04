@@ -26,6 +26,7 @@ const el = {
   ttStar: $('tt-star'),
   ttCount: $('tt-count'),
   ttPlanets: $('tt-planets'),
+  ttFly: $('tt-fly'),
   btnLocal: $('view-local'),
   btnGalaxy: $('view-galaxy'),
   roCount: $('ro-count'),
@@ -481,8 +482,15 @@ async function main() {
     return best;
   }
 
+  // pinned (clicked) tooltips carry the "Fly there" action and accept the pointer
   function showTooltip(i, px, py) {
     const h = hosts[i];
+    const pinned = i === selected;
+    el.tooltip.classList.toggle('pinned', pinned);
+    if (el.ttFly) {
+      el.ttFly.hidden = !pinned;
+      el.ttFly.href = 'index.html?host=' + encodeURIComponent(h.name);
+    }
     el.ttHost.textContent = h.name;
     el.ttDist.textContent = fmtLy(h.dist) + ' · ' + (h.dist < 100 ? h.dist.toFixed(1) : fmtInt(h.dist)) + ' pc';
     const starBits = [];
@@ -512,7 +520,32 @@ async function main() {
     if (ly + th > cssH - 8) ly = Math.max(8, py - th - 8);
     el.tooltip.style.transform = 'translate(' + Math.round(lx) + 'px,' + Math.round(ly) + 'px)';
   }
-  function hideTooltip() { el.tooltip.hidden = true; }
+  function hideTooltip() { el.tooltip.hidden = true; el.tooltip.classList.remove('pinned'); }
+
+  /** Centre the view on a host and pin its tooltip (used for ?host= on load). */
+  function pinHost(i, animate) {
+    const h = hosts[i];
+    const halfExtentPc = Math.max(40 / LY_PER_PC, h.dist * 0.35);
+    const v = { target: new THREE.Vector3(h.x, h.y, h.z), dist: fitDistance(halfExtentPc) };
+    selected = i;
+    if (!animate || reducedMotion.matches) { tween.active = false; applyView(v); }
+    else {
+      tween.a = {
+        target: controls.target.clone(),
+        dir: tmpV.copy(camera.position).sub(controls.target).normalize().clone(),
+        dist: camera.position.distanceTo(controls.target),
+      };
+      tween.b = { target: v.target, dir: VIEW_DIR, dist: v.dist };
+      tween.t0 = performance.now();
+      tween.active = true;
+    }
+    dirty = true;
+    // show the pinned tooltip now, even while the stage is off screen and the loop is idle
+    if (!tween.active) {
+      camera.updateMatrixWorld();
+      if (projectToScreen(h.x, h.y, h.z, scr)) showTooltip(i, scr.x, scr.y);
+    }
+  }
 
   const projV = new THREE.Vector3();
   // returns false when the point is behind the camera; writes screen px into out
@@ -593,6 +626,8 @@ async function main() {
   window.addEventListener('keydown', (ev) => {
     if (ev.key === 'Escape' && selected >= 0) { selected = -1; hideTooltip(); dirty = true; }
   });
+  // the pointer resting on a pinned tooltip is not a hover over the map
+  el.tooltip.addEventListener('pointerenter', () => { pointer.inside = false; setHover(-1); });
   controls.addEventListener('change', () => { dirty = true; if (pointer.inside) pickNeeded = true; });
 
   /* ---- render loop: only when visible, only when something changed ---- */
@@ -648,10 +683,41 @@ async function main() {
   setStatus('');
   start();
 
+  /* ---- ?host=NAME: centre on that host and pin its tooltip ---- */
+  function hostIndexByName(name) {
+    if (!name) return -1;
+    const q = String(name).trim();
+    const exact = hostIndex.get(q);
+    if (exact) return hosts.indexOf(exact);
+    const lower = q.toLowerCase();
+    for (let i = 0; i < hosts.length; i++) {
+      if (hosts[i].name.toLowerCase() === lower) return i;
+    }
+    // a planet name, or a host filed under another name (Kepler-90 is host KOI-351)
+    const prefix = lower + ' ';
+    for (let i = 0; i < hosts.length; i++) {
+      for (const p of hosts[i].planets) if (String(p).toLowerCase().startsWith(prefix)) return i;
+    }
+    return -1;
+  }
+  const hostParam = new URLSearchParams(location.search).get('host');
+  if (hostParam) {
+    const hi = hostIndexByName(hostParam);
+    if (hi >= 0) {
+      pinHost(hi, false);
+      // the reader came for this host: bring the map up (after layout has settled)
+      setTimeout(() => el.stage.scrollIntoView({ block: 'start', behavior: 'instant' }), 0);
+    } else {
+      setStatus('host "' + hostParam + '" is not on the map (no catalogued distance)', true);
+    }
+  }
+
   // test hook: render a frame on demand and jump between views (used for capture checks)
   window.__explore = {
     render: () => { controls.update(); renderer.render(scene, camera); updateLabels(); },
     goToView: (name) => goToView(name, false),
+    pinHost: (name) => { const hi = hostIndexByName(name); if (hi < 0) throw new Error('no such host: ' + name); pinHost(hi, false); },
+    selected: () => (selected >= 0 ? hosts[selected].name : null),
     resize,
   };
 }

@@ -48,7 +48,7 @@ const SOFT_DEADZONE_PX = 2;      // motions smaller than this are damped, not dr
 const ROLL_RATE = 1.35;          // rad/s at full roll input
 const ROLL_SMOOTH = 8;           // 1/s
 const KEY_YAW_RATE = 1.1;        // rad/s for A / D
-const HULL = 1.02;               // the ship cannot get closer than this many radii to a body's centre
+const HULL = 1.06;               // the ship cannot get closer than this many radii to a body's centre (outside the 1.045 atmosphere shell)
 const REPEAT_DELAY = 0.38;       // s before a held W / S starts repeating
 const REPEAT_EVERY = 0.12;       // s between repeated throttle steps
 const WHEEL_STEP = 48;           // accumulated deltaY per throttle step
@@ -139,7 +139,7 @@ export function createShip(THREE, opts) {
     onInput: null,          // fires once per manual input that cancels an autopilot (page use)
     attach, detach, update, autopilotTo, cancelAutopilot,
     speedKms, speedC, speedUnits, throttleLevel, throttleIndex, setThrottleIndex, throttleStep, brake,
-    setPosition, lookAt, setVelocity, unanchor,
+    setPosition, lookAt, setVelocity, unanchor, resetInputs,
     touchLook: { start: touchStart, move: touchMove, end: touchEnd },
     get autopilot() { return ap.active; },
     get autopilotBody() { return ap.active ? ap.body : null; },
@@ -178,6 +178,7 @@ export function createShip(THREE, opts) {
   function setPosition(p) {
     pos.x = Number(p.x) || 0; pos.y = Number(p.y) || 0; pos.z = Number(p.z) || 0;
     anchor = null;                // a teleport ends station keeping
+    resetInputs();                // and drops look input gathered while the ship was not being updated
   }
   function unanchor() { anchor = null; }
   function setVelocity(v) {
@@ -253,6 +254,7 @@ export function createShip(THREE, opts) {
     }
   }
 
+  /** Drop every held key, boost, brake and pending look or wheel input (public: the page calls it around a warp). */
   function resetInputs() {
     keys.w = keys.s = keys.q = keys.e = keys.a = keys.d = false;
     boost = false; braking = false;

@@ -80,6 +80,19 @@ float fbm(vec3 p) {
   }
   return sum / norm;
 }
+float fbm3(vec3 p) {
+  // three-octave fbm for the far level of detail
+  float amp = 0.5;
+  float sum = 0.0;
+  float norm = 0.0;
+  for (int i = 0; i < 3; i++) {
+    sum += amp * gnoise3(p);
+    norm += amp;
+    p = p * 2.03 + vec3(17.3, 9.1, 31.7);
+    amp *= 0.5;
+  }
+  return sum / norm;
+}
 float ridged(vec3 p) {
   float amp = 0.5;
   float sum = 0.0;
@@ -146,10 +159,18 @@ void main() {
    Ice, rock, ochre rock and lava are the same program driven by
    uniforms, so a planet near a temperature boundary blends instead
    of flipping.
+
+   Cost: the page sets uDetail to the disc's height as a fraction of
+   the canvas each frame. Below LOD_NEAR the surface runs a cheap path
+   (one terrain sample, flat normal, three fbm octaves, no grain,
+   fractures or lava cracks). The crater field is one worley search per
+   pixel: the nearest feature point is found once and shared by the
+   three terrain samples that build the bump normal.
    ------------------------------------------------------------------ */
 const SOLID_FRAG = /* glsl */`
 uniform vec3 uLightColor;
 uniform float uTime;
+uniform float uDetail;
 uniform vec3 uOffset;
 uniform vec3 uColLow;
 uniform vec3 uColHigh;
@@ -173,23 +194,49 @@ varying vec3 vViewObj;
 varying vec3 vLightObj;
 #include <logdepthbuf_pars_fragment>
 ${NOISE_GLSL}
-float terrainH(vec3 p) {
-  vec3 q = p * uFreq + uOffset;
-  float base = fbm(q * 1.3);
-  float rg = ridged(q * 2.6 + 4.0);
-  float h = base * 0.6 + (rg - 0.5) * 0.4;
-  vec2 w = worley(q * uCraterFreq + 9.0);
-  float on = step(w.y, uCraterDensity);
-  float sz = clamp(w.y / max(uCraterDensity, 0.001), 0.0, 1.0);
+#define LOD_NEAR 0.08
+// nearest crater cell of the worley field: feature point (xyz) and id (w)
+vec4 craterCell(vec3 q) {
+  vec3 i = floor(q);
+  vec3 f = fract(q);
+  float best = 8.0;
+  vec4 cell = vec4(0.0);
+  for (int x = -1; x <= 1; x++) {
+    for (int y = -1; y <= 1; y++) {
+      for (int z = -1; z <= 1; z++) {
+        vec3 g = vec3(float(x), float(y), float(z));
+        vec3 h = hash3(i + g);
+        vec3 r = g + h - f;
+        float d = dot(r, r);
+        if (d < best) {
+          best = d;
+          cell = vec4(i + g + h, hash1(i + g + 7.0));
+        }
+      }
+    }
+  }
+  return cell;
+}
+// crater height at q from the shared cell: the same bowl and rim profile as before,
+// with the distance to the feature point recomputed per sample
+float craterH(vec3 q, vec4 cell) {
+  float on = step(cell.w, uCraterDensity);
+  float sz = clamp(cell.w / max(uCraterDensity, 0.001), 0.0, 1.0);
   float R = 0.14 + 0.30 * sz;
-  float x = w.x / R;
+  float x = distance(q, cell.xyz) / R;
   float bowl = 1.0 - smoothstep(0.0, 1.0, x);
   float t = (x - 1.0) * 4.0;
   float rim = exp(-t * t);
-  float crater = (rim * 0.35 - bowl * bowl * 0.9) * (0.35 + 0.65 * sz) * on;
-  return h + crater * uCraterAmp;
+  return (rim * 0.35 - bowl * bowl * 0.9) * (0.35 + 0.65 * sz) * on * uCraterAmp;
 }
-vec3 bumpNormal(vec3 p, float eps, float scale, out float h0) {
+float terrainH(vec3 p, vec4 cell, bool near) {
+  vec3 q = p * uFreq + uOffset;
+  float base = near ? fbm(q * 1.3) : fbm3(q * 1.3);
+  float rg = ridged(q * 2.6 + 4.0);
+  float h = base * 0.6 + (rg - 0.5) * 0.4;
+  return h + craterH(q * uCraterFreq + 9.0, cell);
+}
+vec3 bumpNormal(vec3 p, float eps, float scale, vec4 cell, out float h0) {
   vec3 t;
   if (abs(p.y) < 0.98) {
     t = normalize(cross(vec3(0.0, 1.0, 0.0), p));
@@ -197,9 +244,9 @@ vec3 bumpNormal(vec3 p, float eps, float scale, out float h0) {
     t = vec3(1.0, 0.0, 0.0);
   }
   vec3 b = normalize(cross(p, t));
-  h0 = terrainH(p);
-  float hx = terrainH(normalize(p + t * eps));
-  float hy = terrainH(normalize(p + b * eps));
+  h0 = terrainH(p, cell, true);
+  float hx = terrainH(normalize(p + t * eps), cell, true);
+  float hy = terrainH(normalize(p + b * eps), cell, true);
   vec3 n = p - (t * (hx - h0) + b * (hy - h0)) * (scale / eps);
   return normalize(n);
 }
@@ -208,9 +255,17 @@ void main() {
   vec3 p = normalize(vObjPos);
   vec3 V = normalize(vViewObj);
   vec3 L = normalize(vLightObj);
-  float h0 = 0.0;
-  vec3 N = bumpNormal(p, 0.004, uBump, h0);
   vec3 q = p * uFreq + uOffset;
+  bool near = uDetail > LOD_NEAR;
+  vec4 cell = craterCell(q * uCraterFreq + 9.0);
+  float h0 = 0.0;
+  vec3 N;
+  if (near) {
+    N = bumpNormal(p, 0.004, uBump, cell, h0);
+  } else {
+    h0 = terrainH(p, cell, false);
+    N = p;
+  }
 
   float macro = dot(p, L);
   float micro = dot(N, L);
@@ -218,14 +273,15 @@ void main() {
 
   float hn = clamp(h0 * 0.9 + 0.5, 0.0, 1.0);
   vec3 alb = mix(uColLow, uColHigh, hn);
-  float patches = fbm(q * 0.6 + 21.0);
+  float patches = near ? fbm(q * 0.6 + 21.0) : fbm3(q * 0.6 + 21.0);
   alb = mix(alb, uColDark, smoothstep(0.12, 0.45, patches) * 0.8);
-  float grain = fbm(q * 8.0 + 3.0);
-  alb *= 1.0 + grain * 0.15;
-
-  float fr = clamp(1.0 - abs(gnoise3(q * 2.4 + 17.0)), 0.0, 1.0);
-  fr = pow(fr, 12.0) * clamp(0.6 + fbm(q * 3.0 + 8.0), 0.0, 1.0);
-  alb = mix(alb, uColDark, fr * uFracAmt);
+  if (near) {
+    float grain = fbm(q * 8.0 + 3.0);
+    alb *= 1.0 + grain * 0.15;
+    float fr = clamp(1.0 - abs(gnoise3(q * 2.4 + 17.0)), 0.0, 1.0);
+    fr = pow(fr, 12.0) * clamp(0.6 + fbm(q * 3.0 + 8.0), 0.0, 1.0);
+    alb = mix(alb, uColDark, fr * uFracAmt);
+  }
 
   vec3 col = alb * diff * uLightColor;
   col += uShadowTint * alb * (1.0 - diff) * smoothstep(-0.4, 0.35, macro) * 0.35;
@@ -238,11 +294,15 @@ void main() {
   float fres = pow(1.0 - ndv, 3.5);
   col += uLightColor * fres * uRim * clamp(macro * 0.8 + 0.4, 0.0, 1.0);
 
-  float cr = clamp(1.0 - abs(gnoise3(q * 2.2 + 11.0) * 0.75 + gnoise3(q * 6.5 + 5.0) * 0.25), 0.0, 1.0);
-  float crackMask = smoothstep(-0.1, 0.45, fbm(q * 0.7 + 31.0));
-  float cracks = smoothstep(0.955, 0.995, cr) * crackMask;
+  float cracks = 0.0;
+  if (near) {
+    float cr = clamp(1.0 - abs(gnoise3(q * 2.2 + 11.0) * 0.75 + gnoise3(q * 6.5 + 5.0) * 0.25), 0.0, 1.0);
+    float crackMask = smoothstep(-0.1, 0.45, fbm(q * 0.7 + 31.0));
+    cracks = smoothstep(0.955, 0.995, cr) * crackMask;
+  }
   float melt = smoothstep(0.2, 0.8, macro) * uMeltAmt;
-  float pool = smoothstep(0.30, 0.60, fbm(q * 0.9 + 2.0) + 0.2) * melt;
+  float poolN = near ? fbm(q * 0.9 + 2.0) : fbm3(q * 0.9 + 2.0);
+  float pool = smoothstep(0.30, 0.60, poolN + 0.2) * melt;
   float glow = clamp(max(cracks, pool) * uGlowAmt, 0.0, 1.0);
   float flick = 0.92 + 0.08 * sin(uTime * 0.9 + h0 * 25.0 + p.x * 3.0);
   vec3 glowCol = uGlow * flick;
@@ -413,7 +473,7 @@ function fmtK(teq) {
 }
 
 function fmtTemp(teq) {
-  return fmtK(teq).toLocaleString('en-US') + ' K';
+  return fmtK(teq).toLocaleString('en-GB') + ' K';
 }
 
 /* Gas giant palette stops: [temperature, base, light, dark] */
@@ -480,6 +540,7 @@ export function makePlanetMaterial(THREE, opts) {
     uLightDir: { value: new THREE.Vector3(1, 0, 0) },
     uLightColor: { value: new THREE.Color(1, 1, 1) },
     uTime: { value: 0 },
+    uDetail: { value: 1 },     // disc height / canvas height, set by the page each frame; 1 = full detail
     uOffset: { value: offset },
   };
 

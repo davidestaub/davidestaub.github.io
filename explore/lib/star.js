@@ -240,7 +240,7 @@ export function makeStar(THREE, opts) {
 
   group.userData.imagined = {
     surface: 'granulation pattern and limb darkening are a look, not a model; real granules are not visible at this scale',
-    colours: 'from the ' + Math.round(teff).toLocaleString('en-US') + ' K effective temperature',
+    colours: 'from the ' + Math.round(teff).toLocaleString('en-GB') + ' K effective temperature',
     corona: 'soft glow at 1.6 radii is decorative',
   };
 

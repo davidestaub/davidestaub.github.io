@@ -1,15 +1,18 @@
 /* ===================================================================
-   /explore/system.html : star system, flown from a ship (stage 3)
+   /explore/index.html : star system, flown from a ship (stage 3), the entry point
 
    The stage fills the viewport under the nav; the cockpit is a set of
    thin instrument panels laid over it. Site palette, mono labels,
    hairlines in gold, nothing drawn to look like a dashboard.
    =================================================================== */
 
+/* --nav-h lives on the root so the value hud.js measures at runtime (set on <html>) is the one
+   the stage resolves; a declaration on body would beat the inherited one */
+:root { --nav-h: 58px; }
+
 .page-system {
   --halo: 53, 214, 255;
   --halo-2: 245, 179, 36;
-  --nav-h: 58px;                     /* measured by hud.js at runtime */
   --mbar-h: 0px;                     /* mobile bar height, set in the phone media query */
   --hair: rgba(245, 179, 36, 0.28);  /* gold hairline */
   --hair-2: rgba(255, 255, 255, 0.10);
@@ -76,12 +79,12 @@
   display: block;
   width: 100%;
   height: 100%;
-  touch-action: none;
+  touch-action: pan-y;               /* attract mode: one finger scrolls the page, two fingers rotate and zoom */
   outline: none;
   cursor: grab;
 }
 #system-canvas:active { cursor: grabbing; }
-#system-stage:has(.cockpit[data-mode="flight"]) #system-canvas { cursor: none; }
+#system-stage:has(.cockpit[data-mode="flight"]) #system-canvas { cursor: none; touch-action: none; }
 /* flying without pointer lock (refused, or ?flight=1): the mouse still looks, so keep a crosshair */
 #system-stage:has(.cockpit[data-mode="flight"][data-lock="0"]) #system-canvas { cursor: crosshair; }
 
@@ -432,6 +435,7 @@
   text-shadow: 0 0 8px rgba(4, 6, 15, 0.9);
 }
 .esc-btn:hover { color: var(--ink); }
+.esc-btn:focus-visible, .m-btn:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
 
 /* toast */
 .hud-toast {
@@ -532,7 +536,10 @@
 .p-name { color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .f-btn.active .p-name { color: var(--gold); }
 .p-meta {
-  flex: none;
+  flex: 0 1 auto;                    /* the name keeps priority when the chip is squeezed */
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
   color: var(--faint);
   font-size: 0.58rem;
   letter-spacing: 0.08em;
@@ -645,7 +652,11 @@
 }
 .hud-br::before { left: auto; right: -1px; }
 .minimap-bar { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; }
+.minimap-bar-right { display: inline-flex; align-items: center; gap: 0.6rem; }
 .minimap-key { opacity: 0.7; }
+.minimap-full { color: var(--muted); text-decoration: none; letter-spacing: 0.14em; text-transform: uppercase; }
+.minimap-full:hover { color: var(--gold); }
+.minimap-full:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 #minimap-canvas {
   display: block;
   width: 220px;
@@ -676,6 +687,63 @@
 .warp-btn:hover:not(:disabled) { background: rgba(245, 179, 36, 0.16); }
 .warp-btn:disabled { opacity: 0.35; cursor: default; }
 .warp-btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+/* ---------------- intro: shown once per session ---------------- */
+
+.hud-intro {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 6;
+  width: min(30rem, calc(100% - 2.4rem));
+  max-height: calc(100% - 2.4rem);
+  overflow-y: auto;
+  padding: 1rem 1.2rem 1.1rem;
+  background: var(--glass-2);
+  border: 1px solid var(--hair);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  pointer-events: auto;
+  font-family: var(--mono);
+}
+.hud-intro[hidden] { display: none; }
+.hud-intro .d-eyebrow { margin-bottom: 0.7rem; }
+.intro-line {
+  display: grid;
+  grid-template-columns: 5.2rem 1fr;
+  gap: 0.8rem;
+  margin: 0;
+  padding: 0.4rem 0;
+  border-bottom: 1px dotted rgba(255, 255, 255, 0.08);
+  font-size: 0.68rem;
+  line-height: 1.55;
+  color: var(--ink);
+}
+.intro-k { color: var(--gold); letter-spacing: 0.14em; text-transform: uppercase; font-size: 0.6rem; padding-top: 0.15rem; }
+.intro-actions { display: flex; align-items: center; gap: 1.1rem; margin-top: 1rem; flex-wrap: wrap; }
+.intro-skip {
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 0.3rem 0;
+  cursor: pointer;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+.intro-skip:hover { color: var(--gold); }
+.intro-skip:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+/* while the intro is up, its button is the invitation */
+.cockpit.intro-open .hud-take { display: none; }
+@media (max-width: 820px) {
+  .hud-intro { width: calc(100% - 1.2rem); }
+  .intro-line { grid-template-columns: 4.5rem 1fr; }
+}
 
 /* ---------------- help ---------------- */
 
@@ -716,6 +784,7 @@
 .cockpit[data-mode="warp"] .hud-bl,
 .cockpit[data-mode="warp"] .hud-br,
 .cockpit[data-mode="warp"] .hud-tc,
+.cockpit[data-mode="warp"] .hud-mobile-bar,
 .cockpit[data-mode="warp"] .hud-centre { opacity: 0.25; pointer-events: none; transition: opacity 0.4s ease; }
 .cockpit[data-mode="warp"] .hud-tl,
 .cockpit[data-mode="warp"] .hud-tr { opacity: 0.7; transition: opacity 0.4s ease; }
@@ -739,7 +808,7 @@
   .hud-speed { font-size: 1.1rem; }
   .hud-note { max-width: none; }
 
-  .hud-tc { top: 6.2rem; left: 0.8rem; right: 0.8rem; transform: none; align-items: flex-start; gap: 0.3rem; }
+  .hud-tc { top: 6.6rem; left: 0.8rem; right: 0.8rem; transform: none; align-items: flex-start; gap: 0.3rem; }
   .time-ctl { max-width: 100%; overflow-x: auto; scrollbar-width: none; }
   .time-ctl::-webkit-scrollbar { display: none; }
   .t-btn { padding: 0.4rem 0.55rem; font-size: 0.58rem; letter-spacing: 0.08em; }

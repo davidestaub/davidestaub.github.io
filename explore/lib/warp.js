@@ -208,8 +208,10 @@ export function createWarp(THREE, { scene, camera, overlayEl, reducedMotion }) {
     const ly = Number(distanceLy);
     const parts = ['warp: ' + (fromName || '?') + ' to ' + (toName || '?')];
     if (Number.isFinite(ly)) {
-      parts.push(fmtNum(ly) + ' ly');
-      parts.push('light would take ' + fmtNum(ly) + (ly === 1 ? ' year' : ' years'));
+      const txt = fmtNum(ly);
+      parts.push(txt + ' ly');
+      // the plural follows the rounded text, so 0.96 to 1.04 ly reads 'light would take 1 year'
+      parts.push('light would take ' + txt + (txt === '1' ? ' year' : ' years'));
     } else {
       parts.push('distance not catalogued');
     }

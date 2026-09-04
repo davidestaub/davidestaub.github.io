@@ -12,7 +12,9 @@ Standard library only:
     python3 tools/check_catalog_lib.py "Kepler-11" # any host names
 
 Rules (mirror of catalog.js; keep the two in step):
-  star   missing st_rad -> 1.0 Rsun, st_teff -> 5500 K, st_mass -> 1.0 Msun
+  star   missing st_rad -> 1.0 Rsun, st_mass -> 1.0 Msun;
+         missing st_teff -> SPECTRAL_TEFF[class letter of st_spec] flagged
+         'from spectral type', else 5500 K 'assumed'
   radius measured pl_rade; else from mass (Earth units):
            M <= 1: M^0.28; 1 < M <= 130: min(15, M^0.59);
            M > 130: clamp(11 * (M/318)^-0.04, 8, 16); else 1.5 Re
@@ -20,7 +22,7 @@ Rules (mirror of catalog.js; keep the two in step):
          P from a: P_yr = sqrt(a_AU^3 / M); both missing: a_AU = 0.5 (i+1)
   e      measured in [0, 1) else 0 'assumed circular'
   teq    measured pl_eqt; else Teff sqrt(Rs / 2a), albedo 0; flagged
-         'assumed' when Teff, Rs or a was itself assumed
+         'assumed' when Rs or a was assumed or Teff is not measured
   spin   locked when P < 20 d, rotation = P; else 24 h
 """
 
@@ -39,6 +41,20 @@ EARTH_RADIUS_KM = 6371.0
 DAYS_PER_YEAR = 365.25
 
 DEFAULT_HOSTS = ["TRAPPIST-1", "WASP-96", "HD 209458", "51 Peg", "Kepler-90"]
+
+SPECTRAL_TEFF = {"O": 30000, "B": 20000, "A": 8500, "F": 6500, "G": 5500, "K": 4500, "M": 3200, "L": 2000, "T": 1200, "Y": 500}
+
+
+def spectral_class(spec):
+    """Class letter of a spectral type string, or None (mirror of catalog.js spectralClass)."""
+    if spec is None:
+        return None
+    s = str(spec).strip()
+    if not s or s[0] not in SPECTRAL_TEFF:
+        return None
+    if len(s) > 1 and "A" <= s[1] <= "Z":
+        return None
+    return s[0]
 
 TEFF_TABLE = [
     (2500, 1.00, 0.42, 0.16),
@@ -83,15 +99,22 @@ def derive_star(rows):
     st_rad = next((r["st_rad"] for r in rows if pos(r["st_rad"])), None)
     st_teff = next((r["st_teff"] for r in rows if pos(r["st_teff"])), None)
     st_mass = next((r["st_mass"] for r in rows if pos(r["st_mass"])), None)
+    st_spec = next((r["st_spec"] for r in rows if r.get("st_spec") is not None), None)
     rad = st_rad if st_rad is not None else 1.0
-    teff = st_teff if st_teff is not None else 5500.0
+    spec_class = None if st_teff is not None else spectral_class(st_spec)
+    if st_teff is not None:
+        teff, teff_src = st_teff, "measured"
+    elif spec_class:
+        teff, teff_src = float(SPECTRAL_TEFF[spec_class]), "from spectral type"
+    else:
+        teff, teff_src = 5500.0, "assumed"
     mass = st_mass if st_mass is not None else 1.0
     return {
         "name": first["host"],
         "radius_km": rad * SUN_RADIUS_KM,
         "radius_src": "measured" if st_rad is not None else "assumed",
         "teff": teff,
-        "teff_src": "measured" if st_teff is not None else "assumed",
+        "teff_src": teff_src,
         "mass_msun": mass,
         "mass_src": "measured" if st_mass is not None else "assumed",
         "color": [round(c, 3) for c in teff_rgb(teff)],
@@ -134,7 +157,7 @@ def derive_planet(raw, index, star):
         teq, teq_src = raw["pl_eqt"], "measured"
     else:
         teq = star["teff"] * math.sqrt(star["radius_km"] / (2 * a_km))
-        assumed = star["teff_src"] == "assumed" or star["radius_src"] == "assumed" or a_src == "assumed"
+        assumed = star["teff_src"] != "measured" or star["radius_src"] == "assumed" or a_src == "assumed"
         teq_src = "assumed" if assumed else "computed"
 
     locked = period < 20

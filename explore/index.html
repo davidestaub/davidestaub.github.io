@@ -2,22 +2,23 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Explore · Davide Staub</title>
-  <meta name="description" content="Every confirmed exoplanet with a measured distance, at its catalogued position on a map of the Milky Way. Positions from the NASA Exoplanet Archive and Gaia.">
+  <meta name="description" content="Fly a ship to any of the more than 6,000 known exoplanets. Real positions and numbers, imagined surfaces, and a dossier that says which is which.">
   <meta property="og:title" content="Explore · Davide Staub">
-  <meta property="og:description" content="Every confirmed exoplanet with a measured distance, at its catalogued position on a map of the Milky Way.">
+  <meta property="og:description" content="Fly a ship to any of the more than 6,000 known exoplanets. Real positions and numbers, imagined surfaces, and a dossier that says which is which.">
   <meta property="og:image" content="https://davidestaub.github.io/assets/img/og-card.png">
+  <meta property="og:url" content="https://davidestaub.github.io/explore/">
+  <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="robots" content="noindex">
-  <link rel="canonical" href="https://davidestaub.github.io/explore/index.html">
+  <link rel="canonical" href="https://davidestaub.github.io/explore/">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪐</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://unpkg.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../assets/css/site.css">
-  <link rel="stylesheet" href="explore.css">
+  <link rel="stylesheet" href="system.css">
   <script type="importmap">
   {
     "imports": {
@@ -27,7 +28,7 @@
   }
   </script>
 </head>
-<body class="page-explore">
+<body class="page-explore page-system">
   <a class="skip-link" href="#main">Skip to content</a>
   <canvas id="starfield" aria-hidden="true"></canvas>
 
@@ -38,6 +39,7 @@
         <a href="../research.html">Research</a>
         <a href="../teaching.html">Teaching</a>
         <a href="../blog/index.html">Blog</a>
+        <a href="index.html" class="active" aria-current="page">Explore</a>
         <a href="../CV_Davide_Staub.pdf">CV</a>
       </div>
     </div>
@@ -45,93 +47,223 @@
 
   <main id="main">
 
-    <div class="wrap">
-      <section class="section explore-head">
-        <p class="eyebrow cyan">Explore <span class="wip">work in progress · stage 1: the map</span></p>
-        <h1>The known planets, on the map</h1>
-        <p class="lede">
-          Every confirmed exoplanet with a measured distance, drawn at its catalogued position
-          in the Galaxy. Distances are the system distances compiled by the NASA Exoplanet
-          Archive, mostly Gaia parallaxes; the microlensing planets toward the bulge carry
-          model-based lens distances with large uncertainties. The backdrop is an artist's
-          concept of the Milky Way seen from above the north galactic pole, calibrated so the
-          Sun and the Galactic Centre sit where they should. Each point is a host star,
-          coloured by its temperature.
-        </p>
-      </section>
-    </div>
+    <!-- ================= stage: 3D view + cockpit overlay ================= -->
+    <section class="system-section" aria-label="Star system">
+      <div class="system-stage" id="system-stage" data-covers-starfield>
+        <canvas id="system-canvas" aria-label="Interactive 3D view of the star system, flown from a ship"></canvas>
 
-    <section class="map-section" aria-label="Galaxy map">
-      <div class="map-stage" id="map-stage">
-        <canvas id="map-canvas" aria-label="Interactive map of exoplanet host stars in the Milky Way"></canvas>
+        <div class="sys-status" id="sys-status" role="status">loading catalogue</div>
 
-        <div class="map-labels" id="map-labels" aria-hidden="true">
-          <div class="map-label sun" id="label-sun">Sun</div>
-          <div class="map-label ring" id="label-ring-0">100 ly</div>
-          <div class="map-label ring" id="label-ring-1">1,000 ly</div>
-          <div class="map-label ring" id="label-ring-2">10,000 ly</div>
-          <div class="map-marker" id="map-marker"></div>
-        </div>
+        <!-- warp.js draws its flash and readout into this layer -->
+        <div class="warp-overlay" id="warp-overlay" aria-live="polite"></div>
 
-        <div class="map-status" id="map-status" role="status">loading catalogue</div>
-
-        <div class="map-toolbar">
-          <div class="view-toggle" role="group" aria-label="View">
-            <button type="button" class="view-btn active" id="view-local" data-view="local" aria-pressed="true">Local</button>
-            <button type="button" class="view-btn" id="view-galaxy" data-view="galaxy" aria-pressed="false">Galaxy</button>
+        <div class="cockpit" id="cockpit" data-mode="attract">
+          <div class="cockpit-frame" aria-hidden="true">
+            <span class="cf-corner cf-tl"></span><span class="cf-corner cf-tr"></span>
+            <span class="cf-corner cf-bl"></span><span class="cf-corner cf-br"></span>
           </div>
-          <div class="map-hint" id="map-hint">drag to rotate · click, then scroll to zoom · right-drag to pan · click a star</div>
-        </div>
 
-        <div class="map-tooltip" id="map-tooltip" hidden>
-          <div class="tt-host" id="tt-host"></div>
-          <div class="tt-line" id="tt-dist"></div>
-          <div class="tt-line" id="tt-star"></div>
-          <div class="tt-line" id="tt-count"></div>
-          <ul class="tt-planets" id="tt-planets"></ul>
-        </div>
-
-        <aside class="readout" id="readout" aria-label="Catalogue readout">
-          <div class="ro-row"><span class="ro-k">planets in catalogue</span><span class="ro-v" id="ro-count">·</span></div>
-          <div class="ro-row"><span class="ro-k">with measured distance, shown</span><span class="ro-v" id="ro-shown">·</span></div>
-          <div class="ro-row"><span class="ro-k">host stars drawn</span><span class="ro-v" id="ro-hosts">·</span></div>
-          <div class="ro-row"><span class="ro-k">median distance</span><span class="ro-v" id="ro-median">·</span></div>
-          <div class="ro-row"><span class="ro-k">99% within</span><span class="ro-v" id="ro-p99">·</span></div>
-          <div class="ro-row"><span class="ro-k">catalogue retrieved</span><span class="ro-v" id="ro-date">·</span></div>
-          <div class="ro-legend">
-            <span class="sw sw-cool"></span>3,000 K
-            <span class="sw sw-sun"></span>5,800 K
-            <span class="sw sw-hot"></span>10,000 K
-            <span class="ro-legend-note">host colour, blackbody approximation</span>
+          <!-- top left: where we are -->
+          <div class="hud-panel hud-tl" id="hud-position">
+            <div class="hud-label">system</div>
+            <div class="hud-system" id="hud-system">·</div>
+            <div class="hud-sub" id="hud-system-dist">·</div>
+            <div class="hud-sub hud-visited" id="hud-visited">systems visited: 0 of 4,741</div>
           </div>
-          <p class="ro-credit">
-            Positions: NASA Exoplanet Archive (PSCompPars) and Gaia.
-            Backdrop: NASA/JPL-Caltech/R. Hurt (SSC/Caltech), artist's concept.
-          </p>
-        </aside>
+
+          <!-- top centre: simulation time -->
+          <div class="hud-tc" id="hud-top">
+            <div class="time-ctl" role="group" aria-label="Time scale">
+              <button type="button" class="t-btn" data-scale="1" aria-pressed="false">real time</button>
+              <button type="button" class="t-btn active" data-scale="3600" aria-pressed="true">1 h/s</button>
+              <button type="button" class="t-btn" data-scale="86400" aria-pressed="false">1 day/s</button>
+              <button type="button" class="t-btn" data-scale="864000" aria-pressed="false">10 days/s</button>
+              <button type="button" class="t-btn t-pause" id="btn-pause" aria-pressed="false">pause</button>
+            </div>
+            <div class="sys-clock-row">
+              <div class="sys-clock" id="sys-clock">elapsed: 0 s</div>
+              <div class="hud-timescale" id="hud-timescale"></div>
+            </div>
+          </div>
+
+          <!-- top right: how fast -->
+          <div class="hud-panel hud-tr" id="hud-velocity">
+            <div class="hud-label">speed</div>
+            <div class="hud-speed-row">
+              <span class="hud-speed" id="hud-speed">0</span>
+              <span class="hud-unit">km/s</span>
+            </div>
+            <div class="hud-speed-c" id="hud-speed-c"></div>
+            <div class="hud-note" id="hud-speed-note" hidden>above c: a game fiction, nothing real moves this fast</div>
+            <div class="hud-throttle" id="hud-throttle" role="meter" aria-label="Throttle" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+              <span class="hud-throttle-fill" id="hud-throttle-fill"></span>
+            </div>
+            <div class="hud-throttle-row">
+              <span class="hud-sub" id="hud-throttle-label">throttle 0 %</span>
+              <span class="hud-autopilot" id="hud-autopilot" hidden>autopilot</span>
+            </div>
+          </div>
+
+          <!-- centre: reticle and target -->
+          <div class="hud-centre" aria-hidden="true">
+            <div class="hud-reticle" id="hud-reticle" hidden>
+              <span class="rt rt-n"></span><span class="rt rt-s"></span><span class="rt rt-w"></span><span class="rt rt-e"></span>
+            </div>
+            <div class="hud-target" id="hud-target"></div>
+          </div>
+
+          <!-- attract mode: the invitation -->
+          <div class="hud-take" id="hud-take">
+            <button type="button" class="take-btn" id="btn-take-controls">Take the controls</button>
+            <div class="hud-take-hint">mouse to look · W S throttle · Q E roll · shift boost · space brake · H help</div>
+          </div>
+
+          <!-- flight mode: how to get out -->
+          <div class="hud-esc" id="hud-esc-hint" hidden>
+            <button type="button" class="esc-btn" id="btn-release">Esc releases the controls</button>
+          </div>
+
+          <!-- toasts -->
+          <div class="hud-toast" id="hud-toast" role="status" aria-live="polite" hidden></div>
+
+          <!-- bottom left: bodies + dossier -->
+          <div class="hud-panel hud-bl" id="hud-dossier">
+            <div class="dossier-bar">
+              <div class="focus-list" id="focus-list" role="group" aria-label="Focus">
+                <div class="focus-row">
+                  <button type="button" class="f-btn f-star" id="btn-star" data-focus="star" aria-pressed="false">Star</button>
+                  <button type="button" class="f-btn f-system active" id="btn-system" data-focus="system" aria-pressed="true">System</button>
+                </div>
+                <div class="planet-list" id="planet-list"></div>
+              </div>
+              <div class="dossier-tools">
+                <button type="button" class="tool-btn" id="btn-help" aria-expanded="false" aria-controls="hud-help" aria-label="keyboard help" title="keyboard help (H)">H</button>
+                <button type="button" class="tool-btn" id="btn-dossier" aria-expanded="true" aria-controls="dossier">hide</button>
+              </div>
+            </div>
+
+            <section class="dossier" id="dossier" aria-label="Dossier">
+              <div class="dossier-head">
+                <div class="d-eyebrow">dossier</div>
+                <div class="d-host" id="d-host">·</div>
+                <div class="d-star" id="d-star">·</div>
+              </div>
+              <div class="d-focus" id="d-focus">·</div>
+              <div class="dossier-cols">
+                <div class="d-col">
+                  <div class="d-col-title">measured</div>
+                  <dl class="d-list" id="d-measured"></dl>
+                </div>
+                <div class="d-col d-col-imagined">
+                  <div class="d-col-title">imagined</div>
+                  <dl class="d-list" id="d-imagined"></dl>
+                </div>
+              </div>
+              <p class="d-credit" id="d-credit">Catalogue: NASA Exoplanet Archive (PSCompPars). Sky: HYG database. Rendering assumptions are listed under "imagined".</p>
+              <div class="sys-hint" id="sys-hint">attract mode: drag to rotate · click, then scroll to zoom · right-drag to pan</div>
+            </section>
+          </div>
+
+          <!-- bottom right: minimap -->
+          <div class="hud-panel hud-br" id="hud-minimap" data-picked="0">
+            <div class="minimap-bar">
+              <button type="button" class="tool-btn" id="btn-minimap-mode" aria-label="minimap mode, currently local, click to switch">map: local</button>
+              <span class="minimap-bar-right">
+                <a class="hud-sub minimap-full" id="link-full-map" href="map.html">full map</a>
+                <span class="hud-sub minimap-key">M</span>
+              </span>
+            </div>
+            <canvas id="minimap-canvas" width="220" height="220" aria-label="Galaxy minimap: click a host to select it"></canvas>
+            <div class="hud-sub minimap-pick" id="hud-pick">select a system on the map</div>
+            <button type="button" class="warp-btn" id="btn-warp" disabled>warp to selected</button>
+          </div>
+
+          <!-- first visit: what this is, before the controls -->
+          <div class="hud-intro" id="hud-intro" role="dialog" aria-label="About this page" hidden>
+            <div class="d-eyebrow">before you fly</div>
+            <p class="intro-line"><span class="intro-k">real</span>every star and planet here is a catalogued object, placed at its catalogued distance with its catalogued size, orbit and temperature where the archive has them. Where a number is missing it is derived or assumed, and the dossier marks each one.</p>
+            <p class="intro-line"><span class="intro-k">imagined</span>surfaces, colours, clouds and the orientation of each orbit are the renderer's assumptions. The dossier lists which is which.</p>
+            <p class="intro-line"><span class="intro-k">controls</span>mouse to look, W and S throttle, Shift boost, Space brake, H help, M map. On a phone, drag to look and use the bar below.</p>
+            <div class="intro-actions">
+              <button type="button" class="take-btn" id="btn-intro-take">Take the controls</button>
+              <button type="button" class="intro-skip" id="btn-intro-skip">Look around first</button>
+            </div>
+          </div>
+
+          <!-- keyboard help -->
+          <div class="hud-help" id="hud-help" role="dialog" aria-label="Controls" hidden>
+            <div class="help-head">
+              <span class="d-eyebrow">controls</span>
+              <button type="button" class="tool-btn" id="btn-help-close" aria-label="close help">close</button>
+            </div>
+            <dl class="help-list">
+              <div><dt>mouse</dt><dd>look (pointer lock while flying)</dd></div>
+              <div><dt>W / S</dt><dd>throttle up / down, exponential, 1 km/s to 100 c</dd></div>
+              <div><dt>wheel</dt><dd>throttle as well</dd></div>
+              <div><dt>Q / E</dt><dd>roll</dd></div>
+              <div><dt>shift</dt><dd>hold for 4x boost</dd></div>
+              <div><dt>space</dt><dd>brake to zero</dd></div>
+              <div><dt>fly</dt><dd>autopilot to a planet, from its chip in the dossier; any input cancels</dd></div>
+              <div><dt>M</dt><dd>minimap: local or galaxy</dd></div>
+              <div><dt>map click</dt><dd>select a system, then warp to it</dd></div>
+              <div><dt>H</dt><dd>this help</dd></div>
+              <div><dt>Esc</dt><dd>release the controls</dd></div>
+              <div><dt>touch</dt><dd>drag to look; throttle, brake, fly and warp from the bar below</dd></div>
+            </dl>
+            <p class="help-note">Speeds are true in km/s. Above the speed of light the readout shows the multiple of c and says so; nothing real moves that fast. A warp between systems states how long light would take.</p>
+          </div>
+
+          <!-- phones: big touch buttons -->
+          <div class="hud-mobile-bar" id="hud-mobile-bar">
+            <button type="button" class="m-btn" id="btn-throttle-down" aria-label="throttle down">thr -</button>
+            <button type="button" class="m-btn" id="btn-throttle-up" aria-label="throttle up">thr +</button>
+            <button type="button" class="m-btn" id="btn-brake" aria-label="brake">brake</button>
+            <button type="button" class="m-btn m-cyan" id="btn-autopilot" aria-label="autopilot to the selected planet">fly</button>
+            <button type="button" class="m-btn" id="btn-map" aria-pressed="false" aria-label="show the map">map</button>
+          </div>
+        </div>
       </div>
     </section>
 
+    <!-- ================= below the stage ================= -->
     <div class="wrap">
+      <section class="section system-head">
+        <p class="eyebrow cyan">Explore</p>
+        <h1 id="host-title">System</h1>
+        <p class="lede" id="host-lede">
+          One star and its confirmed planets, drawn to scale from the catalogue and flown through
+          from a ship. Sizes and orbits are true to the numbers; nobody knows what any of these
+          planets looks like, so every surface, colour and cloud is an assumption and is listed
+          as one in the dossier on the cockpit.
+        </p>
+        <p class="sys-links"><a href="map.html" id="link-full-map-foot">Open the full map</a></p>
+      </section>
+
       <section class="section explore-notes">
         <p class="eyebrow">Notes</p>
         <div class="notes-grid">
           <p>
-            <strong>What is real.</strong> Every point is a confirmed planet host with a
-            catalogued distance, placed by converting its sky position and distance into
-            galactic coordinates. The scale rings are centred on the Sun at 100, 1,000 and
-            10,000 light-years. The spike of stars in one direction is the Kepler field,
-            where thousands of planets were found along a single line of sight. The chain of
-            points running from the Sun toward the Galactic Centre is the microlensing sample;
-            their distances are model estimates, not parallaxes.
+            <strong>What is measured.</strong> The star's radius, temperature and mass, and each
+            planet's radius, mass, orbital period, semi-major axis and eccentricity come from the
+            catalogue where they exist. Where one of a pair is missing it is derived from the other
+            and marked so. The scene is at true scale: one scene unit is 1,000 km, so a hot Jupiter
+            sits a few stellar radii out and a one-year orbit is a large empty circle.
+            The background stars are the bright-star catalogue moved to the host's position, and
+            the minimap places every host at its catalogued distance and direction.
           </p>
           <p>
-            <strong>What is a model.</strong> The backdrop is an artist's concept of the
-            Milky Way, not a photograph. It is calibrated so that the marked Sun sits
-            8,178 parsecs from the Galactic Centre and the galactic longitude directions
-            match, but the spiral arms are illustrative. Point colours are a blackbody
-            approximation from the host star's effective temperature; hosts without a
-            temperature are drawn in neutral white.
+            <strong>What is imagined.</strong> No exoplanet has ever been resolved as a disc.
+            Surface pattern, colour, cloud cover, spin, the orientation of the orbit and the
+            starting position along it are all chosen by the renderer from rules based on the
+            planet's class and equilibrium temperature. Those rules are stated in the dossier's
+            "imagined" column; treat them as an illustration, not as a prediction.
+          </p>
+          <p>
+            <strong>What the speeds mean.</strong> The speed readout is true: kilometres per
+            second through a scene at true scale. To cross a system in minutes the ship has to
+            go far faster than light, and when it does the readout says so as a multiple of c.
+            That is a convenience of the game, not physics. A warp between systems is the same
+            fiction, and its readout states how many years light would need for the same trip.
           </p>
         </div>
       </section>
@@ -151,6 +283,17 @@
   </footer>
 
   <script src="../assets/js/starfield.js"></script>
-  <script type="module" src="explore.js"></script>
+  <!-- system.js imports three.js statically: if the CDN does not answer the module never runs, so
+       report that here; boot() clears the timer as its first act -->
+  <script type="module">
+    window.__sysBootTimer = setTimeout(() => {
+      const s = document.getElementById('sys-status');
+      if (s && s.textContent === 'loading catalogue') {
+        s.textContent = 'could not load the 3D library (three.js from unpkg). check the connection and reload.';
+        s.classList.add('error');
+      }
+    }, 12000);
+  </script>
+  <script type="module" src="system.js"></script>
 </body>
 </html>

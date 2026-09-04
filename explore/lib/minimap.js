@@ -113,6 +113,7 @@ export function createMinimap(canvasEl, opts) {
   const ctx = canvasEl.getContext('2d');
   let mode = 'galaxy';
   let current = -1;
+  let currentName = null;     // the last name passed to setCurrent, placed or not
   let picked = -1;
   let hovered = -1;
   const visited = new Set(); // indices
@@ -344,6 +345,9 @@ export function createMinimap(canvasEl, opts) {
       text += ' · ' + nPlanets[hi] + (nPlanets[hi] === 1 ? ' planet' : ' planets');
       label(text, 6, cssH - 9, COL.text, 'left');
       if (inside(sx[hi], sy[hi], 4) && hi !== current) drawRing(sx[hi], sy[hi], 3.5, COL.text, 1);
+    } else if (current < 0 && currentName) {
+      // the current system has no catalogued distance: say so instead of silently centring on the Sun
+      label('current system has no catalogued distance', 6, cssH - 9, COL.dim, 'left');
     }
   }
 
@@ -398,7 +402,7 @@ export function createMinimap(canvasEl, opts) {
     if (Math.hypot(ev.clientX - downX, ev.clientY - downY) > 6) return;
     const p = localXY(ev);
     const i = hostAt(p.x, p.y);
-    if (i < 0) return;
+    if (i < 0 || i === current) return;     // the current system is not a warp target
     picked = i;
     schedule();
     if (pickHandler) pickHandler(names[i]);
@@ -427,7 +431,8 @@ export function createMinimap(canvasEl, opts) {
     setCurrent(hostName) {
       const i = hostName == null ? -1 : (indexByName.has(hostName) ? indexByName.get(hostName) : -1);
       if (hostName != null && i < 0) console.warn('[minimap] unknown or unplaced host: ' + hostName);
-      if (i === current) return;
+      currentName = hostName == null ? null : String(hostName);
+      if (i === current) { schedule(); return; }
       current = i;
       if (picked === current) picked = -1;
       if (mode === 'local') cacheKey = '';
