@@ -10,7 +10,7 @@ const filters=[
 ];
 const $=s=>document.querySelector(s),$$=s=>Array.from(document.querySelectorAll(s));
 let globe, current=null, catalogue, systems;
-try { const response=await fetch('../assets/data/atlas-catalogue.json'); if(!response.ok)throw new Error('Catalogue download failed'); const data=await response.json();catalogue=data.planets;systems=data.systems; }
+try { const response=await fetch('../assets/data/atlas-catalogue.json?v=only40'); if(!response.ok)throw new Error('Catalogue download failed'); const data=await response.json();catalogue=data.planets;systems=data.systems; }
 catch(error){$('#results').textContent='The catalogue could not load. Please refresh the page.';$('#count').textContent='Load error';return;}
 const byId=new Map(catalogue.map(p=>[p.id,p]));
 let artwork={};
