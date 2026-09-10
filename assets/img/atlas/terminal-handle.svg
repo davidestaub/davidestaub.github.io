@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="60" height="330" viewBox="0 0 60 330" fill="none">
+<defs>
+ <linearGradient id="foot" x1="32" y1="0" x2="57" y2="0" gradientUnits="userSpaceOnUse"><stop stop-color="#090a08"/><stop offset=".45" stop-color="#555044"/><stop offset=".7" stop-color="#292b23"/><stop offset="1" stop-color="#090b08"/></linearGradient>
+ <linearGradient id="metal" x1="7" y1="0" x2="40" y2="0" gradientUnits="userSpaceOnUse"><stop stop-color="#171a15"/><stop offset=".19" stop-color="#655c4b"/><stop offset=".32" stop-color="#c0af8e"/><stop offset=".43" stop-color="#786c56"/><stop offset=".62" stop-color="#3b382c"/><stop offset="1" stop-color="#10140e"/></linearGradient>
+ <linearGradient id="edge" x1="12" y1="20" x2="31" y2="310" gradientUnits="userSpaceOnUse"><stop stop-color="#c8bba1"/><stop offset=".18" stop-color="#766950"/><stop offset=".6" stop-color="#9b8966"/><stop offset="1" stop-color="#4b4334"/></linearGradient>
+ <filter id="shadow" x="-60%" y="-10%" width="230%" height="125%"><feDropShadow dx="5" dy="7" stdDeviation="3" flood-color="#000" flood-opacity=".9"/></filter>
+</defs>
+<g filter="url(#shadow)">
+ <rect x="34" y="19" width="19" height="35" rx="6" fill="url(#foot)" stroke="#615a46" stroke-width=".7"/>
+ <rect x="34" y="275" width="19" height="35" rx="6" fill="url(#foot)" stroke="#615a46" stroke-width=".7"/>
+ <path d="M43 35C24 28 18 39 18 61V268C18 290 24 301 43 293" stroke="#0a0d08" stroke-width="23" stroke-linecap="round"/>
+ <path d="M43 35C24 28 18 39 18 61V268C18 290 24 301 43 293" stroke="url(#metal)" stroke-width="20" stroke-linecap="round"/>
+ <path d="M39 29C18 27 11 41 11 62V267C11 288 17 304 37 302" stroke="url(#edge)" stroke-width="1.3" stroke-linecap="round" opacity=".8"/>
+ <path d="M15 79V133M14 205V221M22 273L24 284" stroke="#b3a080" stroke-width=".7" opacity=".28"/>
+</g></svg>

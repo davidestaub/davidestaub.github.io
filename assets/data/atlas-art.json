@@ -1,0 +1,365 @@
+{
+  "version": 2,
+  "planets": {
+    "hd-189733-b": {
+      "texture": "../assets/img/atlas/collection-40/hd-189733-b-globe.webp",
+      "landscape": "../assets/img/atlas/collection-40/hd-189733-b-landscape.webp",
+      "poster": "../assets/img/atlas/collection-40/hd-189733-b-poster.webp",
+      "posterDownload": "../assets/img/atlas/collection-40/hd-189733-b-poster.png",
+      "posterSize": "Original PNG · 1696 × 2528 px",
+      "realistic": true,
+      "visual": "cloud"
+    },
+    "hd-209458-b": {
+      "texture": "../assets/img/atlas/collection-40/hd-209458-b-globe.webp",
+      "landscape": "../assets/img/atlas/collection-40/hd-209458-b-landscape.webp",
+      "poster": "../assets/img/atlas/collection-40/hd-209458-b-poster.webp",
+      "posterDownload": "../assets/img/atlas/collection-40/hd-209458-b-poster.png",
+      "posterSize": "Original PNG · 1024 × 1536 px",
+      "realistic": true,
+      "visual": "cloud"
+    },
+    "wasp-39-b": {
+      "texture": "../assets/img/atlas/collection-40/wasp-39-b-globe.webp",
+      "landscape": "../assets/img/atlas/collection-40/wasp-39-b-landscape.webp",
+      "poster": "../assets/img/atlas/collection-40/wasp-39-b-poster.webp",
+      "posterDownload": "../assets/img/atlas/collection-40/wasp-39-b-poster.png",
+      "posterSize": "Original PNG · 1696 × 2528 px",
+      "realistic": true,
+      "visual": "cloud"
+    },
+    "wasp-107-b": {
+      "texture": "../assets/img/atlas/collection-40/wasp-107-b-globe.webp",
+      "landscape": "../assets/img/atlas/collection-40/wasp-107-b-landscape.webp",
+      "poster": "../assets/img/atlas/collection-40/wasp-107-b-poster.webp",
+      "posterDownload": "../assets/img/atlas/collection-40/wasp-107-b-poster.png",
+      "posterSize": "Original PNG · 1027 × 1531 px",
+      "realistic": true,
+      "visual": "cloud"
+    },
+    "wasp-43-b": {
+      "texture": "../assets/img/atlas/collection-40/wasp-43-b-globe.webp",
+      "landscape": "../assets/img/atlas/collection-40/wasp-43-b-landscape.webp",
+      "poster": "../assets/img/atlas/collection-40/wasp-43-b-poster.webp",
+      "posterDownload": "../assets/img/atlas/collection-40/wasp-43-b-poster.png",
+      "posterSize": "Original PNG · 1027 × 1531 px",
+      "realistic": true,
+      "visual": "cloud"
+    },
+    "wasp-121-b": {
+      "texture": "../assets/img/atlas/collection-40/wasp-121-b-globe.webp",
+      "landscape": "../assets/img/atlas/collection-40/wasp-121-b-landscape.webp",
+      "poster": "../assets/img/atlas/collection-40/wasp-121-b-poster.webp",
+      "posterDownload": "../assets/img/atlas/collection-40/wasp-121-b-poster.png",
+      "posterSize": "Original PNG · 1024 × 1536 px",
+      "realistic": true,
+      "visual": "cloud"
+    },
+    "wasp-17-b": {
+      "texture": "../assets/img/atlas/collection-40/wasp-17-b-globe.webp",
+      "landscape": "../assets/img/atlas/collection-40/wasp-17-b-landscape.webp",
+      "poster": "../assets/img/atlas/collection-40/wasp-17-b-poster.webp",
+      "posterDownload": "../assets/img/atlas/collection-40/wasp-17-b-poster.png",
+      "posterSize": "Original PNG · 1696 × 2528 px",
+      "realistic": true,
+      "visual": "cloud"
+    },
+    "gj-1214-b": {
+      "texture": "../assets/img/atlas/collection-40/gj-1214-b-globe.webp",
+      "landscape": "../assets/img/atlas/collection-40/gj-1214-b-landscape.webp",
+      "poster": "../assets/img/atlas/collection-40/gj-1214-b-poster.webp",
+      "posterDownload": "../assets/img/atlas/collection-40/gj-1214-b-poster.png",
+      "posterSize": "Original PNG · 1696 × 2528 px",
+      "realistic": true,
+      "visual": "cloud"
+    },
+    "lhs-3844-b": {
+      "texture": "../assets/img/atlas/collection-40/lhs-3844-b-globe.webp",
+      "landscape": "../assets/img/atlas/collection-40/lhs-3844-b-landscape.webp",
+      "poster": "../assets/img/atlas/collection-40/lhs-3844-b-poster.webp",
+      "posterDownload": "../assets/img/atlas/collection-40/lhs-3844-b-poster.png",
+      "posterSize": "Original PNG · 1696 × 2528 px",
+      "realistic": true,
+      "visual": "rock"
+    },
+    "toi-561-b": {
+      "texture": "../assets/img/atlas/collection-40/toi-561-b-globe.webp",
+      "landscape": "../assets/img/atlas/collection-40/toi-561-b-landscape.webp",
+      "poster": "../assets/img/atlas/collection-40/toi-561-b-poster.webp",
+      "posterDownload": "../assets/img/atlas/collection-40/toi-561-b-poster.png",
+      "posterSize": "Original PNG · 1696 × 2528 px",
+      "realistic": true,
+      "visual": "lava"
+    },
+    "kepler-16-b": {
+      "texture": "../assets/img/atlas/collection-40/kepler-16-b-globe.webp",
+      "landscape": "../assets/img/atlas/collection-40/kepler-16-b-landscape.webp",
+      "poster": "../assets/img/atlas/collection-40/kepler-16-b-poster.webp",
+      "posterDownload": "../assets/img/atlas/collection-40/kepler-16-b-poster.png",
+      "posterSize": "Original PNG · 1696 × 2528 px",
+      "realistic": true,
+      "visual": "cloud"
+    },
+    "trappist-1-b": {
+      "texture": "../assets/img/atlas/collection-40/trappist-1-b-globe.webp",
+      "landscape": "../assets/img/atlas/collection-40/trappist-1-b-landscape.webp",
+      "poster": "../assets/img/atlas/collection-40/trappist-1-b-poster.webp",
+      "posterDownload": "../assets/img/atlas/collection-40/trappist-1-b-poster.png",
+      "posterSize": "Original PNG · 1027 × 1531 px",
+      "realistic": true,
+      "visual": "rock"
+    },
+    "trappist-1-c": {
+      "texture": "../assets/img/atlas/collection-40/trappist-1-c-globe.webp",
+      "landscape": "../assets/img/atlas/collection-40/trappist-1-c-landscape.webp",
+      "poster": "../assets/img/atlas/collection-40/trappist-1-c-poster.webp",
+      "posterDownload": "../assets/img/atlas/collection-40/trappist-1-c-poster.png",
+      "posterSize": "Original PNG · 1696 × 2528 px",
+      "realistic": true,
+      "visual": "rock"
+    },
+    "trappist-1-e": {
+      "texture": "../assets/img/atlas/collection-40/trappist-1-e-globe.webp",
+      "landscape": "../assets/img/atlas/collection-40/trappist-1-e-landscape.webp",
+      "poster": "../assets/img/atlas/collection-40/trappist-1-e-poster.webp",
+      "posterDownload": "../assets/img/atlas/collection-40/trappist-1-e-poster.png",
+      "posterSize": "Original PNG · 1696 × 2528 px",
+      "realistic": true,
+      "visual": "rock"
+    },
+    "lhs-1140-b": {
+      "texture": "../assets/img/atlas/collection-40/lhs-1140-b-globe.webp",
+      "landscape": "../assets/img/atlas/collection-40/lhs-1140-b-landscape.webp",
+      "poster": "../assets/img/atlas/collection-40/lhs-1140-b-poster.webp",
+      "posterDownload": "../assets/img/atlas/collection-40/lhs-1140-b-poster.png",
+      "posterSize": "Original PNG · 1027 × 1531 px",
+      "realistic": true,
+      "visual": "ocean"
+    },
+    "k2-18-b": {
+      "texture": "../assets/img/atlas/collection-40/k2-18-b-globe.webp",
+      "landscape": "../assets/img/atlas/collection-40/k2-18-b-landscape.webp",
+      "poster": "../assets/img/atlas/collection-40/k2-18-b-poster.webp",
+      "posterDownload": "../assets/img/atlas/collection-40/k2-18-b-poster.png",
+      "posterSize": "Original PNG · 1696 × 2528 px",
+      "realistic": true,
+      "visual": "cloud"
+    },
+    "hr-8799-e": {
+      "texture": "../assets/img/atlas/collection-40/hr-8799-e-globe.webp",
+      "landscape": "../assets/img/atlas/collection-40/hr-8799-e-landscape.webp",
+      "poster": "../assets/img/atlas/collection-40/hr-8799-e-poster.webp",
+      "posterDownload": "../assets/img/atlas/collection-40/hr-8799-e-poster.png",
+      "posterSize": "Original PNG · 1027 × 1531 px",
+      "realistic": true,
+      "visual": "cloud"
+    },
+    "51-eridani-b": {
+      "texture": "../assets/img/atlas/collection-40/51-eridani-b-globe.webp",
+      "landscape": "../assets/img/atlas/collection-40/51-eridani-b-landscape.webp",
+      "poster": "../assets/img/atlas/collection-40/51-eridani-b-poster.webp",
+      "posterDownload": "../assets/img/atlas/collection-40/51-eridani-b-poster.png",
+      "posterSize": "Original PNG · 1027 × 1531 px",
+      "realistic": true,
+      "visual": "cloud"
+    },
+    "beta-pictoris-b": {
+      "texture": "../assets/img/atlas/collection-40/beta-pictoris-b-globe.webp",
+      "landscape": "../assets/img/atlas/collection-40/beta-pictoris-b-landscape.webp",
+      "poster": "../assets/img/atlas/collection-40/beta-pictoris-b-poster.webp",
+      "posterDownload": "../assets/img/atlas/collection-40/beta-pictoris-b-poster.png",
+      "posterSize": "Original PNG · 1027 × 1531 px",
+      "realistic": true,
+      "visual": "cloud"
+    },
+    "wasp-76-b": {
+      "texture": "../assets/img/atlas/collection-40/wasp-76-b-globe.webp",
+      "landscape": "../assets/img/atlas/collection-40/wasp-76-b-landscape.webp",
+      "poster": "../assets/img/atlas/collection-40/wasp-76-b-poster.webp",
+      "posterDownload": "../assets/img/atlas/collection-40/wasp-76-b-poster.png",
+      "posterSize": "Original PNG · 1696 × 2528 px",
+      "realistic": true,
+      "visual": "cloud"
+    },
+    "wasp-103-b": {
+      "texture": "../assets/img/atlas/collection-40/wasp-103-b-globe.webp",
+      "landscape": "../assets/img/atlas/collection-40/wasp-103-b-landscape.webp",
+      "poster": "../assets/img/atlas/collection-40/wasp-103-b-poster.webp",
+      "posterDownload": "../assets/img/atlas/collection-40/wasp-103-b-poster.png",
+      "posterSize": "Original PNG · 1696 × 2528 px",
+      "realistic": true,
+      "visual": "cloud"
+    },
+    "kelt-9-b": {
+      "texture": "../assets/img/atlas/collection-40/kelt-9-b-globe.webp",
+      "landscape": "../assets/img/atlas/collection-40/kelt-9-b-landscape.webp",
+      "poster": "../assets/img/atlas/collection-40/kelt-9-b-poster.webp",
+      "posterDownload": "../assets/img/atlas/collection-40/kelt-9-b-poster.png",
+      "posterSize": "Original PNG · 1696 × 2528 px",
+      "realistic": true,
+      "visual": "cloud"
+    },
+    "hd-80606-b": {
+      "texture": "../assets/img/atlas/collection-40/hd-80606-b-globe.webp",
+      "landscape": "../assets/img/atlas/collection-40/hd-80606-b-landscape.webp",
+      "poster": "../assets/img/atlas/collection-40/hd-80606-b-poster.webp",
+      "posterDownload": "../assets/img/atlas/collection-40/hd-80606-b-poster.png",
+      "posterSize": "Original PNG · 1027 × 1531 px",
+      "realistic": true,
+      "visual": "cloud"
+    },
+    "gj-436-b": {
+      "texture": "../assets/img/atlas/collection-40/gj-436-b-globe.webp",
+      "landscape": "../assets/img/atlas/collection-40/gj-436-b-landscape.webp",
+      "poster": "../assets/img/atlas/collection-40/gj-436-b-poster.webp",
+      "posterDownload": "../assets/img/atlas/collection-40/gj-436-b-poster.png",
+      "posterSize": "Original PNG · 1696 × 2528 px",
+      "realistic": true,
+      "visual": "cloud"
+    },
+    "gj-9827-d": {
+      "texture": "../assets/img/atlas/collection-40/gj-9827-d-globe.webp",
+      "landscape": "../assets/img/atlas/collection-40/gj-9827-d-landscape.webp",
+      "poster": "../assets/img/atlas/collection-40/gj-9827-d-poster.webp",
+      "posterDownload": "../assets/img/atlas/collection-40/gj-9827-d-poster.png",
+      "posterSize": "Original PNG · 1696 × 2528 px",
+      "realistic": true,
+      "visual": "cloud"
+    },
+    "ltt-9779-b": {
+      "texture": "../assets/img/atlas/collection-40/ltt-9779-b-globe.webp",
+      "landscape": "../assets/img/atlas/collection-40/ltt-9779-b-landscape.webp",
+      "poster": "../assets/img/atlas/collection-40/ltt-9779-b-poster.webp",
+      "posterDownload": "../assets/img/atlas/collection-40/ltt-9779-b-poster.png",
+      "posterSize": "Original PNG · 1696 × 2528 px",
+      "realistic": true,
+      "visual": "cloud"
+    },
+    "toi-270-d": {
+      "texture": "../assets/img/atlas/collection-40/toi-270-d-globe.webp",
+      "landscape": "../assets/img/atlas/collection-40/toi-270-d-landscape.webp",
+      "poster": "../assets/img/atlas/collection-40/toi-270-d-poster.webp",
+      "posterDownload": "../assets/img/atlas/collection-40/toi-270-d-poster.png",
+      "posterSize": "Original PNG · 1696 × 2528 px",
+      "realistic": true,
+      "visual": "cloud"
+    },
+    "toi-178-g": {
+      "texture": "../assets/img/atlas/collection-40/toi-178-g-globe.webp",
+      "landscape": "../assets/img/atlas/collection-40/toi-178-g-landscape.webp",
+      "poster": "../assets/img/atlas/collection-40/toi-178-g-poster.webp",
+      "posterDownload": "../assets/img/atlas/collection-40/toi-178-g-poster.png",
+      "posterSize": "Original PNG · 1696 × 2528 px",
+      "realistic": true,
+      "visual": "cloud"
+    },
+    "kepler-10-b": {
+      "texture": "../assets/img/atlas/collection-40/kepler-10-b-globe.webp",
+      "landscape": "../assets/img/atlas/collection-40/kepler-10-b-landscape.webp",
+      "poster": "../assets/img/atlas/collection-40/kepler-10-b-poster.webp",
+      "posterDownload": "../assets/img/atlas/collection-40/kepler-10-b-poster.png",
+      "posterSize": "Original PNG · 1027 × 1531 px",
+      "realistic": true,
+      "visual": "lava"
+    },
+    "kepler-36-b": {
+      "texture": "../assets/img/atlas/collection-40/kepler-36-b-globe.webp",
+      "landscape": "../assets/img/atlas/collection-40/kepler-36-b-landscape.webp",
+      "poster": "../assets/img/atlas/collection-40/kepler-36-b-poster.webp",
+      "posterDownload": "../assets/img/atlas/collection-40/kepler-36-b-poster.png",
+      "posterSize": "Original PNG · 1696 × 2528 px",
+      "realistic": true,
+      "visual": "rock"
+    },
+    "kepler-36-c": {
+      "texture": "../assets/img/atlas/collection-40/kepler-36-c-globe.webp",
+      "landscape": "../assets/img/atlas/collection-40/kepler-36-c-landscape.webp",
+      "poster": "../assets/img/atlas/collection-40/kepler-36-c-poster.webp",
+      "posterDownload": "../assets/img/atlas/collection-40/kepler-36-c-poster.png",
+      "posterSize": "Original PNG · 1696 × 2528 px",
+      "realistic": true,
+      "visual": "cloud"
+    },
+    "kepler-51-d": {
+      "texture": "../assets/img/atlas/collection-40/kepler-51-d-globe.webp",
+      "landscape": "../assets/img/atlas/collection-40/kepler-51-d-landscape.webp",
+      "poster": "../assets/img/atlas/collection-40/kepler-51-d-poster.webp",
+      "posterDownload": "../assets/img/atlas/collection-40/kepler-51-d-poster.png",
+      "posterSize": "Original PNG · 1024 × 1536 px",
+      "realistic": true,
+      "visual": "cloud"
+    },
+    "kepler-138-d": {
+      "texture": "../assets/img/atlas/collection-40/kepler-138-d-globe.webp",
+      "landscape": "../assets/img/atlas/collection-40/kepler-138-d-landscape.webp",
+      "poster": "../assets/img/atlas/collection-40/kepler-138-d-poster.webp",
+      "posterDownload": "../assets/img/atlas/collection-40/kepler-138-d-poster.png",
+      "posterSize": "Original PNG · 1027 × 1531 px",
+      "realistic": true,
+      "visual": "ocean"
+    },
+    "kepler-37-b": {
+      "texture": "../assets/img/atlas/collection-40/kepler-37-b-globe.webp",
+      "landscape": "../assets/img/atlas/collection-40/kepler-37-b-landscape.webp",
+      "poster": "../assets/img/atlas/collection-40/kepler-37-b-poster.webp",
+      "posterDownload": "../assets/img/atlas/collection-40/kepler-37-b-poster.png",
+      "posterSize": "Original PNG · 1696 × 2528 px",
+      "realistic": true,
+      "visual": "rock"
+    },
+    "k2-141-b": {
+      "texture": "../assets/img/atlas/collection-40/k2-141-b-globe.webp",
+      "landscape": "../assets/img/atlas/collection-40/k2-141-b-landscape.webp",
+      "poster": "../assets/img/atlas/collection-40/k2-141-b-poster.webp",
+      "posterDownload": "../assets/img/atlas/collection-40/k2-141-b-poster.png",
+      "posterSize": "Original PNG · 1696 × 2528 px",
+      "realistic": true,
+      "visual": "lava"
+    },
+    "hd-110067-b": {
+      "texture": "../assets/img/atlas/collection-40/hd-110067-b-globe.webp",
+      "landscape": "../assets/img/atlas/collection-40/hd-110067-b-landscape.webp",
+      "poster": "../assets/img/atlas/collection-40/hd-110067-b-poster.webp",
+      "posterDownload": "../assets/img/atlas/collection-40/hd-110067-b-poster.png",
+      "posterSize": "Original PNG · 1696 × 2528 px",
+      "realistic": true,
+      "visual": "cloud"
+    },
+    "au-mic-b": {
+      "texture": "../assets/img/atlas/collection-40/au-mic-b-globe.webp",
+      "landscape": "../assets/img/atlas/collection-40/au-mic-b-landscape.webp",
+      "poster": "../assets/img/atlas/collection-40/au-mic-b-poster.webp",
+      "posterDownload": "../assets/img/atlas/collection-40/au-mic-b-poster.png",
+      "posterSize": "Original PNG · 1027 × 1531 px",
+      "realistic": true,
+      "visual": "cloud"
+    },
+    "pds-70-c": {
+      "texture": "../assets/img/atlas/collection-40/pds-70-c-globe.webp",
+      "landscape": "../assets/img/atlas/collection-40/pds-70-c-landscape.webp",
+      "poster": "../assets/img/atlas/collection-40/pds-70-c-poster.webp",
+      "posterDownload": "../assets/img/atlas/collection-40/pds-70-c-poster.png",
+      "posterSize": "Original PNG · 1696 × 2528 px",
+      "realistic": true,
+      "visual": "cloud"
+    },
+    "51-peg-b": {
+      "texture": "../assets/img/atlas/collection-40/51-peg-b-globe.webp",
+      "landscape": "../assets/img/atlas/collection-40/51-peg-b-landscape.webp",
+      "poster": "../assets/img/atlas/collection-40/51-peg-b-poster.webp",
+      "posterDownload": "../assets/img/atlas/collection-40/51-peg-b-poster.png",
+      "posterSize": "Original PNG · 1696 × 2528 px",
+      "realistic": true,
+      "visual": "cloud"
+    },
+    "proxima-centauri-b": {
+      "texture": "../assets/img/atlas/collection-40/proxima-centauri-b-globe.webp",
+      "landscape": "../assets/img/atlas/collection-40/proxima-centauri-b-landscape.webp",
+      "poster": "../assets/img/atlas/collection-40/proxima-centauri-b-poster.webp",
+      "posterDownload": "../assets/img/atlas/collection-40/proxima-centauri-b-poster.png",
+      "posterSize": "Original PNG · 1696 × 2528 px",
+      "realistic": true,
+      "visual": "rock"
+    }
+  }
+}
