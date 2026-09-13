@@ -1,0 +1,490 @@
+{
+  "date": "2026-09-13",
+  "hosts": {
+    "HD 189733": {
+      "longitude": 60.96214,
+      "latitude": -3.92282,
+      "ra": 300.1821223,
+      "dec": 22.7097759,
+      "distance": 19.7638,
+      "plus": 0.0128,
+      "minus": -0.0127,
+      "source": {
+        "url": "https://ui.adsabs.harvard.edu/abs/2019AJ....158..138S/abstract",
+        "title": "TICv8"
+      }
+    },
+    "HD 209458": {
+      "longitude": 76.75338,
+      "latitude": -28.52705,
+      "ra": 330.7950219,
+      "dec": 18.8842419,
+      "distance": 48.3016,
+      "plus": 0.124,
+      "minus": -0.1234,
+      "source": {
+        "url": "https://ui.adsabs.harvard.edu/abs/2019AJ....158..138S/abstract",
+        "title": "TICv8"
+      }
+    },
+    "WASP-39": {
+      "longitude": 344.40348,
+      "latitude": 51.37116,
+      "ra": 217.3266477,
+      "dec": -3.4444994,
+      "distance": 213.982,
+      "plus": 1.76,
+      "minus": -1.731,
+      "source": {
+        "url": "https://ui.adsabs.harvard.edu/abs/2019AJ....158..138S/abstract",
+        "title": "TICv8"
+      }
+    },
+    "WASP-107": {
+      "longitude": 295.69143,
+      "latitude": 52.47382,
+      "ra": 188.3864277,
+      "dec": -10.1462141,
+      "distance": 64.7414,
+      "plus": 0.2617,
+      "minus": -0.2596,
+      "source": {
+        "url": "https://ui.adsabs.harvard.edu/abs/2019AJ....158..138S/abstract",
+        "title": "TICv8"
+      }
+    },
+    "WASP-43": {
+      "longitude": 252.78676,
+      "latitude": 37.86975,
+      "ra": 154.9081869,
+      "dec": -9.8064431,
+      "distance": 86.7467,
+      "plus": 0.3281,
+      "minus": -0.3257,
+      "source": {
+        "url": "https://ui.adsabs.harvard.edu/abs/2019AJ....158..138S/abstract",
+        "title": "TICv8"
+      }
+    },
+    "WASP-121": {
+      "longitude": 250.2937,
+      "latitude": -13.32514,
+      "ra": 107.6002312,
+      "dec": -39.0972705,
+      "distance": 269.898,
+      "plus": 1.58,
+      "minus": -1.562,
+      "source": {
+        "url": "https://ui.adsabs.harvard.edu/abs/2019AJ....158..138S/abstract",
+        "title": "TICv8"
+      }
+    },
+    "WASP-17": {
+      "longitude": 345.95969,
+      "latitude": 18.66769,
+      "ra": 239.9622479,
+      "dec": -28.0617941,
+      "distance": 405.908,
+      "plus": 8.779,
+      "minus": -8.421,
+      "source": {
+        "url": "https://ui.adsabs.harvard.edu/abs/2019AJ....158..138S/abstract",
+        "title": "TICv8"
+      }
+    },
+    "GJ 1214": {
+      "longitude": 26.16217,
+      "latitude": 23.60704,
+      "ra": 258.8313991,
+      "dec": 4.9606795,
+      "distance": 14.6427,
+      "plus": 0.0372,
+      "minus": -0.0372,
+      "source": {
+        "url": "https://ui.adsabs.harvard.edu/abs/2019AJ....158..138S/abstract",
+        "title": "TICv8"
+      }
+    },
+    "LHS 3844": {
+      "longitude": 318.24947,
+      "latitude": -43.90616,
+      "ra": 340.4962038,
+      "dec": -69.1721081,
+      "distance": 14.8846,
+      "plus": 0.0113,
+      "minus": -0.0113,
+      "source": {
+        "url": "https://ui.adsabs.harvard.edu/abs/2019AJ....158..138S/abstract",
+        "title": "TICv8"
+      }
+    },
+    "TOI-561": {
+      "longitude": 230.84909,
+      "latitude": 42.72934,
+      "ra": 148.1851516,
+      "dec": 6.216103,
+      "distance": 85.799,
+      "plus": 0.4988,
+      "minus": -0.4932,
+      "source": {
+        "url": "https://ui.adsabs.harvard.edu/abs/2019AJ....158..138S/abstract",
+        "title": "TICv8"
+      }
+    },
+    "Kepler-16": {
+      "longitude": 82.78543,
+      "latitude": 17.366,
+      "ra": 289.0758307,
+      "dec": 51.757229,
+      "distance": 75.0852,
+      "plus": 0.1541,
+      "minus": -0.1536,
+      "source": {
+        "url": "https://ui.adsabs.harvard.edu/abs/2019AJ....158..138S/abstract",
+        "title": "TICv8"
+      }
+    },
+    "TRAPPIST-1": {
+      "longitude": 69.71519,
+      "latitude": -56.64891,
+      "ra": 346.6263919,
+      "dec": -5.0434618,
+      "distance": 12.42988881,
+      "plus": 0.01870661,
+      "minus": -0.01870661,
+      "source": {
+        "url": "https://ui.adsabs.harvard.edu/abs/2018A&A...616A...1G/abstract",
+        "title": "Gaia DR2"
+      }
+    },
+    "LHS 1140": {
+      "longitude": 115.40542,
+      "latitude": -78.05159,
+      "ra": 11.248632,
+      "dec": -15.2741085,
+      "distance": 14.9861,
+      "plus": 0.0153,
+      "minus": -0.0152,
+      "source": {
+        "url": "https://ui.adsabs.harvard.edu/abs/2019AJ....158..138S/abstract",
+        "title": "TICv8"
+      }
+    },
+    "K2-18": {
+      "longitude": 254.63265,
+      "latitude": 62.57509,
+      "ra": 172.560141,
+      "dec": 7.5878315,
+      "distance": 38.0266,
+      "plus": 0.07955,
+      "minus": -0.07955,
+      "source": {
+        "url": "https://ui.adsabs.harvard.edu/abs/2019AJ....158..138S/abstract",
+        "title": "TICv8"
+      }
+    },
+    "HR 8799": {
+      "longitude": 92.7646,
+      "latitude": -35.57552,
+      "ra": 346.8701486,
+      "dec": 21.1340376,
+      "distance": 41.2441,
+      "plus": 0.1515,
+      "minus": -0.1505,
+      "source": {
+        "url": "https://ui.adsabs.harvard.edu/abs/2019AJ....158..138S/abstract",
+        "title": "TICv8"
+      }
+    },
+    "51 Eri": {
+      "longitude": 198.61297,
+      "latitude": -30.65764,
+      "ra": 69.4007424,
+      "dec": -2.4738245,
+      "distance": 29.7575,
+      "plus": 0.1213,
+      "minus": -0.1203,
+      "source": {
+        "url": "https://ui.adsabs.harvard.edu/abs/2019AJ....158..138S/abstract",
+        "title": "TICv8"
+      }
+    },
+    "bet Pic": {
+      "longitude": 258.36341,
+      "latitude": -30.61167,
+      "ra": 86.8212337,
+      "dec": -51.066148,
+      "distance": 19.7442,
+      "plus": 0.132,
+      "minus": -0.1303,
+      "source": {
+        "url": "https://ui.adsabs.harvard.edu/abs/2019AJ....158..138S/abstract",
+        "title": "TICv8"
+      }
+    },
+    "WASP-76": {
+      "longitude": 149.08514,
+      "latitude": -57.34698,
+      "ra": 26.632936,
+      "dec": 2.700389,
+      "distance": 194.459,
+      "plus": 6.206,
+      "minus": -5.839,
+      "source": {
+        "url": "https://ui.adsabs.harvard.edu/abs/2019AJ....158..138S/abstract",
+        "title": "TICv8"
+      }
+    },
+    "WASP-103": {
+      "longitude": 23.40997,
+      "latitude": 33.0215,
+      "ra": 249.3148604,
+      "dec": 7.1833758,
+      "distance": 375.647,
+      "plus": null,
+      "minus": null,
+      "source": {
+        "url": "https://ui.adsabs.harvard.edu/abs/2019AJ....158..138S/abstract",
+        "title": "TICv8"
+      }
+    },
+    "KELT-9": {
+      "longitude": 78.91292,
+      "latitude": 0.24852,
+      "ra": 307.8598998,
+      "dec": 39.9389161,
+      "distance": 204.455,
+      "plus": 1.582,
+      "minus": -1.558,
+      "source": {
+        "url": "https://ui.adsabs.harvard.edu/abs/2019AJ....158..138S/abstract",
+        "title": "TICv8"
+      }
+    },
+    "HD 80606": {
+      "longitude": 167.42908,
+      "latitude": 44.31146,
+      "ra": 140.6569501,
+      "dec": 50.6037764,
+      "distance": 66.4711,
+      "plus": 0.1612,
+      "minus": -0.1604,
+      "source": {
+        "url": "https://ui.adsabs.harvard.edu/abs/2019AJ....158..138S/abstract",
+        "title": "TICv8"
+      }
+    },
+    "GJ 436": {
+      "longitude": 210.55638,
+      "latitude": 74.57238,
+      "ra": 175.5505363,
+      "dec": 26.7030669,
+      "distance": 9.75321,
+      "plus": 0.00898,
+      "minus": -0.00896,
+      "source": {
+        "url": "https://ui.adsabs.harvard.edu/abs/2019AJ....158..138S/abstract",
+        "title": "TICv8"
+      }
+    },
+    "GJ 9827": {
+      "longitude": 81.34803,
+      "latitude": -57.18299,
+      "ra": 351.7717763,
+      "dec": -1.2853435,
+      "distance": 29.661,
+      "plus": 0.0543,
+      "minus": -0.0541,
+      "source": {
+        "url": "https://ui.adsabs.harvard.edu/abs/2019AJ....158..138S/abstract",
+        "title": "TICv8"
+      }
+    },
+    "LTT 9779": {
+      "longitude": 348.06502,
+      "latitude": -74.1011,
+      "ra": 358.6688767,
+      "dec": -37.6282237,
+      "distance": 80.4373,
+      "plus": 0.3174,
+      "minus": -0.315,
+      "source": {
+        "url": "https://ui.adsabs.harvard.edu/abs/2019AJ....158..138S/abstract",
+        "title": "TICv8"
+      }
+    },
+    "TOI-270": {
+      "longitude": 259.77379,
+      "latitude": -42.01396,
+      "ra": 68.4160804,
+      "dec": -51.9573937,
+      "distance": 22.4793,
+      "plus": 0.01355,
+      "minus": -0.01355,
+      "source": {
+        "url": "https://ui.adsabs.harvard.edu/abs/2019AJ....158..138S/abstract",
+        "title": "TICv8"
+      }
+    },
+    "TOI-178": {
+      "longitude": 357.28914,
+      "latitude": -84.10376,
+      "ra": 7.3020115,
+      "dec": -30.4541159,
+      "distance": 62.699,
+      "plus": 0.2074,
+      "minus": -0.2061,
+      "source": {
+        "url": "https://ui.adsabs.harvard.edu/abs/2019AJ....158..138S/abstract",
+        "title": "TICv8"
+      }
+    },
+    "Kepler-10": {
+      "longitude": 80.48988,
+      "latitude": 18.81626,
+      "ra": 285.679298,
+      "dec": 50.2414842,
+      "distance": 185.506,
+      "plus": 0.811,
+      "minus": -0.805,
+      "source": {
+        "url": "https://ui.adsabs.harvard.edu/abs/2019AJ....158..138S/abstract",
+        "title": "TICv8"
+      }
+    },
+    "Kepler-36": {
+      "longitude": 80.93278,
+      "latitude": 15.10199,
+      "ra": 291.2501859,
+      "dec": 49.2318073,
+      "distance": 527.956,
+      "plus": 6.105,
+      "minus": -5.969,
+      "source": {
+        "url": "https://ui.adsabs.harvard.edu/abs/2019AJ....158..138S/abstract",
+        "title": "TICv8"
+      }
+    },
+    "Kepler-51": {
+      "longitude": 83.11258,
+      "latitude": 12.36242,
+      "ra": 296.4797624,
+      "dec": 49.9376486,
+      "distance": 783.831,
+      "plus": 13.669,
+      "minus": -13.218,
+      "source": {
+        "url": "https://ui.adsabs.harvard.edu/abs/2019AJ....158..138S/abstract",
+        "title": "TICv8"
+      }
+    },
+    "Kepler-138": {
+      "longitude": 75.10743,
+      "latitude": 13.17249,
+      "ra": 290.3814122,
+      "dec": 43.2930645,
+      "distance": 66.8624,
+      "plus": 0.107,
+      "minus": -0.107,
+      "source": {
+        "url": "https://ui.adsabs.harvard.edu/abs/2019AJ....158..138S/abstract",
+        "title": "TICv8"
+      }
+    },
+    "Kepler-37": {
+      "longitude": 74.43727,
+      "latitude": 17.84364,
+      "ra": 284.0592503,
+      "dec": 44.5183733,
+      "distance": 63.9207,
+      "plus": 0.1196,
+      "minus": -0.1191,
+      "source": {
+        "url": "https://ui.adsabs.harvard.edu/abs/2019AJ....158..138S/abstract",
+        "title": "TICv8"
+      }
+    },
+    "K2-141": {
+      "longitude": 80.19878,
+      "latitude": -56.5953,
+      "ra": 350.9170464,
+      "dec": -1.1891827,
+      "distance": 61.8736,
+      "plus": 0.1662,
+      "minus": -0.1654,
+      "source": {
+        "url": "https://ui.adsabs.harvard.edu/abs/2019AJ....158..138S/abstract",
+        "title": "TICv8"
+      }
+    },
+    "HD 110067": {
+      "longitude": 281.0126,
+      "latitude": 82.37965,
+      "ra": 189.8392243,
+      "dec": 20.0273377,
+      "distance": 32.1585,
+      "plus": 0.0572,
+      "minus": -0.0569,
+      "source": {
+        "url": "https://ui.adsabs.harvard.edu/abs/2019AJ....158..138S/abstract",
+        "title": "TICv8"
+      }
+    },
+    "AU Mic": {
+      "longitude": 12.65304,
+      "latitude": -36.80401,
+      "ra": 311.2911369,
+      "dec": -31.34245,
+      "distance": 9.7221,
+      "plus": 0.004625,
+      "minus": -0.004625,
+      "source": {
+        "url": "https://ui.adsabs.harvard.edu/abs/2019AJ....158..138S/abstract",
+        "title": "TICv8"
+      }
+    },
+    "PDS 70": {
+      "longitude": 318.06196,
+      "latitude": 19.20844,
+      "ra": 212.0421402,
+      "dec": -41.3980405,
+      "distance": 113.064,
+      "plus": 0.523,
+      "minus": -0.519,
+      "source": {
+        "url": "https://ui.adsabs.harvard.edu/abs/2019AJ....158..138S/abstract",
+        "title": "TICv8"
+      }
+    },
+    "51 Peg": {
+      "longitude": 90.06374,
+      "latitude": -34.7275,
+      "ra": 344.3675399,
+      "dec": 20.7690958,
+      "distance": 15.4614,
+      "plus": 0.0297,
+      "minus": -0.0297,
+      "source": {
+        "url": "https://ui.adsabs.harvard.edu/abs/2019AJ....158..138S/abstract",
+        "title": "TICv8"
+      }
+    },
+    "Proxima Cen": {
+      "longitude": 313.92595,
+      "latitude": -1.91805,
+      "ra": 217.3934657,
+      "dec": -62.6761821,
+      "distance": 1.30119,
+      "plus": 0.00034,
+      "minus": -0.00035,
+      "source": {
+        "url": "https://ui.adsabs.harvard.edu/abs/2019AJ....158..138S/abstract",
+        "title": "TICv8"
+      }
+    }
+  },
+  "centreSource": {
+    "url": "https://arxiv.org/abs/1904.05721",
+    "title": "GRAVITY Collaboration (2019) · Distance to the Galactic centre"
+  }
+}

@@ -1,0 +1,12 @@
+#atlas-shared-globes{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:4}
+.mini.atlas-mini{display:block;width:116px;height:116px;border-radius:0;background:none!important;box-shadow:none!important;filter:none!important;position:relative;margin:0 auto 12px}
+.mini.atlas-mini:before,.mini.atlas-mini:after{display:none!important}
+[data-globe-id]:not(.globe-ready):after{content:'Loading globe…';font:10px monospace;color:#a39272;position:absolute;inset:45% 0;text-align:center}
+.view-tabs{flex-wrap:wrap}.view-tabs button{padding:10px 12px}
+.cutaway{width:100%;height:auto;display:block;min-height:240px}
+.cut-layer{cursor:pointer;transition:opacity .2s,filter .2s}.cut-layer.selected{filter:brightness(1.22)}.cut-layer:focus{outline:none;stroke:#fff5ca;stroke-width:2}
+.layer-controls{display:flex;flex-wrap:wrap;gap:7px;padding:12px}.layer-controls button{flex:1;min-width:95px;font-size:11px}.layer-controls button[aria-pressed=true]{background:#3b3020;color:#ffe0a0;border-color:#d9b771}
+.layer-copy,.interior-overview,.diamond-note{padding:0 16px 15px;line-height:1.7;font-size:13px}.layer-copy h3{font-size:16px}.layer-copy a{font-size:11px}.interior-overview{color:#ae9f87;font-size:12px}
+.system-instruments,.speed-control,.timeline-control,.galaxy-controls{display:flex;align-items:center;gap:12px;padding:12px 14px;font-size:12px}.timeline-control{flex-wrap:wrap}.timeline-control input{width:100%}.speed-control{flex-wrap:wrap}.speed-control output{font-size:11px}.system-table{width:100%;font-size:11px}.system-table td,.system-table th{padding:7px 4px;text-align:left;border-bottom:1px solid #443924}.system-table a{font-size:10px}.companion-note{font-size:12px;line-height:1.7;padding:12px}.companion-note summary{cursor:pointer}.orbit-note{font-size:11px;color:#bcad92;padding:0 14px;line-height:1.6}
+#galaxy-map{display:block;width:100%;height:390px;touch-action:none;cursor:grab;background:#05080b}#galaxy-map:active{cursor:grabbing}.galaxy-controls input{flex:1;min-width:40px}.galaxy-readout{font-size:13px;line-height:1.7;padding:12px 16px}.galaxy-readout strong{display:block;color:#f3d09a}.galaxy-controls button{padding:5px 10px}.galaxy-key{font-size:10px;padding:0 16px;color:#9eaaae}.galaxy-readout a{font-size:11px}.parameter-table th,.parameter-table td{vertical-align:top}.dialog p{line-height:1.8}
+@media(max-width:600px){#galaxy-map{height:330px}.view-tabs button{font-size:11px;padding:10px}.mini.atlas-mini{width:100px;height:100px}}
