@@ -14,6 +14,13 @@ for p in c['planets']:
  for l in p['layers']:s+='<h3>'+e(l['name'])+'</h3><p>'+e(l['text'])+'</p><a href="'+e(l['source']['url'],quote=True)+'">'+e(l['source']['title'])+'</a>'
  s+='</details><details><summary>Read the research</summary><ol>'
  for v in p['sources']:s+='<li><a href="'+e(v['url'],quote=True)+'">'+e(v['title'])+'</a></li>'
- s+='</ol></details></article>'
+ s+='</ol></details>'
+ l=p['landscapeExplanation']
+ s+='<h3>Landscape</h3><p>'+e(l['text'])+'</p>'
+ for v in l['sources']:s+='<p><a href="'+e(v['url'],quote=True)+'">'+e(v['title'])+'</a></p>'
+ system=c['systems'][p['host']]
+ s+='<h3>System</h3><p>'+e(system['description'])+'</p>'
+ for v in system['descriptionSources']:s+='<p><a href="'+e(v['url'],quote=True)+'">'+e(v['title'])+'</a></p>'
+ s+='<p><a href="../literature-40/index.html#'+p['id']+'">Search the bibliography for this planet</a></p></article>'
 s+='</html>'
 (r/'research-notes/atlas-library/catalogue-200/index.html').write_text(s)

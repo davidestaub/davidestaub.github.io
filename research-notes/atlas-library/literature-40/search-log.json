@@ -1,0 +1,707 @@
+{
+  "cachedSearches": [
+    {
+      "host": "HD 189733",
+      "planets": [
+        "HD 189733 b"
+      ],
+      "query": "all:\"HD 189733\" OR all:\"HD189733\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22HD+189733%22+OR+all%3A%22HD189733%22&max_results=300&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 167,
+      "retrieved": 167,
+      "query_truncated": false,
+      "snapshotDate": "2026-09-10"
+    },
+    {
+      "host": "HD 209458",
+      "planets": [
+        "HD 209458 b"
+      ],
+      "query": "all:\"HD 209458\" OR all:\"HD209458\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22HD+209458%22+OR+all%3A%22HD209458%22&max_results=300&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 152,
+      "retrieved": 152,
+      "query_truncated": false,
+      "snapshotDate": "2026-09-10"
+    },
+    {
+      "host": "WASP-39",
+      "planets": [
+        "WASP-39 b"
+      ],
+      "query": "all:\"WASP-39\" OR all:\"WASP39\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22WASP-39%22+OR+all%3A%22WASP39%22&max_results=300&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 33,
+      "retrieved": 33,
+      "query_truncated": false,
+      "snapshotDate": "2026-09-10"
+    },
+    {
+      "host": "WASP-107",
+      "planets": [
+        "WASP-107 b"
+      ],
+      "query": "all:\"WASP-107\" OR all:\"WASP107\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22WASP-107%22+OR+all%3A%22WASP107%22&max_results=300&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 29,
+      "retrieved": 29,
+      "query_truncated": false,
+      "snapshotDate": "2026-09-10"
+    },
+    {
+      "host": "WASP-43",
+      "planets": [
+        "WASP-43 b"
+      ],
+      "query": "all:\"WASP-43\" OR all:\"WASP43\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22WASP-43%22+OR+all%3A%22WASP43%22&max_results=300&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 27,
+      "retrieved": 27,
+      "query_truncated": false,
+      "snapshotDate": "2026-09-10"
+    },
+    {
+      "host": "WASP-121",
+      "planets": [
+        "WASP-121 b"
+      ],
+      "query": "all:\"WASP-121\" OR all:\"WASP121\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22WASP-121%22+OR+all%3A%22WASP121%22&max_results=300&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 33,
+      "retrieved": 33,
+      "query_truncated": false,
+      "snapshotDate": "2026-09-10"
+    },
+    {
+      "host": "WASP-17",
+      "planets": [
+        "WASP-17 b"
+      ],
+      "query": "all:\"WASP-17\" OR all:\"WASP17\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22WASP-17%22+OR+all%3A%22WASP17%22&max_results=300&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 14,
+      "retrieved": 14,
+      "query_truncated": false,
+      "snapshotDate": "2026-09-10"
+    },
+    {
+      "host": "GJ 1214",
+      "planets": [
+        "GJ 1214 b"
+      ],
+      "query": "all:\"GJ 1214\" OR all:\"GJ1214\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22GJ+1214%22+OR+all%3A%22GJ1214%22&max_results=300&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 59,
+      "retrieved": 59,
+      "query_truncated": false,
+      "snapshotDate": "2026-09-10"
+    },
+    {
+      "host": "LHS 3844",
+      "planets": [
+        "LHS 3844 b"
+      ],
+      "query": "all:\"LHS 3844\" OR all:\"LHS3844\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22LHS+3844%22+OR+all%3A%22LHS3844%22&max_results=300&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 8,
+      "retrieved": 8,
+      "query_truncated": false,
+      "snapshotDate": "2026-09-10"
+    },
+    {
+      "host": "TOI-561",
+      "planets": [
+        "TOI-561 b"
+      ],
+      "query": "all:\"TOI-561\" OR all:\"TOI561\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22TOI-561%22+OR+all%3A%22TOI561%22&max_results=300&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 12,
+      "retrieved": 12,
+      "query_truncated": false,
+      "snapshotDate": "2026-09-10"
+    },
+    {
+      "host": "Kepler-16",
+      "planets": [
+        "Kepler-16 b"
+      ],
+      "query": "all:\"Kepler-16\" OR all:\"Kepler16\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22Kepler-16%22+OR+all%3A%22Kepler16%22&max_results=300&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 49,
+      "retrieved": 49,
+      "query_truncated": false,
+      "snapshotDate": "2026-09-10"
+    },
+    {
+      "host": "TRAPPIST-1",
+      "planets": [
+        "TRAPPIST-1 b",
+        "TRAPPIST-1 c",
+        "TRAPPIST-1 e",
+        "TRAPPIST-1 d",
+        "TRAPPIST-1 f",
+        "TRAPPIST-1 g",
+        "TRAPPIST-1 h"
+      ],
+      "query": "all:\"TRAPPIST-1\" OR all:\"TRAPPIST1\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22TRAPPIST-1%22+OR+all%3A%22TRAPPIST1%22&max_results=300&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 353,
+      "retrieved": 300,
+      "query_truncated": true,
+      "snapshotDate": "2026-09-10"
+    },
+    {
+      "host": "LHS 1140",
+      "planets": [
+        "LHS 1140 b"
+      ],
+      "query": "all:\"LHS 1140\" OR all:\"LHS1140\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22LHS+1140%22+OR+all%3A%22LHS1140%22&max_results=300&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 41,
+      "retrieved": 41,
+      "query_truncated": false,
+      "snapshotDate": "2026-09-10"
+    },
+    {
+      "host": "K2-18",
+      "planets": [
+        "K2-18 b"
+      ],
+      "query": "all:\"K2-18\" OR all:\"K218\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22K2-18%22+OR+all%3A%22K218%22&max_results=300&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 71,
+      "retrieved": 71,
+      "query_truncated": false,
+      "snapshotDate": "2026-09-10"
+    },
+    {
+      "host": "HR 8799",
+      "planets": [
+        "HR 8799 e",
+        "HR 8799 b",
+        "HR 8799 c",
+        "HR 8799 d"
+      ],
+      "query": "all:\"HR 8799\" OR all:\"HR8799\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22HR+8799%22+OR+all%3A%22HR8799%22&max_results=300&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 196,
+      "retrieved": 196,
+      "query_truncated": false,
+      "snapshotDate": "2026-09-10"
+    },
+    {
+      "host": "51 Eri",
+      "planets": [
+        "51 Eri b"
+      ],
+      "query": "all:\"51 Eri\" OR all:\"51Eri\" OR all:\"51 Eridani\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%2251+Eri%22+OR+all%3A%2251Eri%22+OR+all%3A%2251+Eridani%22&max_results=300&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 42,
+      "retrieved": 42,
+      "query_truncated": false,
+      "snapshotDate": "2026-09-10"
+    },
+    {
+      "host": "bet Pic",
+      "planets": [
+        "bet Pic b",
+        "bet Pic c"
+      ],
+      "query": "all:\"bet Pic\" OR all:\"betPic\" OR all:\"beta Pictoris\" OR all:\"beta Pic\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22bet+Pic%22+OR+all%3A%22betPic%22+OR+all%3A%22beta+Pictoris%22+OR+all%3A%22beta+Pic%22&max_results=300&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 294,
+      "retrieved": 294,
+      "query_truncated": false,
+      "snapshotDate": "2026-09-10"
+    },
+    {
+      "host": "WASP-76",
+      "planets": [
+        "WASP-76 b"
+      ],
+      "query": "all:\"WASP-76\" OR all:\"WASP76\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22WASP-76%22+OR+all%3A%22WASP76%22&max_results=300&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 28,
+      "retrieved": 28,
+      "query_truncated": false,
+      "snapshotDate": "2026-09-10"
+    },
+    {
+      "host": "WASP-103",
+      "planets": [
+        "WASP-103 b"
+      ],
+      "query": "all:\"WASP-103\" OR all:\"WASP103\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22WASP-103%22+OR+all%3A%22WASP103%22&max_results=300&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 15,
+      "retrieved": 15,
+      "query_truncated": false,
+      "snapshotDate": "2026-09-10"
+    },
+    {
+      "host": "KELT-9",
+      "planets": [
+        "KELT-9 b"
+      ],
+      "query": "all:\"KELT-9\" OR all:\"KELT9\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22KELT-9%22+OR+all%3A%22KELT9%22&max_results=300&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 28,
+      "retrieved": 28,
+      "query_truncated": false,
+      "snapshotDate": "2026-09-10"
+    },
+    {
+      "host": "HD 80606",
+      "planets": [
+        "HD 80606 b"
+      ],
+      "query": "all:\"HD 80606\" OR all:\"HD80606\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22HD+80606%22+OR+all%3A%22HD80606%22&max_results=300&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 33,
+      "retrieved": 33,
+      "query_truncated": false,
+      "snapshotDate": "2026-09-10"
+    },
+    {
+      "host": "GJ 436",
+      "planets": [
+        "GJ 436 b"
+      ],
+      "query": "all:\"GJ 436\" OR all:\"GJ436\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22GJ+436%22+OR+all%3A%22GJ436%22&max_results=300&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 99,
+      "retrieved": 99,
+      "query_truncated": false,
+      "snapshotDate": "2026-09-10"
+    },
+    {
+      "host": "GJ 9827",
+      "planets": [
+        "GJ 9827 b",
+        "GJ 9827 c",
+        "GJ 9827 d"
+      ],
+      "query": "all:\"GJ 9827\" OR all:\"GJ9827\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22GJ+9827%22+OR+all%3A%22GJ9827%22&max_results=300&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 17,
+      "retrieved": 17,
+      "query_truncated": false,
+      "snapshotDate": "2026-09-10"
+    },
+    {
+      "host": "LTT 9779",
+      "planets": [
+        "LTT 9779 b"
+      ],
+      "query": "all:\"LTT 9779\" OR all:\"LTT9779\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22LTT+9779%22+OR+all%3A%22LTT9779%22&max_results=300&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 12,
+      "retrieved": 12,
+      "query_truncated": false,
+      "snapshotDate": "2026-09-10"
+    },
+    {
+      "host": "TOI-270",
+      "planets": [
+        "TOI-270 b",
+        "TOI-270 c",
+        "TOI-270 d"
+      ],
+      "query": "all:\"TOI-270\" OR all:\"TOI270\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22TOI-270%22+OR+all%3A%22TOI270%22&max_results=300&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 27,
+      "retrieved": 27,
+      "query_truncated": false,
+      "snapshotDate": "2026-09-10"
+    },
+    {
+      "host": "TOI-178",
+      "planets": [
+        "TOI-178 b",
+        "TOI-178 c",
+        "TOI-178 d",
+        "TOI-178 e",
+        "TOI-178 f",
+        "TOI-178 g"
+      ],
+      "query": "all:\"TOI-178\" OR all:\"TOI178\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22TOI-178%22+OR+all%3A%22TOI178%22&max_results=300&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 12,
+      "retrieved": 12,
+      "query_truncated": false,
+      "snapshotDate": "2026-09-10"
+    },
+    {
+      "host": "Kepler-10",
+      "planets": [
+        "Kepler-10 b",
+        "Kepler-10 c"
+      ],
+      "query": "all:\"Kepler-10\" OR all:\"Kepler10\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22Kepler-10%22+OR+all%3A%22Kepler10%22&max_results=300&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 21,
+      "retrieved": 21,
+      "query_truncated": false,
+      "snapshotDate": "2026-09-10"
+    },
+    {
+      "host": "Kepler-36",
+      "planets": [
+        "Kepler-36 b",
+        "Kepler-36 c"
+      ],
+      "query": "all:\"Kepler-36\" OR all:\"Kepler36\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22Kepler-36%22+OR+all%3A%22Kepler36%22&max_results=300&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 20,
+      "retrieved": 20,
+      "query_truncated": false,
+      "snapshotDate": "2026-09-10"
+    },
+    {
+      "host": "Kepler-51",
+      "planets": [
+        "Kepler-51 b",
+        "Kepler-51 c",
+        "Kepler-51 d"
+      ],
+      "query": "all:\"Kepler-51\" OR all:\"Kepler51\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22Kepler-51%22+OR+all%3A%22Kepler51%22&max_results=300&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 10,
+      "retrieved": 10,
+      "query_truncated": false,
+      "snapshotDate": "2026-09-10"
+    },
+    {
+      "host": "Kepler-138",
+      "planets": [
+        "Kepler-138 b",
+        "Kepler-138 c",
+        "Kepler-138 d"
+      ],
+      "query": "all:\"Kepler-138\" OR all:\"Kepler138\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22Kepler-138%22+OR+all%3A%22Kepler138%22&max_results=300&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 6,
+      "retrieved": 6,
+      "query_truncated": false,
+      "snapshotDate": "2026-09-10"
+    },
+    {
+      "host": "Kepler-37",
+      "planets": [
+        "Kepler-37 b",
+        "Kepler-37 c",
+        "Kepler-37 d"
+      ],
+      "query": "all:\"Kepler-37\" OR all:\"Kepler37\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22Kepler-37%22+OR+all%3A%22Kepler37%22&max_results=300&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 4,
+      "retrieved": 4,
+      "query_truncated": false,
+      "snapshotDate": "2026-09-10"
+    },
+    {
+      "host": "K2-141",
+      "planets": [
+        "K2-141 b"
+      ],
+      "query": "all:\"K2-141\" OR all:\"K2141\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22K2-141%22+OR+all%3A%22K2141%22&max_results=300&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 7,
+      "retrieved": 7,
+      "query_truncated": false,
+      "snapshotDate": "2026-09-10"
+    },
+    {
+      "host": "HD 110067",
+      "planets": [
+        "HD 110067 b",
+        "HD 110067 c",
+        "HD 110067 d",
+        "HD 110067 e",
+        "HD 110067 f",
+        "HD 110067 g"
+      ],
+      "query": "all:\"HD 110067\" OR all:\"HD110067\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22HD+110067%22+OR+all%3A%22HD110067%22&max_results=300&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 4,
+      "retrieved": 4,
+      "query_truncated": false,
+      "snapshotDate": "2026-09-10"
+    },
+    {
+      "host": "AU Mic",
+      "planets": [
+        "AU Mic b",
+        "AU Mic c"
+      ],
+      "query": "all:\"AU Mic\" OR all:\"AUMic\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22AU+Mic%22+OR+all%3A%22AUMic%22&max_results=300&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 132,
+      "retrieved": 132,
+      "query_truncated": false,
+      "snapshotDate": "2026-09-10"
+    },
+    {
+      "host": "PDS 70",
+      "planets": [
+        "PDS 70 b",
+        "PDS 70 c"
+      ],
+      "query": "all:\"PDS 70\" OR all:\"PDS70\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22PDS+70%22+OR+all%3A%22PDS70%22&max_results=300&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 124,
+      "retrieved": 124,
+      "query_truncated": false,
+      "snapshotDate": "2026-09-10"
+    },
+    {
+      "host": "51 Peg",
+      "planets": [
+        "51 Peg b"
+      ],
+      "query": "all:\"51 Peg\" OR all:\"51Peg\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%2251+Peg%22+OR+all%3A%2251Peg%22&max_results=300&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 62,
+      "retrieved": 62,
+      "query_truncated": false,
+      "snapshotDate": "2026-09-10"
+    },
+    {
+      "host": "Proxima Cen",
+      "planets": [
+        "Proxima Cen b"
+      ],
+      "query": "all:\"Proxima Cen\" OR all:\"ProximaCen\" OR all:\"Proxima Centauri\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22Proxima+Cen%22+OR+all%3A%22ProximaCen%22+OR+all%3A%22Proxima+Centauri%22&max_results=300&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 230,
+      "retrieved": 230,
+      "query_truncated": false,
+      "snapshotDate": "2026-09-10"
+    }
+  ],
+  "refresh": {
+    "date": "2026-09-13",
+    "service": "arXiv API",
+    "status": "HTTP 429; bulk refresh unavailable",
+    "complete": false
+  },
+  "targetedSearches": {
+    "date": "2026-09-13",
+    "queries": [
+      "\"GJ 1214 b\" interior composition paper",
+      "\"LHS 3844 b\" interior core mass",
+      "\"TOI-561 b\" interior atmosphere composition",
+      "\"TRAPPIST-1\" planets iron core composition Agol",
+      "\"LHS 1140 b\" water interior",
+      "\"K2-18 b\" interior magma ocean alternatives",
+      "\"HR 8799 e\" heavy elements formation",
+      "\"51 Eridani b\" interior core mass",
+      "\"Beta Pictoris d\" Sutlieff 2026",
+      "\"WASP-76 b\" interior heat",
+      "\"WASP-103 b\" Love number interior",
+      "\"KELT-9 b\" magnetic induction interior",
+      "\"HD 80606 b\" tidal heating interior",
+      "\"GJ 436 b\" interior composition",
+      "\"GJ 9827 d\" interior steam",
+      "\"LTT 9779 b\" interior envelope mass",
+      "\"TOI-270 d\" interior composition layers",
+      "\"TOI-178 g\" interior composition",
+      "\"Kepler-10 b\" core mantle composition",
+      "\"Kepler-36\" cores evaporation",
+      "\"Kepler-51 d\" interior super puff core",
+      "\"Kepler-138 d\" water interior",
+      "\"Kepler-37 b\" interior composition",
+      "\"K2-141 b\" mantle magma",
+      "\"HD 110067\" interior composition planets",
+      "\"AU Mic b\" mass interior atmosphere",
+      "\"PDS 70 c\" interior accretion mass",
+      "\"51 Peg b\" interior composition",
+      "\"Proxima Centauri b\" interior composition"
+    ]
+  },
+  "records": 3063,
+  "citedRecords": 142,
+  "expandedCachedSearches": [
+    {
+      "planet": "55 Cnc e",
+      "query": "all:\"55 Cancri\" OR all:\"55 Cnc\" OR all:\"55 Cnc e\" OR all:\"55Cnce\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%2255+Cancri%22+OR+all%3A%2255+Cnc%22+OR+all%3A%2255+Cnc+e%22+OR+all%3A%2255Cnce%22&start=0&max_results=2000&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 169,
+      "retrieved": 169,
+      "complete_query": true,
+      "raw_file": "raw/55-cnc-e-expanded.xml"
+    },
+    {
+      "planet": "HD 189733 b",
+      "query": "all:\"HD 189733\" OR all:\"HD189733\" OR all:\"HD 189733 b\" OR all:\"HD189733b\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22HD+189733%22+OR+all%3A%22HD189733%22+OR+all%3A%22HD+189733+b%22+OR+all%3A%22HD189733b%22&start=0&max_results=2000&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 254,
+      "retrieved": 254,
+      "complete_query": true,
+      "raw_file": "raw/hd-189733-b-expanded.xml"
+    },
+    {
+      "planet": "HD 209458 b",
+      "query": "all:\"HD 209458\" OR all:\"HD209458\" OR all:\"HD 209458 b\" OR all:\"HD209458b\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22HD+209458%22+OR+all%3A%22HD209458%22+OR+all%3A%22HD+209458+b%22+OR+all%3A%22HD209458b%22&start=0&max_results=2000&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 275,
+      "retrieved": 275,
+      "complete_query": true,
+      "raw_file": "raw/hd-209458-b-expanded.xml"
+    },
+    {
+      "planet": "WASP-39 b",
+      "query": "all:\"WASP-39\" OR all:\"WASP39\" OR all:\"WASP-39 b\" OR all:\"WASP-39b\" OR all:\"WASP39b\" OR all:\"WASP 39 b\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22WASP-39%22+OR+all%3A%22WASP39%22+OR+all%3A%22WASP-39+b%22+OR+all%3A%22WASP-39b%22+OR+all%3A%22WASP39b%22+OR+all%3A%22WASP+39+b%22&start=0&max_results=2000&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 89,
+      "retrieved": 89,
+      "complete_query": true,
+      "raw_file": "raw/wasp-39-b-expanded.xml"
+    },
+    {
+      "planet": "WASP-107 b",
+      "query": "all:\"WASP-107\" OR all:\"WASP107\" OR all:\"WASP-107 b\" OR all:\"WASP-107b\" OR all:\"WASP107b\" OR all:\"WASP 107 b\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22WASP-107%22+OR+all%3A%22WASP107%22+OR+all%3A%22WASP-107+b%22+OR+all%3A%22WASP-107b%22+OR+all%3A%22WASP107b%22+OR+all%3A%22WASP+107+b%22&start=0&max_results=2000&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 54,
+      "retrieved": 54,
+      "complete_query": true,
+      "raw_file": "raw/wasp-107-b-expanded.xml"
+    },
+    {
+      "planet": "WASP-43 b",
+      "query": "all:\"WASP-43\" OR all:\"WASP43\" OR all:\"WASP-43 b\" OR all:\"WASP-43b\" OR all:\"WASP43b\" OR all:\"WASP 43 b\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22WASP-43%22+OR+all%3A%22WASP43%22+OR+all%3A%22WASP-43+b%22+OR+all%3A%22WASP-43b%22+OR+all%3A%22WASP43b%22+OR+all%3A%22WASP+43+b%22&start=0&max_results=2000&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 89,
+      "retrieved": 89,
+      "complete_query": true,
+      "raw_file": "raw/wasp-43-b-expanded.xml"
+    },
+    {
+      "planet": "WASP-121 b",
+      "query": "all:\"WASP-121\" OR all:\"WASP121\" OR all:\"WASP-121 b\" OR all:\"WASP-121b\" OR all:\"WASP121b\" OR all:\"WASP 121 b\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22WASP-121%22+OR+all%3A%22WASP121%22+OR+all%3A%22WASP-121+b%22+OR+all%3A%22WASP-121b%22+OR+all%3A%22WASP121b%22+OR+all%3A%22WASP+121+b%22&start=0&max_results=2000&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 99,
+      "retrieved": 99,
+      "complete_query": true,
+      "raw_file": "raw/wasp-121-b-expanded.xml"
+    },
+    {
+      "planet": "WASP-17 b",
+      "query": "all:\"WASP-17\" OR all:\"WASP17\" OR all:\"WASP-17 b\" OR all:\"WASP-17b\" OR all:\"WASP17b\" OR all:\"WASP 17 b\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22WASP-17%22+OR+all%3A%22WASP17%22+OR+all%3A%22WASP-17+b%22+OR+all%3A%22WASP-17b%22+OR+all%3A%22WASP17b%22+OR+all%3A%22WASP+17+b%22&start=0&max_results=2000&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 45,
+      "retrieved": 45,
+      "complete_query": true,
+      "raw_file": "raw/wasp-17-b-expanded.xml"
+    },
+    {
+      "planet": "GJ 1214 b",
+      "query": "all:\"GJ 1214\" OR all:\"GJ1214\" OR all:\"GJ 1214 b\" OR all:\"GJ1214b\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22GJ+1214%22+OR+all%3A%22GJ1214%22+OR+all%3A%22GJ+1214+b%22+OR+all%3A%22GJ1214b%22&start=0&max_results=2000&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 86,
+      "retrieved": 86,
+      "complete_query": true,
+      "raw_file": "raw/gj-1214-b-expanded.xml"
+    },
+    {
+      "planet": "LHS 3844 b",
+      "query": "all:\"LHS 3844\" OR all:\"LHS3844\" OR all:\"LHS 3844 b\" OR all:\"LHS3844b\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22LHS+3844%22+OR+all%3A%22LHS3844%22+OR+all%3A%22LHS+3844+b%22+OR+all%3A%22LHS3844b%22&start=0&max_results=2000&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 9,
+      "retrieved": 9,
+      "complete_query": true,
+      "raw_file": "raw/lhs-3844-b-expanded.xml"
+    },
+    {
+      "planet": "TOI-561 b",
+      "query": "all:\"TOI-561\" OR all:\"TOI561\" OR all:\"TOI-561 b\" OR all:\"TOI-561b\" OR all:\"TOI561b\" OR all:\"TOI 561 b\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22TOI-561%22+OR+all%3A%22TOI561%22+OR+all%3A%22TOI-561+b%22+OR+all%3A%22TOI-561b%22+OR+all%3A%22TOI561b%22+OR+all%3A%22TOI+561+b%22&start=0&max_results=2000&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 12,
+      "retrieved": 12,
+      "complete_query": true,
+      "raw_file": "raw/toi-561-b-expanded.xml"
+    },
+    {
+      "planet": "Kepler-16 b",
+      "query": "all:\"Kepler-16\" OR all:\"Kepler16\" OR all:\"Kepler-16 b\" OR all:\"Kepler-16b\" OR all:\"Kepler16b\" OR all:\"Kepler 16 b\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22Kepler-16%22+OR+all%3A%22Kepler16%22+OR+all%3A%22Kepler-16+b%22+OR+all%3A%22Kepler-16b%22+OR+all%3A%22Kepler16b%22+OR+all%3A%22Kepler+16+b%22&start=0&max_results=2000&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 52,
+      "retrieved": 52,
+      "complete_query": true,
+      "raw_file": "raw/kepler-16-b-expanded.xml"
+    },
+    {
+      "planet": "TRAPPIST-1 b",
+      "query": "all:\"TRAPPIST-1\" OR all:\"TRAPPIST1\" OR all:\"TRAPPIST-1 b\" OR all:\"TRAPPIST-1b\" OR all:\"TRAPPIST1b\" OR all:\"TRAPPIST 1 b\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22TRAPPIST-1%22+OR+all%3A%22TRAPPIST1%22+OR+all%3A%22TRAPPIST-1+b%22+OR+all%3A%22TRAPPIST-1b%22+OR+all%3A%22TRAPPIST1b%22+OR+all%3A%22TRAPPIST+1+b%22&start=0&max_results=2000&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 362,
+      "retrieved": 362,
+      "complete_query": true,
+      "raw_file": "raw/trappist-1-b-expanded.xml"
+    },
+    {
+      "planet": "TRAPPIST-1 c",
+      "query": "all:\"TRAPPIST-1\" OR all:\"TRAPPIST1\" OR all:\"TRAPPIST-1 c\" OR all:\"TRAPPIST-1c\" OR all:\"TRAPPIST1c\" OR all:\"TRAPPIST 1 c\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22TRAPPIST-1%22+OR+all%3A%22TRAPPIST1%22+OR+all%3A%22TRAPPIST-1+c%22+OR+all%3A%22TRAPPIST-1c%22+OR+all%3A%22TRAPPIST1c%22+OR+all%3A%22TRAPPIST+1+c%22&start=0&max_results=2000&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 355,
+      "retrieved": 355,
+      "complete_query": true,
+      "raw_file": "raw/trappist-1-c-expanded.xml"
+    },
+    {
+      "planet": "TRAPPIST-1 e",
+      "query": "all:\"TRAPPIST-1\" OR all:\"TRAPPIST1\" OR all:\"TRAPPIST-1 e\" OR all:\"TRAPPIST-1e\" OR all:\"TRAPPIST1e\" OR all:\"TRAPPIST 1 e\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22TRAPPIST-1%22+OR+all%3A%22TRAPPIST1%22+OR+all%3A%22TRAPPIST-1+e%22+OR+all%3A%22TRAPPIST-1e%22+OR+all%3A%22TRAPPIST1e%22+OR+all%3A%22TRAPPIST+1+e%22&start=0&max_results=2000&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 388,
+      "retrieved": 388,
+      "complete_query": true,
+      "raw_file": "raw/trappist-1-e-expanded.xml"
+    },
+    {
+      "planet": "LHS 1140 b",
+      "query": "all:\"LHS 1140\" OR all:\"LHS1140\" OR all:\"LHS 1140 b\" OR all:\"LHS1140b\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22LHS+1140%22+OR+all%3A%22LHS1140%22+OR+all%3A%22LHS+1140+b%22+OR+all%3A%22LHS1140b%22&start=0&max_results=2000&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 45,
+      "retrieved": 45,
+      "complete_query": true,
+      "raw_file": "raw/lhs-1140-b-expanded.xml"
+    },
+    {
+      "planet": "K2-18 b",
+      "query": "all:\"K2-18\" OR all:\"K218b\" OR all:\"K2-18 b\" OR all:\"K2-18b\" OR all:\"K2 18 b\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22K2-18%22+OR+all%3A%22K218b%22+OR+all%3A%22K2-18+b%22+OR+all%3A%22K2-18b%22+OR+all%3A%22K2+18+b%22&start=0&max_results=2000&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 111,
+      "retrieved": 111,
+      "complete_query": true,
+      "raw_file": "raw/k2-18-b-expanded.xml"
+    },
+    {
+      "planet": "HR 8799 e",
+      "query": "all:\"HR 8799\" OR all:\"HR8799\" OR all:\"HR 8799 e\" OR all:\"HR8799e\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22HR+8799%22+OR+all%3A%22HR8799%22+OR+all%3A%22HR+8799+e%22+OR+all%3A%22HR8799e%22&start=0&max_results=2000&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 197,
+      "retrieved": 197,
+      "complete_query": true,
+      "raw_file": "raw/hr-8799-e-expanded.xml"
+    },
+    {
+      "planet": "51 Eri b",
+      "query": "all:\"51 Eri\" OR all:\"51 Eridani\" OR all:\"51 Eri b\" OR all:\"51Erib\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%2251+Eri%22+OR+all%3A%2251+Eridani%22+OR+all%3A%2251+Eri+b%22+OR+all%3A%2251Erib%22&start=0&max_results=2000&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 43,
+      "retrieved": 43,
+      "complete_query": true,
+      "raw_file": "raw/51-eri-b-expanded.xml"
+    },
+    {
+      "planet": "bet Pic b",
+      "query": "all:\"beta Pictoris\" OR all:\"beta Pic\" OR all:\"bet Pic b\" OR all:\"betPicb\" OR all:\"beta Pictoris b\" OR all:\"beta Pic b\" OR all:\"β Pictoris b\" OR all:\"β Pic b\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22beta+Pictoris%22+OR+all%3A%22beta+Pic%22+OR+all%3A%22bet+Pic+b%22+OR+all%3A%22betPicb%22+OR+all%3A%22beta+Pictoris+b%22+OR+all%3A%22beta+Pic+b%22+OR+all%3A%22%CE%B2+Pictoris+b%22+OR+all%3A%22%CE%B2+Pic+b%22&start=0&max_results=2000&sortBy=submittedDate&sortOrder=descending",
+      "total_results": 344,
+      "retrieved": 344,
+      "complete_query": true,
+      "raw_file": "raw/bet-pic-b-expanded.xml"
+    }
+  ],
+  "coverageNote": "The earlier 300-record TRAPPIST-1 cap is supplemented by the expanded per-planet queries listed here. A returned query is not an exhaustive bibliography of all publications. Host-only matches may concern other planets or the star."
+}
