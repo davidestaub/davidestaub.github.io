@@ -38,8 +38,8 @@
  float edge=pow(1.-max(dot(n,normalize(cameraPosition-vP)),0.),5.);c+=rimColor*.17*edge;
  gl_FragColor=vec4(c,1.);}`});
  const globe=new T.Mesh(new T.SphereGeometry(1.06,128,80),ground);world.add(globe);
- const cloudMat=new T.ShaderMaterial({uniforms:{time:{value:0},cloudColor:{value:new T.Vector3(...config.cloud)},coverage:{value:volcanic?.94:.26}},vertexShader:vertex,fragmentShader:`uniform float time;uniform vec3 cloudColor;uniform float coverage;varying vec3 vLocal;varying vec3 vN;varying vec3 vP;${noise}
- void main(){vec3 p=vLocal*vec3(3.2,6.,3.2);p+=vec3(time*.019,0.,time*.014);float broad=fbm(p+vec3(fbm(p*1.8)));float fine=fbm(p*4.5+vec3(time*.039,0.,0.));float density=smoothstep(.34,.63,broad)*smoothstep(.20,.60,fine);float facing=max(dot(normalize(vN),normalize(cameraPosition-vP)),0.);float light=.45+.55*max(dot(normalize(vN),normalize(vec3(-2.,3.,4.))),0.);gl_FragColor=vec4(cloudColor*light,density*coverage*smoothstep(0.,.18,facing));}`,
+ const cloudMat=new T.ShaderMaterial({uniforms:{time:{value:0},cloudColor:{value:new T.Vector3(...config.cloud)},coverage:{value:volcanic?.66:.20}},vertexShader:vertex,fragmentShader:`uniform float time;uniform vec3 cloudColor;uniform float coverage;varying vec3 vLocal;varying vec3 vN;varying vec3 vP;${noise}
+ void main(){vec3 p=vLocal*vec3(3.2,6.,3.2);p+=vec3(time*.007,0.,time*.005);float broad=fbm(p+vec3(fbm(p*1.8)));float fine=fbm(p*4.5+vec3(time*.014,0.,0.));float density=smoothstep(.41,.66,broad)*smoothstep(.20,.60,fine);float facing=max(dot(normalize(vN),normalize(cameraPosition-vP)),0.);float light=.45+.55*max(dot(normalize(vN),normalize(vec3(-2.,3.,4.))),0.);float tone=fbm(p*.62+vec3(4.7,1.2,8.1));vec3 tint=mix(vec3(.92,.96,1.02),vec3(1.05,.97,.86),smoothstep(.25,.72,tone));float depth=.70+.30*smoothstep(.25,.70,fine);gl_FragColor=vec4(cloudColor*tint*light*depth,density*coverage*smoothstep(0.,.18,facing));}`,
  transparent:true,depthWrite:false});
  const clouds=new T.Mesh(new T.SphereGeometry(1.075,96,64),cloudMat);world.add(clouds);
  const halo=new T.Mesh(new T.SphereGeometry(1.081,96,64),new T.ShaderMaterial({vertexShader:vertex,uniforms:{rimColor:{value:new T.Vector3(...config.rim)}},fragmentShader:`uniform vec3 rimColor;varying vec3 vN;varying vec3 vP;void main(){float e=pow(1.-abs(dot(normalize(vN),normalize(cameraPosition-vP))),5.);gl_FragColor=vec4(rimColor,e*.16);}`,side:T.BackSide,transparent:true,depthWrite:false,blending:T.AdditiveBlending}));world.add(halo);
@@ -65,7 +65,7 @@
  const reduced=matchMedia('(prefers-reduced-motion: reduce)'),pos=new T.Vector3(),normal=new T.Vector3(),eye=new T.Vector3();
  function eruption(i){const phase=(time+i*2.7)%(10+(i%5)*1.3);return {age:phase,power:Math.sin(Math.PI*Math.min(phase/5,1))**2};}
  function render(){if(!ready)return;ground.uniforms.time.value=time;cloudMat.uniforms.time.value=time;
- world.rotation.y=-1.45+time*config.speed;clouds.rotation.y=time*(volcanic?.070:.042);
+ world.rotation.y=-1.45+time*config.speed;clouds.rotation.y=time*(volcanic?.025:.015);
  for(let i=0;i<12;i++)heat[i]=eruption(i).power;
  world.updateWorldMatrix(true,false);
  for(const {s,i,j} of smoke){const e=eruption(i),age=e.age-j*.42;const life=age/5;
