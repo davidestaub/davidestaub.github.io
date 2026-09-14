@@ -342,7 +342,7 @@ figcaption {
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(40,105,162,.12) 25%, rgba(35,85,148,.045) 49%, transparent 70%);
+  background: radial-gradient(circle, rgba(var(--planet-halo,40,105,162),.12) 25%, rgba(var(--planet-halo,35,85,148),.045) 49%, transparent 70%);
   z-index: -1;
   pointer-events: none;
 }
