@@ -2,25 +2,34 @@
 (function(){
  const host=document.getElementById('planet-container'); if(!host||!window.THREE)return;
  const variants={
-  blue:{map:'assets/img/atlas/collection-40/hd-189733-b-globe.webp',label:'Blue gas giant',rim:[.2,.48,.8],cloud:[.75,.84,.92],speed:.039},
   sapphire:{map:'assets/img/hero-sapphire-map.png',label:'Sapphire gas giant',rim:[.15,.4,.9],cloud:[.78,.85,.97],speed:.034},
   pearl:{map:'assets/img/hero-pearl-map.png',label:'Pearl gas giant',rim:[.72,.52,.34],cloud:[.96,.89,.79],speed:.031},
-  ringed:{map:'assets/img/hero-ringed-map.png',label:'Ringed teal planet',rim:[.28,.56,.61],cloud:[.79,.9,.89],speed:.037},
   volcanic:{map:'assets/img/hero-volcanic-map.png',label:'Volcanic planet',rim:[.9,.34,.09],cloud:[.8,.77,.71],speed:.027}
  };
  const requested=host.dataset.planet||new URLSearchParams(location.search).get('planet');
- let last='';try{last=sessionStorage.getItem('hero-last-planet')||'';}catch{}
- const pool=Object.keys(variants).filter(id=>id!==last);
- const id=Object.hasOwn(variants,requested)?requested:pool[Math.floor(Math.random()*pool.length)];
- if(!requested)try{sessionStorage.setItem('hero-last-planet',id);}catch{}
- const config=variants[id],volcanic=id==='volcanic',ringed=id==='ringed';
+ // A shuffled bag shows every available world once before starting another round.
+ const ids=Object.keys(variants),key='hero-three-rotation-v1';
+ let state={remaining:[],last:''};
+ try{const saved=JSON.parse(sessionStorage.getItem(key));if(saved&&Array.isArray(saved.remaining))state=saved;}catch{}
+ let remaining=[...new Set(state.remaining)].filter(id=>ids.includes(id));
+ let id;
+ if(Object.hasOwn(variants,requested)){id=requested;}else{
+  if(!remaining.length){
+   remaining=[...ids];
+   for(let i=remaining.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[remaining[i],remaining[j]]=[remaining[j],remaining[i]];}
+   if(remaining[0]===state.last)[remaining[0],remaining[1]]=[remaining[1],remaining[0]];
+  }
+  id=remaining.shift();
+  try{sessionStorage.setItem(key,JSON.stringify({remaining,last:id}));}catch{}
+ }
+ const config=variants[id],volcanic=id==='volcanic';
  host.dataset.planet=id;
  host.style.setProperty('--planet-halo',config.rim.map(n=>Math.round(n*255)).join(','));
  const T=THREE;let renderer;try{renderer=new T.WebGLRenderer({alpha:true,antialias:true});}catch{return;}
  renderer.setPixelRatio(Math.min(devicePixelRatio,2)); renderer.setClearColor(0,0);
  renderer.domElement.setAttribute('role','img');renderer.domElement.setAttribute('aria-label',config.label+' rotating with moving clouds'+(volcanic?' and glowing eruptions':''));host.append(renderer.domElement);
- const scene=new T.Scene(),camera=new T.PerspectiveCamera(36,1,.1,30);camera.position.z=ringed?7.8:3.8;
- const axial=new T.Group();axial.rotation.z=ringed?.36:-.18;axial.rotation.x=ringed?.47:0;scene.add(axial);
+ const scene=new T.Scene(),camera=new T.PerspectiveCamera(36,1,.1,30);camera.position.z=3.8;
+ const axial=new T.Group();axial.rotation.z=-.18;scene.add(axial);
  const world=new T.Group();world.rotation.y=-1.45;axial.add(world);
  const vertex=`varying vec2 vUv;varying vec3 vN;varying vec3 vP;varying vec3 vLocal;
  void main(){vUv=uv;vLocal=normalize(position);vN=normalize(mat3(modelMatrix)*normal);vP=(modelMatrix*vec4(position,1.)).xyz;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`;
@@ -43,19 +52,6 @@
  transparent:true,depthWrite:false});
  const clouds=new T.Mesh(new T.SphereGeometry(1.075,96,64),cloudMat);world.add(clouds);
  const halo=new T.Mesh(new T.SphereGeometry(1.081,96,64),new T.ShaderMaterial({vertexShader:vertex,uniforms:{rimColor:{value:new T.Vector3(...config.rim)}},fragmentShader:`uniform vec3 rimColor;varying vec3 vN;varying vec3 vP;void main(){float e=pow(1.-abs(dot(normalize(vN),normalize(cameraPosition-vP))),5.);gl_FragColor=vec4(rimColor,e*.16);}`,side:T.BackSide,transparent:true,depthWrite:false,blending:T.AdditiveBlending}));world.add(halo);
- if(ringed){
-  const ring=new T.Mesh(new T.RingGeometry(1.36,2.23,192,8),new T.ShaderMaterial({
-   vertexShader:`varying vec3 local;varying vec3 wp;void main(){local=position;wp=(modelMatrix*vec4(position,1.)).xyz;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
-   fragmentShader:`varying vec3 local;varying vec3 wp;
-    void main(){float r=length(local.xy);float width=fwidth(r);float fine=(1.-smoothstep(.4,1.5,width*143.))*sin(r*143.);float stripes=.55+.14*sin(r*55.)+.07*fine;
-    float gap=1.-smoothstep(max(0.,.009-width),.015+width,abs(r-1.86));float alpha=(.54+.24*stripes)*(1.-gap*.96);
-    alpha*=smoothstep(1.36,1.39,r)*(1.-smoothstep(2.19,2.23,r));
-    vec3 sun=normalize(vec3(-2.5,2.8,4.5));float along=dot(-wp,sun);float separation=length(wp+sun*max(0.,along));
-    float shade=along>0.?mix(.20,1.,smoothstep(1.01,1.10,separation)):1.;
-    vec3 c=mix(vec3(.35,.36,.36),vec3(.80,.77,.70),stripes)*shade;gl_FragColor=vec4(c,alpha);}`,
-   side:T.DoubleSide,transparent:true,depthWrite:false}));
-  ring.rotation.x=Math.PI/2;axial.add(ring);
- }
  const smokeVertex=`varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`;
  const smoke=[];
  for(let i=0;i<(volcanic?12:0);i++)for(let j=0;j<4;j++){
