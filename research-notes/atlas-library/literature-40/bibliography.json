@@ -112994,6 +112994,383 @@
       "publication": "Publication status not verified"
     },
     {
+      "id": "https://exoplanetarchive.ipac.caltech.edu/overview/WASP-76 b",
+      "title": "NASA Exoplanet Archive · WASP-76 b",
+      "authors": [],
+      "date": "",
+      "doi": "",
+      "url": "https://exoplanetarchive.ipac.caltech.edu/overview/WASP-76%20b",
+      "links": [
+        "https://exoplanetarchive.ipac.caltech.edu/overview/WASP-76%20b"
+      ],
+      "planets": [
+        "wasp-76-b"
+      ],
+      "mentions": [],
+      "topics": [
+        "System"
+      ],
+      "origins": [
+        "Article citation"
+      ],
+      "citedFor": [
+        {
+          "planet": "wasp-76-b",
+          "section": "System"
+        }
+      ],
+      "review": "Catalogue checked 14 September 2026",
+      "publication": "Catalogue entry"
+    },
+    {
+      "id": "https://exoplanetarchive.ipac.caltech.edu/overview/WASP-43 b",
+      "title": "NASA Exoplanet Archive · WASP-43 b",
+      "authors": [],
+      "date": "",
+      "doi": "",
+      "url": "https://exoplanetarchive.ipac.caltech.edu/overview/WASP-43%20b",
+      "links": [
+        "https://exoplanetarchive.ipac.caltech.edu/overview/WASP-43%20b"
+      ],
+      "planets": [
+        "wasp-43-b"
+      ],
+      "mentions": [],
+      "topics": [
+        "System"
+      ],
+      "origins": [
+        "Article citation"
+      ],
+      "citedFor": [
+        {
+          "planet": "wasp-43-b",
+          "section": "System"
+        }
+      ],
+      "review": "Catalogue checked 14 September 2026",
+      "publication": "Catalogue entry"
+    },
+    {
+      "id": "https://exoplanetarchive.ipac.caltech.edu/overview/WASP-39 b",
+      "title": "NASA Exoplanet Archive · WASP-39 b",
+      "authors": [],
+      "date": "",
+      "doi": "",
+      "url": "https://exoplanetarchive.ipac.caltech.edu/overview/WASP-39%20b",
+      "links": [
+        "https://exoplanetarchive.ipac.caltech.edu/overview/WASP-39%20b"
+      ],
+      "planets": [
+        "wasp-39-b"
+      ],
+      "mentions": [],
+      "topics": [
+        "System"
+      ],
+      "origins": [
+        "Article citation"
+      ],
+      "citedFor": [
+        {
+          "planet": "wasp-39-b",
+          "section": "System"
+        }
+      ],
+      "review": "Catalogue checked 14 September 2026",
+      "publication": "Catalogue entry"
+    },
+    {
+      "id": "https://exoplanetarchive.ipac.caltech.edu/overview/WASP-17 b",
+      "title": "NASA Exoplanet Archive · WASP-17 b",
+      "authors": [],
+      "date": "",
+      "doi": "",
+      "url": "https://exoplanetarchive.ipac.caltech.edu/overview/WASP-17%20b",
+      "links": [
+        "https://exoplanetarchive.ipac.caltech.edu/overview/WASP-17%20b"
+      ],
+      "planets": [
+        "wasp-17-b"
+      ],
+      "mentions": [],
+      "topics": [
+        "System"
+      ],
+      "origins": [
+        "Article citation"
+      ],
+      "citedFor": [
+        {
+          "planet": "wasp-17-b",
+          "section": "System"
+        }
+      ],
+      "review": "Catalogue checked 14 September 2026",
+      "publication": "Catalogue entry"
+    },
+    {
+      "id": "https://exoplanetarchive.ipac.caltech.edu/overview/WASP-121 b",
+      "title": "NASA Exoplanet Archive · WASP-121 b",
+      "authors": [],
+      "date": "",
+      "doi": "",
+      "url": "https://exoplanetarchive.ipac.caltech.edu/overview/WASP-121%20b",
+      "links": [
+        "https://exoplanetarchive.ipac.caltech.edu/overview/WASP-121%20b"
+      ],
+      "planets": [
+        "wasp-121-b"
+      ],
+      "mentions": [],
+      "topics": [
+        "System"
+      ],
+      "origins": [
+        "Article citation"
+      ],
+      "citedFor": [
+        {
+          "planet": "wasp-121-b",
+          "section": "System"
+        }
+      ],
+      "review": "Catalogue checked 14 September 2026",
+      "publication": "Catalogue entry"
+    },
+    {
+      "id": "https://exoplanetarchive.ipac.caltech.edu/overview/WASP-103 b",
+      "title": "NASA Exoplanet Archive · WASP-103 b",
+      "authors": [],
+      "date": "",
+      "doi": "",
+      "url": "https://exoplanetarchive.ipac.caltech.edu/overview/WASP-103%20b",
+      "links": [
+        "https://exoplanetarchive.ipac.caltech.edu/overview/WASP-103%20b"
+      ],
+      "planets": [
+        "wasp-103-b"
+      ],
+      "mentions": [],
+      "topics": [
+        "System"
+      ],
+      "origins": [
+        "Article citation"
+      ],
+      "citedFor": [
+        {
+          "planet": "wasp-103-b",
+          "section": "System"
+        }
+      ],
+      "review": "Catalogue checked 14 September 2026",
+      "publication": "Catalogue entry"
+    },
+    {
+      "id": "https://exoplanetarchive.ipac.caltech.edu/overview/LTT 9779 b",
+      "title": "NASA Exoplanet Archive · LTT 9779 b",
+      "authors": [],
+      "date": "",
+      "doi": "",
+      "url": "https://exoplanetarchive.ipac.caltech.edu/overview/LTT%209779%20b",
+      "links": [
+        "https://exoplanetarchive.ipac.caltech.edu/overview/LTT%209779%20b"
+      ],
+      "planets": [
+        "ltt-9779-b"
+      ],
+      "mentions": [],
+      "topics": [
+        "System"
+      ],
+      "origins": [
+        "Article citation"
+      ],
+      "citedFor": [
+        {
+          "planet": "ltt-9779-b",
+          "section": "System"
+        }
+      ],
+      "review": "Catalogue checked 14 September 2026",
+      "publication": "Catalogue entry"
+    },
+    {
+      "id": "https://exoplanetarchive.ipac.caltech.edu/overview/LHS 3844 b",
+      "title": "NASA Exoplanet Archive · LHS 3844 b",
+      "authors": [],
+      "date": "",
+      "doi": "",
+      "url": "https://exoplanetarchive.ipac.caltech.edu/overview/LHS%203844%20b",
+      "links": [
+        "https://exoplanetarchive.ipac.caltech.edu/overview/LHS%203844%20b"
+      ],
+      "planets": [
+        "lhs-3844-b"
+      ],
+      "mentions": [],
+      "topics": [
+        "System"
+      ],
+      "origins": [
+        "Article citation"
+      ],
+      "citedFor": [
+        {
+          "planet": "lhs-3844-b",
+          "section": "System"
+        }
+      ],
+      "review": "Catalogue checked 14 September 2026",
+      "publication": "Catalogue entry"
+    },
+    {
+      "id": "https://exoplanetarchive.ipac.caltech.edu/overview/KELT-9 b",
+      "title": "NASA Exoplanet Archive · KELT-9 b",
+      "authors": [],
+      "date": "",
+      "doi": "",
+      "url": "https://exoplanetarchive.ipac.caltech.edu/overview/KELT-9%20b",
+      "links": [
+        "https://exoplanetarchive.ipac.caltech.edu/overview/KELT-9%20b"
+      ],
+      "planets": [
+        "kelt-9-b"
+      ],
+      "mentions": [],
+      "topics": [
+        "System"
+      ],
+      "origins": [
+        "Article citation"
+      ],
+      "citedFor": [
+        {
+          "planet": "kelt-9-b",
+          "section": "System"
+        }
+      ],
+      "review": "Catalogue checked 14 September 2026",
+      "publication": "Catalogue entry"
+    },
+    {
+      "id": "https://exoplanetarchive.ipac.caltech.edu/overview/HD 209458 b",
+      "title": "NASA Exoplanet Archive · HD 209458 b",
+      "authors": [],
+      "date": "",
+      "doi": "",
+      "url": "https://exoplanetarchive.ipac.caltech.edu/overview/HD%20209458%20b",
+      "links": [
+        "https://exoplanetarchive.ipac.caltech.edu/overview/HD%20209458%20b"
+      ],
+      "planets": [
+        "hd-209458-b"
+      ],
+      "mentions": [],
+      "topics": [
+        "System"
+      ],
+      "origins": [
+        "Article citation"
+      ],
+      "citedFor": [
+        {
+          "planet": "hd-209458-b",
+          "section": "System"
+        }
+      ],
+      "review": "Catalogue checked 14 September 2026",
+      "publication": "Catalogue entry"
+    },
+    {
+      "id": "https://exoplanetarchive.ipac.caltech.edu/overview/GJ 436 b",
+      "title": "NASA Exoplanet Archive · GJ 436 b",
+      "authors": [],
+      "date": "",
+      "doi": "",
+      "url": "https://exoplanetarchive.ipac.caltech.edu/overview/GJ%20436%20b",
+      "links": [
+        "https://exoplanetarchive.ipac.caltech.edu/overview/GJ%20436%20b"
+      ],
+      "planets": [
+        "gj-436-b"
+      ],
+      "mentions": [],
+      "topics": [
+        "System"
+      ],
+      "origins": [
+        "Article citation"
+      ],
+      "citedFor": [
+        {
+          "planet": "gj-436-b",
+          "section": "System"
+        }
+      ],
+      "review": "Catalogue checked 14 September 2026",
+      "publication": "Catalogue entry"
+    },
+    {
+      "id": "https://exoplanetarchive.ipac.caltech.edu/overview/GJ 1214 b",
+      "title": "NASA Exoplanet Archive · GJ 1214 b",
+      "authors": [],
+      "date": "",
+      "doi": "",
+      "url": "https://exoplanetarchive.ipac.caltech.edu/overview/GJ%201214%20b",
+      "links": [
+        "https://exoplanetarchive.ipac.caltech.edu/overview/GJ%201214%20b"
+      ],
+      "planets": [
+        "gj-1214-b"
+      ],
+      "mentions": [],
+      "topics": [
+        "System"
+      ],
+      "origins": [
+        "Article citation"
+      ],
+      "citedFor": [
+        {
+          "planet": "gj-1214-b",
+          "section": "System"
+        }
+      ],
+      "review": "Catalogue checked 14 September 2026",
+      "publication": "Catalogue entry"
+    },
+    {
+      "id": "https://exoplanetarchive.ipac.caltech.edu/overview/51 Peg b",
+      "title": "NASA Exoplanet Archive · 51 Peg b",
+      "authors": [],
+      "date": "",
+      "doi": "",
+      "url": "https://exoplanetarchive.ipac.caltech.edu/overview/51%20Peg%20b",
+      "links": [
+        "https://exoplanetarchive.ipac.caltech.edu/overview/51%20Peg%20b"
+      ],
+      "planets": [
+        "51-peg-b"
+      ],
+      "mentions": [],
+      "topics": [
+        "System"
+      ],
+      "origins": [
+        "Article citation"
+      ],
+      "citedFor": [
+        {
+          "planet": "51-peg-b",
+          "section": "System"
+        }
+      ],
+      "review": "Catalogue checked 14 September 2026",
+      "publication": "Catalogue entry"
+    },
+    {
       "id": "2024NatAs...8.1562M",
       "title": "Murphy et al. 2024",
       "authors": [],

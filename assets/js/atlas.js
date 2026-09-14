@@ -10,14 +10,14 @@ const filters=[
 ];
 const $=s=>document.querySelector(s),$$=s=>Array.from(document.querySelectorAll(s));
 let globe, galaxy, current=null, catalogue, systems;
-try { const response=await fetch('../assets/data/atlas-catalogue.json?v=reader4'); if(!response.ok)throw new Error('Catalogue download failed'); const data=await response.json();catalogue=data.planets;systems=data.systems; }
+try { const response=await fetch('../assets/data/atlas-catalogue.json?v=reader5'); if(!response.ok)throw new Error('Catalogue download failed'); const data=await response.json();catalogue=data.planets;systems=data.systems; }
 catch(error){$('#results').textContent='The catalogue could not load. Please refresh the page.';$('#count').textContent='Load error';return;}
 const byId=new Map(catalogue.map(p=>[p.id,p]));
 let artwork={};
 try{const r=await fetch('../assets/data/atlas-art.json?v=collection40');if(r.ok)artwork=(await r.json()).planets||{};}catch(error){console.warn('New artwork manifest unavailable',error);}
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 globe=window.AtlasGlobes?.(artwork);
-try{const r=await fetch('../assets/data/atlas-galaxy.json?v=reader4');if(r.ok)galaxy=AtlasGalaxy(await r.json(),catalogue);}catch(e){$('#galaxy-readout').textContent='The map data could not load. Please refresh.';}
+try{const r=await fetch('../assets/data/atlas-galaxy.json?v=reader5');if(r.ok)galaxy=AtlasGalaxy(await r.json(),catalogue);}catch(e){$('#galaxy-readout').textContent='The map data could not load. Please refresh.';}
 const originalPoster='../assets/img/atlas/55-cancri-e-poster';
 
 for(const f of filters){

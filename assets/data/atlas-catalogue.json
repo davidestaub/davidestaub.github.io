@@ -1,6 +1,6 @@
 {
-  "version": "reader-edition-20260913-r4",
-  "date": "2026-09-13",
+  "version": "reader-edition-20260914-r5",
+  "date": "2026-09-14",
   "planets": [
     {
       "id": "hd-189733-b",
@@ -12,7 +12,7 @@
       "hook": "A blue planet with a very different atmosphere",
       "intro": "HD 189733 b is blue in reflected visible light. It circles its star in just over two days, surrounded by a hot atmosphere where telescopes have detected water vapour, carbon monoxide and hydrogen sulfide.",
       "question": "How did we find out that it is blue?",
-      "answer": "Hubble measured how much visible light disappeared when the planet passed behind its star. More of the missing light was blue than red. This gives us a colour without a resolved photograph of the globe.",
+      "answer": "Hubble measured how much visible light disappeared when the planet passed behind its star. More of the missing light was blue than red. The difference reveals the colour of the reflected light.",
       "interior": "",
       "evidence": "The striking thing about HD 189733 b is that its blue colour comes from a measurement. In 2013, Thomas Evans and colleagues used Hubble to watch the planet disappear behind its star. The system lost more light in the blue part of the spectrum than at longer visible wavelengths. By measuring the missing light, they worked out the colour of the planet’s reflected light. Their results fit reflective clouds, with sodium absorbing some of the longer-wavelength light. That famous description brings together two ideas: mineral particles in the atmosphere and powerful winds. Silicate particles—made from the same broad family of materials used to make glass—could help scatter the light. If such particles form and settle, winds could carry them along. But the blue-colour measurement did not identify falling glass, and no one has observed a sideways glass shower. The evidence for moving air comes from a different experiment. Tom Louden and Peter Wheatley studied sodium absorption as the planet crossed its star. The absorption shifted in wavelength on opposite edges of the planet, revealing gas moving towards and away from us. Their 2015 analysis was consistent with planetary rotation and a strong eastward jet. It measured atmospheric motion, rather than the speed or direction of falling particles. In 2024, Guangwei Fu and colleagues used Webb to identify water vapour, carbon dioxide, carbon monoxide and hydrogen sulfide in light passing through the atmosphere. These gases absorb different infrared wavelengths, leaving patterns in the spectrum. Together, their inferred abundances point to an atmosphere enriched in heavier elements relative to its star—a clue to the material the planet gathered as it formed.",
       "sources": [
@@ -286,7 +286,7 @@
         }
       ],
       "landscapeExplanation": {
-        "text": "Hubble measured a blue reflected colour, and infrared spectra provide evidence for silicate clouds. Those findings motivate the blue sky and pale cloud banks. Their shapes and altitude are imagined; neither a cloud map nor falling glass has been observed.",
+        "text": "Hubble measured blue light reflected by the planet. Webb spectra provide evidence for tiny silicate grains in its clouds. Winds could carry these particles, but falling glass has not been observed.",
         "sources": [
           {
             "title": "Evans et al. (2013)",
@@ -311,7 +311,7 @@
       "question": "How can a trace of sodium reveal a whole atmosphere?",
       "answer": "Atoms absorb particular colours of light. When the planet crossed its star, the dip in brightness was slightly deeper at sodium’s wavelengths. Comparing neighbouring wavelengths isolated the extra absorption.",
       "interior": "",
-      "evidence": "During a transit, a little starlight passes through the rim of this planet’s atmosphere. Charbonneau and colleagues found an extra dip at the colours absorbed by sodium. That small difference, reported in 2002, became the first chemical identification of an exoplanet atmosphere. Later observations found water vapour, opening a much broader picture of the gas surrounding this hot giant.",
+      "evidence": "During a transit, a little starlight passes through the rim of this planet’s atmosphere. Charbonneau and colleagues found an extra dip at the colours absorbed by sodium. That small difference, reported in 2002, became the first chemical identification of an exoplanet atmosphere. Later observations also detected water vapour.",
       "sources": [
         {
           "title": "Detection of an Extrasolar Planet Atmosphere",
@@ -501,7 +501,7 @@
       "story": [
         {
           "title": "A shadow with a chemical fingerprint",
-          "text": "During a transit, a little starlight passes through the rim of this planet’s atmosphere. Charbonneau and colleagues found an extra dip at the colours absorbed by sodium. That small difference, reported in 2002, became the first chemical identification of an exoplanet atmosphere. Later observations found water vapour, opening a much broader picture of the gas surrounding this hot giant.",
+          "text": "During a transit, a little starlight passes through the rim of this planet’s atmosphere. Charbonneau and colleagues found an extra dip at the colours absorbed by sodium. That small difference, reported in 2002, became the first chemical identification of an exoplanet atmosphere. Later observations also detected water vapour.",
           "citation": "Detection of an Extrasolar Planet Atmosphere",
           "url": "https://arxiv.org/abs/astro-ph/0111544",
           "also": [
@@ -647,7 +647,7 @@
         }
       ],
       "landscapeExplanation": {
-        "text": "The transit is the key to this view: starlight passing through the planet’s rim revealed sodium in its atmosphere. The dark globe and bright stellar disk show that alignment. Their spacing in the picture is a composition choice, not the physical star–planet distance.",
+        "text": "During a transit, starlight passes through the planet’s atmosphere. Sodium absorbs some of that light, producing the signal that first revealed its atmospheric chemistry. The separation shown here is not to scale.",
         "sources": [
           {
             "title": "Detection of an Extrasolar Planet Atmosphere",
@@ -1130,7 +1130,7 @@
               "title": "Identification of carbon dioxide in an exoplanet atmosphere",
               "url": "https://arxiv.org/abs/2208.11692",
               "authors": [
-                " The JWST Transiting Exoplanet Community Early Release Science Team",
+                "The JWST Transiting Exoplanet Community Early Release Science Team",
                 "Eva-Maria Ahrer",
                 "Lili Alderson",
                 "Natalie M. Batalha",
@@ -1274,7 +1274,7 @@
           "title": "Identification of carbon dioxide in an exoplanet atmosphere",
           "url": "https://arxiv.org/abs/2208.11692",
           "authors": [
-            " The JWST Transiting Exoplanet Community Early Release Science Team",
+            "The JWST Transiting Exoplanet Community Early Release Science Team",
             "Eva-Maria Ahrer",
             "Lili Alderson",
             "Natalie M. Batalha",
@@ -1664,7 +1664,7 @@
               "title": "Identification of carbon dioxide in an exoplanet atmosphere",
               "url": "https://arxiv.org/abs/2208.11692",
               "authors": [
-                " The JWST Transiting Exoplanet Community Early Release Science Team",
+                "The JWST Transiting Exoplanet Community Early Release Science Team",
                 "Eva-Maria Ahrer",
                 "Lili Alderson",
                 "Natalie M. Batalha",
@@ -1822,7 +1822,7 @@
         }
       ],
       "landscapeExplanation": {
-        "text": "Transmission spectra reveal water, carbon dioxide and sulfur dioxide, together with evidence for an uneven cloud cover. The cloud-level view explores that atmosphere. The warm gold light is a colour choice, not a measured yellow colour of the planet.",
+        "text": "Its atmosphere contains water vapour, carbon dioxide and sulfur dioxide. Transit spectra also suggest uneven cloud cover. The clouds’ visible colour is unknown.",
         "sources": [
           {
             "title": "Photochemically-produced SO₂ in the atmosphere of WASP-39b",
@@ -2239,7 +2239,7 @@
         }
       ],
       "landscapeExplanation": {
-        "text": "JWST’s mid-infrared spectrum supports clouds containing tiny silicate particles. A soft, hazy cloud-level view follows that evidence. The cloud shapes and visible colours remain unknown, and the particles would be much too small to see individually.",
+        "text": "Webb detected an infrared feature consistent with tiny silicate particles suspended in the atmosphere. These mineral grains are far smaller than sand. Their clouds’ shapes and visible colours are unknown.",
         "sources": [
           {
             "title": "SO2, silicate clouds, but no CH4 detected in a warm Neptune",
@@ -2716,7 +2716,7 @@
         }
       ],
       "landscapeExplanation": {
-        "text": "Infrared measurements across an orbit reveal a hot dayside and a cooler nightside, where clouds may hide hotter gas below. The bright-to-dark transition represents that temperature contrast. The glow is illustrative rather than a visible-light temperature map.",
+        "text": "Webb measured a hot day side and a cooler night side. Clouds on the night side may hide warmer gas underneath. These temperatures come from infrared light emitted by the atmosphere.",
         "sources": [
           {
             "title": "Nightside clouds and disequilibrium chemistry on the hot Jupiter WASP-43b",
@@ -2974,7 +2974,7 @@
         }
       ],
       "landscapeExplanation": {
-        "text": "The dayside is hot enough for rock-forming material such as silicon monoxide to exist as gas. The glowing horizon depicts a very hot atmosphere, with no solid ground. The streaks suggest moving gas; their detailed pattern has not been mapped.",
+        "text": "The day side is hot enough for silicon monoxide, an ingredient of rock, to remain in gas form. This is a giant planet with a deep atmosphere and no solid surface to stand on.",
         "sources": [
           {
             "title": "SiO and a super-stellar C/O ratio in the atmosphere of the giant exoplanet WASP-121 b",
@@ -2995,7 +2995,7 @@
       "question": "Quartz clouds?",
       "answer": "Quartz has a characteristic infrared absorption feature. JWST measured extra absorption near 8.6 micrometres, and models containing very small quartz particles fit that feature better than the tested alternatives.",
       "interior": "",
-      "evidence": "Quartz is familiar as a solid crystal on Earth. On WASP-17 b, the evidence points to particles much smaller than sand, carried high in hot gas. Grant and colleagues found an absorption feature near 8.6 micrometres in Webb data. Cloud models containing tiny quartz grains reproduce its shape. The cloud material gives a rare mineral clue about an atmosphere far beyond our Solar System.",
+      "evidence": "Quartz is familiar as a solid crystal on Earth. On WASP-17 b, the evidence points to particles much smaller than sand, carried high in hot gas. Grant and colleagues found an absorption feature near 8.6 micrometres in Webb data. Cloud models containing tiny quartz grains reproduce its shape.",
       "sources": [
         {
           "title": "JWST-TST DREAMS: Quartz Clouds in the Atmosphere of WASP-17b",
@@ -3164,7 +3164,7 @@
       "story": [
         {
           "title": "A mineral fingerprint in starlight",
-          "text": "Quartz is familiar as a solid crystal on Earth. On WASP-17 b, the evidence points to particles much smaller than sand, carried high in hot gas. Grant and colleagues found an absorption feature near 8.6 micrometres in Webb data. Cloud models containing tiny quartz grains reproduce its shape. The cloud material gives a rare mineral clue about an atmosphere far beyond our Solar System.",
+          "text": "Quartz is familiar as a solid crystal on Earth. On WASP-17 b, the evidence points to particles much smaller than sand, carried high in hot gas. Grant and colleagues found an absorption feature near 8.6 micrometres in Webb data. Cloud models containing tiny quartz grains reproduce its shape.",
           "citation": "JWST-TST DREAMS: Quartz Clouds in the Atmosphere of WASP-17b",
           "url": "https://arxiv.org/abs/2310.08637"
         }
@@ -3299,7 +3299,7 @@
         }
       ],
       "landscapeExplanation": {
-        "text": "An infrared absorption feature is consistent with tiny quartz grains in high clouds. That is the basis for this cloud-level scene. Quartz here means airborne mineral particles, not large crystals, and the pink cloud colour is illustrative.",
+        "text": "An infrared absorption feature points to tiny quartz particles high in the atmosphere. These airborne grains are much smaller than sand. Their clouds’ visible colour has not been measured.",
         "sources": [
           {
             "title": "JWST-TST DREAMS: Quartz Clouds in the Atmosphere of WASP-17b",
@@ -3320,7 +3320,7 @@
       "question": "Why can a spectrum look almost flat?",
       "answer": "High clouds and haze can block our view of deeper gas. They reduce the differences between wavelengths, leaving a much flatter transmission spectrum.",
       "interior": "",
-      "evidence": "For years, GJ 1214 b produced frustratingly flat transmission spectra. Thick aerosols can obscure the gas below and wash out its chemical fingerprints. Webb then watched the planet through an orbit in infrared light. Its changing brightness constrained how it moves heat and reflects starlight, giving astronomers another route into a world whose deeper atmosphere remains hidden.",
+      "evidence": "For years, GJ 1214 b produced frustratingly flat transmission spectra. Thick aerosols can obscure the gas below and wash out its chemical fingerprints. Webb then watched the planet through an orbit in infrared light. Its changing brightness constrained how it moves heat and reflects starlight, while its deeper atmosphere remains hidden.",
       "sources": [
         {
           "title": "A reflective, metal-rich atmosphere for GJ 1214b from its JWST phase curve",
@@ -3542,7 +3542,7 @@
       "story": [
         {
           "title": "The planet that hides its atmosphere",
-          "text": "For years, GJ 1214 b produced frustratingly flat transmission spectra. Thick aerosols can obscure the gas below and wash out its chemical fingerprints. Webb then watched the planet through an orbit in infrared light. Its changing brightness constrained how it moves heat and reflects starlight, giving astronomers another route into a world whose deeper atmosphere remains hidden.",
+          "text": "For years, GJ 1214 b produced frustratingly flat transmission spectra. Thick aerosols can obscure the gas below and wash out its chemical fingerprints. Webb then watched the planet through an orbit in infrared light. Its changing brightness constrained how it moves heat and reflects starlight, while its deeper atmosphere remains hidden.",
           "citation": "A reflective, metal-rich atmosphere for GJ 1214b from its JWST phase curve",
           "url": "https://arxiv.org/abs/2305.06240"
         }
@@ -3668,7 +3668,7 @@
         }
       ],
       "landscapeExplanation": {
-        "text": "A thick aerosol layer obscures much of the transmission spectrum, while infrared observations indicate a reflective atmosphere. The pale, subdued globe follows that hazy appearance. Its muted bands are an imagined arrangement of the aerosols.",
+        "text": "Thick clouds and haze block light passing through the atmosphere, hiding the gases below. Infrared observations show that the planet reflects much of its star’s light and carries heat between its day and night sides.",
         "sources": [
           {
             "title": "A reflective, metal-rich atmosphere for GJ 1214b from its JWST phase curve",
@@ -3952,7 +3952,7 @@
         }
       ],
       "landscapeExplanation": {
-        "text": "Its strong day–night heat contrast and dark infrared surface favour exposed rock with little atmosphere. Laboratory comparisons allow basalt-like material, motivating the dark, rough ground. The ridges and craters are imagined geological features.",
+        "text": "Infrared observations favour a dark rocky surface with little atmosphere. Comparisons with laboratory measurements allow basalt and other dark rocks, either as exposed slabs or weathered grains.",
         "sources": [
           {
             "title": "The dark and featureless surface of rocky exoplanet LHS 3844 b from JWST mid-infrared spectroscopy",
@@ -4269,7 +4269,7 @@
         }
       ],
       "landscapeExplanation": {
-        "text": "Intense starlight makes molten surface rock plausible, while JWST observations support an atmosphere above it. The lava and warm haze explore that combination. We have not measured the shapes of lava channels or the extent of exposed melt.",
+        "text": "Intense starlight could melt surface rock. Webb observations also support a thick atmosphere above it. Molten rock can store dissolved gases and release them into the air.",
         "sources": [
           {
             "title": "A Thick Volatile Atmosphere on the Ultrahot Super-Earth TOI-561 b",
@@ -4613,7 +4613,7 @@
         }
       ],
       "landscapeExplanation": {
-        "text": "The two stars are directly established by their eclipses and the planet’s transits. A gas giant offers an atmospheric viewpoint beneath those two suns. Cloud chemistry and cloud cover have not been measured, so the cloud deck is a possible setting rather than a detection.",
+        "text": "Two stars would appear in the sky, moving around each other as the planet circles both. The planet’s mass and radius require a substantial gas envelope. Its cloud cover and atmospheric chemistry have not been measured.",
         "sources": [
           {
             "title": "Kepler-16: A Transiting Circumbinary Planet",
@@ -4953,7 +4953,7 @@
         }
       ],
       "landscapeExplanation": {
-        "text": "The hot dayside and faint nightside favour little atmospheric heat transport. Exposed rock is therefore a useful possibility to explore. Its craters, colour and surface age are unknown, and the scene does not require a detected volcanic landscape.",
+        "text": "Webb measured a hot day side and little infrared light from the night side. This fits exposed rock with little atmosphere to carry heat around the planet. Its surface minerals and geological features remain unknown.",
         "sources": [
           {
             "title": "First JWST thermal phase curves of temperate terrestrial exoplanets reveal no thick atmosphere around TRAPPIST-1 b and c",
@@ -5293,7 +5293,7 @@
         }
       ],
       "landscapeExplanation": {
-        "text": "Its thermal emission allows a relatively reflective rocky surface and disfavors a thick Venus-like carbon-dioxide atmosphere. Pale ground follows that possibility. The crater and ridges illustrate geological forms rather than mapped terrain.",
+        "text": "Infrared observations favour a reflective rocky surface or a thin atmosphere. They rule against a thick, Venus-like carbon-dioxide atmosphere. The composition of the exposed rock is still uncertain.",
         "sources": [
           {
             "title": "First JWST thermal phase curves of temperate terrestrial exoplanets reveal no thick atmosphere around TRAPPIST-1 b and c",
@@ -5713,7 +5713,7 @@
         }
       ],
       "landscapeExplanation": {
-        "text": "The measured size and mass are compatible with a rocky world, but its atmosphere and water inventory remain unresolved. This view explores a dry surface. The dusty horizon is illustrative and does not establish that the planet has an atmosphere.",
+        "text": "Its mass and radius are compatible with rock. A dry surface is possible, but so is a world with water if it has a suitable atmosphere. Neither air nor an ocean has been established.",
         "sources": [
           {
             "title": "JWST-TST DREAMS: NIRSpec/PRISM Transmission Spectroscopy of the Habitable Zone Planet TRAPPIST-1 e",
@@ -6004,7 +6004,7 @@
         }
       ],
       "landscapeExplanation": {
-        "text": "Its mass and radius allow a water-rich interior, and climate calculations explore ice with open water on the illuminated side. That motivates the ice-and-ocean scene. An ocean, its shoreline and the blue sky have not been detected.",
+        "text": "Its mass and radius allow a substantial layer of water. Climate models suggest that ice could cover much of an ocean while liquid water remains on the warmer day side. An ocean has not been detected.",
         "sources": [
           {
             "title": "LHS 1140 b is a potentially habitable water world",
@@ -6023,7 +6023,7 @@
       "hook": "Methane above an unresolved interior",
       "intro": "K2-18 b has a hydrogen-rich atmosphere containing methane. Beneath it, a deep ocean is one possibility. Another is a much hotter interior under a thick envelope of gas. We do not yet know whether this planet has a liquid surface at all.",
       "question": "What happened to the claims about life?",
-      "answer": "Some analyses reported possible sulfur-bearing molecules. Independent reanalyses found that the evidence was not robust and that other molecules could explain the features. Methane is a firmer part of the atmospheric picture.",
+      "answer": "Some analyses reported possible sulfur-bearing molecules. Independent reanalyses found that the evidence was not robust and that other molecules could explain the features. Methane has been detected more securely.",
       "interior": "",
       "evidence": "Methane is a strong part of K2-18 b’s atmospheric spectrum. What lies below is much less settled: interior models can allow an ocean or a thick, much hotter fluid envelope. Reports of sulfur-bearing molecules attracted attention because of their possible biological associations. Independent analyses found that the claimed evidence was not robust. The spectra have not established life or an ocean on this planet.",
       "sources": [
@@ -6395,7 +6395,7 @@
         }
       ],
       "landscapeExplanation": {
-        "text": "One interpretation places a liquid ocean below a hydrogen-rich atmosphere. The dark water explores that possibility. Other models fit the observations with hot gas and deep fluid instead, so neither this ocean nor its waves are established.",
+        "text": "A liquid ocean beneath a hydrogen-rich atmosphere is one possible explanation of the observations. Other models allow a much hotter interior with no separate sea surface. The atmosphere’s spectrum does not yet distinguish these possibilities.",
         "sources": [
           {
             "title": "Insufficient evidence for DMS and DMDS in the atmosphere of K2-18 b. From a joint analysis of JWST NIRISS, NIRSpec, and MIRI observations",
@@ -6846,7 +6846,7 @@
         }
       ],
       "landscapeExplanation": {
-        "text": "Infrared images directly reveal four young giant planets around this star. Their own heat motivates the warm-toned globe. The other three worlds are brought together here to show the family; they would not look this large and close from one another.",
+        "text": "Four young giant planets have been directly imaged around this star. They give off infrared light from heat left over after formation. The companions are shown closer together and larger than they would appear from one another.",
         "sources": [
           {
             "title": "JWST-TST High Contrast: Living on the Wedge, or, NIRCam Bar Coronagraphy Reveals CO₂ in the HR 8799 and 51 Eri Exoplanets' Atmospheres",
@@ -7563,7 +7563,7 @@
         }
       ],
       "landscapeExplanation": {
-        "text": "The infrared spectrum shows methane and water, and cloud models allow partial cloud cover. Broad, smooth atmospheric bands keep the view at planetary scale. The pastel colours and exact band pattern are not measured.",
+        "text": "The atmosphere contains methane and water vapour. Its infrared spectrum is consistent with partial cloud cover. The planet’s visible colours and atmospheric bands have not been measured.",
         "sources": [
           {
             "title": "Discovery and spectroscopy of the young Jovian planet 51 Eri b with the Gemini Planet Imager",
@@ -7584,7 +7584,7 @@
       "question": "How do you measure a planet’s spin?",
       "answer": "One side of a rotating planet moves toward us while the other moves away. This broadens molecular lines in its spectrum. Converting the broadening into a period also requires a radius and an assumed viewing angle.",
       "interior": "",
-      "evidence": "A rotating globe sends light toward us from one side and away from us from the other. The resulting Doppler shifts broaden lines in its spectrum. High-resolution observations of Beta Pictoris b measure that broadening in molecular features. A spin period can then be estimated using a radius and a viewing angle. That is why the roughly nine-hour day is an inference with assumptions.",
+      "evidence": "A rotating globe sends light toward us from one side and away from us from the other. The resulting Doppler shifts broaden lines in its spectrum. High-resolution observations of Beta Pictoris b measure that broadening in molecular features. A spin period can then be estimated using a radius and a viewing angle. The estimated nine-hour day depends on the assumed radius and tilt.",
       "sources": [
         {
           "title": "β Pictoris b through the eyes of the upgraded CRIRES+",
@@ -7785,7 +7785,7 @@
       "story": [
         {
           "title": "Measuring the spin of a distant world",
-          "text": "A rotating globe sends light toward us from one side and away from us from the other. The resulting Doppler shifts broaden lines in its spectrum. High-resolution observations of Beta Pictoris b measure that broadening in molecular features. A spin period can then be estimated using a radius and a viewing angle. That is why the roughly nine-hour day is an inference with assumptions.",
+          "text": "A rotating globe sends light toward us from one side and away from us from the other. The resulting Doppler shifts broaden lines in its spectrum. High-resolution observations of Beta Pictoris b measure that broadening in molecular features. A spin period can then be estimated using a radius and a viewing angle. The estimated nine-hour day depends on the assumed radius and tilt.",
           "citation": "β Pictoris b through the eyes of the upgraded CRIRES+",
           "url": "https://arxiv.org/abs/2311.13527"
         }
@@ -7876,7 +7876,7 @@
         }
       ],
       "landscapeExplanation": {
-        "text": "This young giant shines strongly in infrared light from its own heat, and its spectrum contains atmospheric molecules. The warm glow represents that heat. Its stripe pattern and visible-light colour remain illustrative.",
+        "text": "Heat left over from formation keeps this young giant hot, even far from its star. Its infrared spectrum reveals molecules in the atmosphere. Its visible-light colour and cloud patterns remain unknown.",
         "sources": [
           {
             "title": "β Pictoris b through the eyes of the upgraded CRIRES+",
@@ -8067,7 +8067,7 @@
         }
       ],
       "landscapeExplanation": {
-        "text": "Iron vapour is detected on one side of the atmosphere more strongly than the other. Condensation on the cooler side could explain the difference and motivates this dark, hot cloud scene. Falling iron and the precise cloud cover have not been directly observed.",
+        "text": "Astronomers detected more iron vapour on one side of the atmosphere than the other. Iron condensing in cooler regions could explain the difference and might produce rain. Falling droplets have not been observed.",
         "sources": [
           {
             "title": "Ehrenreich et al. (2020) · Nightside condensation of iron in an ultra-hot giant exoplanet",
@@ -8251,7 +8251,7 @@
         }
       ],
       "landscapeExplanation": {
-        "text": "The star’s tides can stretch the planet, and a small distortion is supported by the CHEOPS transit analysis. The elongated globe highlights that result. Its atmospheric bands and colour are imagined.",
+        "text": "The nearby star pulls harder on the planet’s near side than its far side, stretching it. CHEOPS transit measurements support a small distortion. The planet’s atmospheric bands and colour remain unknown.",
         "sources": [
           {
             "title": "Barros et al. (2022) · Detection of the tidal deformation of WASP-103 b with CHEOPS",
@@ -8272,7 +8272,7 @@
       "question": "How hot can a planet become?",
       "answer": "Intense stellar radiation breaks molecular bonds and removes electrons from some atoms. Spectra of KELT-9 b contain neutral and ionised iron, and ionised titanium. These are atmospheric gases.",
       "interior": "",
-      "evidence": "KELT-9 b receives fierce radiation from a star hotter than the Sun. Hoeijmakers and colleagues searched high-resolution transit spectra for the signatures of metals and detected iron and ionised titanium. Such atoms can remain in the gas under these extreme conditions. The spectrum offers a glimpse of an atmosphere where many familiar molecules struggle to survive.",
+      "evidence": "KELT-9 b receives fierce radiation from a star hotter than the Sun. Hoeijmakers and colleagues searched high-resolution transit spectra for the signatures of metals and detected iron and ionised titanium. Such atoms can remain in the gas under these extreme conditions. Many molecules break apart at these temperatures.",
       "sources": [
         {
           "title": "Hoeijmakers et al. (2018) · Atomic iron and titanium in KELT-9 b",
@@ -8386,7 +8386,7 @@
       "story": [
         {
           "title": "When heat breaks molecules apart",
-          "text": "KELT-9 b receives fierce radiation from a star hotter than the Sun. Hoeijmakers and colleagues searched high-resolution transit spectra for the signatures of metals and detected iron and ionised titanium. Such atoms can remain in the gas under these extreme conditions. The spectrum offers a glimpse of an atmosphere where many familiar molecules struggle to survive.",
+          "text": "KELT-9 b receives fierce radiation from a star hotter than the Sun. Hoeijmakers and colleagues searched high-resolution transit spectra for the signatures of metals and detected iron and ionised titanium. Such atoms can remain in the gas under these extreme conditions. Many molecules break apart at these temperatures.",
           "citation": "Hoeijmakers et al. (2018) · Atomic iron and titanium in KELT-9 b",
           "url": "https://arxiv.org/abs/1808.05653"
         }
@@ -8435,7 +8435,7 @@
         }
       ],
       "landscapeExplanation": {
-        "text": "An exceptionally hot star heats the atmosphere enough to break many molecules apart, leaving detectable atoms and ions. The bright, smooth atmospheric limb emphasises that heat. It is not a photograph of visible fire or lava.",
+        "text": "Its extremely hot star heats the atmosphere enough to break many molecules apart. Astronomers have detected iron atoms and ionised titanium in the gas. There is no rocky surface beneath this atmospheric view.",
         "sources": [
           {
             "title": "Hoeijmakers et al. (2018) · Atomic iron and titanium in KELT-9 b",
@@ -8635,7 +8635,7 @@
         }
       ],
       "landscapeExplanation": {
-        "text": "The planet follows a measured, highly elongated orbit and heats rapidly near the star. The drawn path highlights the cause of those changing conditions. The orbit line is a diagram, and the star and planet are enlarged for visibility.",
+        "text": "The planet follows a highly elongated orbit and heats rapidly as it passes close to its star. Spitzer measured this rise in infrared brightness. The orbit is shown as a diagram, with the star and planet enlarged.",
         "sources": [
           {
             "title": "Laughlin et al. (2009) · Rapid heating of an exoplanet atmosphere",
@@ -8854,7 +8854,7 @@
         }
       ],
       "landscapeExplanation": {
-        "text": "Ultraviolet transits reveal a large cloud of escaping hydrogen around the planet. The trailing plume makes that invisible gas visible in the illustration. It would not appear as a bright blue comet tail to human eyes.",
+        "text": "Hydrogen escaping from the atmosphere forms an enormous cloud around the planet. Hubble detected it absorbing ultraviolet starlight. This gas would not look like a bright blue comet tail to human eyes.",
         "sources": [
           {
             "title": "Ehrenreich et al. (2015) · A giant comet-like cloud of hydrogen escaping GJ 436 b",
@@ -8875,7 +8875,7 @@
       "question": "How much water is in the air?",
       "answer": "JWST spectra favour an atmosphere where water makes up a substantial fraction of the gas. This differs from a hydrogen-dominated atmosphere containing only a small amount of water vapour.",
       "interior": "",
-      "evidence": "Water can be a trace ingredient in a hydrogen atmosphere or make up much of the atmosphere itself. Webb’s NIRISS spectrum, combined with Hubble observations, favours the second picture for GJ 9827 d. The analysis finds a high proportion of water vapour. That makes this hot planet a useful test of how small worlds acquire and lose their lighter ingredients.",
+      "evidence": "Water can be a trace ingredient in a hydrogen atmosphere or make up much of the atmosphere itself. Webb’s NIRISS spectrum, combined with Hubble observations, favours a water-rich atmosphere on GJ 9827 d. The analysis finds a high proportion of water vapour.",
       "sources": [
         {
           "title": "JWST/NIRISS reveals the water-rich \"steam world\" atmosphere of GJ 9827 d",
@@ -9039,7 +9039,7 @@
       "story": [
         {
           "title": "Steam around a small planet",
-          "text": "Water can be a trace ingredient in a hydrogen atmosphere or make up much of the atmosphere itself. Webb’s NIRISS spectrum, combined with Hubble observations, favours the second picture for GJ 9827 d. The analysis finds a high proportion of water vapour. That makes this hot planet a useful test of how small worlds acquire and lose their lighter ingredients.",
+          "text": "Water can be a trace ingredient in a hydrogen atmosphere or make up much of the atmosphere itself. Webb’s NIRISS spectrum, combined with Hubble observations, favours a water-rich atmosphere on GJ 9827 d. The analysis finds a high proportion of water vapour.",
           "citation": "JWST/NIRISS reveals the water-rich \"steam world\" atmosphere of GJ 9827 d",
           "url": "https://arxiv.org/abs/2410.03527"
         }
@@ -9171,7 +9171,7 @@
         }
       ],
       "landscapeExplanation": {
-        "text": "JWST spectra support an atmosphere rich in water vapour. This view explores that thick atmosphere. Steam is a gas, so the painted cloud banks are possible aerosols rather than a direct consequence of detecting water.",
+        "text": "Webb spectra favour an atmosphere rich in water vapour. Water vapour itself is invisible; visible clouds would require droplets or particles. An ocean beneath the atmosphere has not been established.",
         "sources": [
           {
             "title": "JWST/NIRISS reveals the water-rich \"steam world\" atmosphere of GJ 9827 d",
@@ -9364,7 +9364,7 @@
         }
       ],
       "landscapeExplanation": {
-        "text": "CHEOPS measured unusually strong reflected light. High-altitude clouds containing reflective mineral particles are a leading explanation, motivating the bright cloud-covered limb. Their individual shapes and exact composition remain uncertain.",
+        "text": "CHEOPS measured an unusually large amount of reflected starlight. High clouds containing reflective mineral particles are a leading explanation. Their exact composition remains uncertain.",
         "sources": [
           {
             "title": "Hoyer et al. (2023) · The extremely high albedo of LTT 9779 b",
@@ -9609,7 +9609,7 @@
         }
       ],
       "landscapeExplanation": {
-        "text": "Methane and carbon dioxide have been detected in its atmosphere. The broad, hazy horizon imagines a view through that gas without adding a detailed cloud deck. Its blue-green colour is not measured.",
+        "text": "Methane and carbon dioxide have been detected in its atmosphere. Deeper down, water could mix with hydrogen under high pressure, or form a separate ocean under suitable conditions. Its visible colour is unknown.",
         "sources": [
           {
             "title": "Benneke et al. (2024) · Methane, carbon dioxide and water in the atmosphere of TOI-270 d",
@@ -9630,7 +9630,7 @@
       "question": "Does orbital order mean matching interiors?",
       "answer": "The outer five planets belong to a resonance chain. Their differing densities show that this orderly arrangement can contain planets with quite different amounts of gas and dense material.",
       "interior": "",
-      "evidence": "Observations with CHEOPS, ground-based telescopes and stellar-velocity measurements revealed six planets around TOI-178. The outer five follow a chain of linked orbital rhythms. Their densities vary much more than that orderly architecture might suggest. Interior models allow different amounts of gas and dense material, giving researchers a way to test how one system produced such varied planets.",
+      "evidence": "Observations with CHEOPS, ground-based telescopes and stellar-velocity measurements revealed six planets around TOI-178. The outer five follow a chain of linked orbital rhythms. Their densities vary much more than that orderly architecture might suggest. Interior models allow different amounts of gas and dense material, consistent with planets of different compositions.",
       "sources": [
         {
           "title": "Six transiting planets and a chain of Laplace resonances in TOI-178",
@@ -10015,7 +10015,7 @@
       "story": [
         {
           "title": "Orderly orbits, surprising densities",
-          "text": "Observations with CHEOPS, ground-based telescopes and stellar-velocity measurements revealed six planets around TOI-178. The outer five follow a chain of linked orbital rhythms. Their densities vary much more than that orderly architecture might suggest. Interior models allow different amounts of gas and dense material, giving researchers a way to test how one system produced such varied planets.",
+          "text": "Observations with CHEOPS, ground-based telescopes and stellar-velocity measurements revealed six planets around TOI-178. The outer five follow a chain of linked orbital rhythms. Their densities vary much more than that orderly architecture might suggest. Interior models allow different amounts of gas and dense material, consistent with planets of different compositions.",
           "citation": "Six transiting planets and a chain of Laplace resonances in TOI-178",
           "url": "https://arxiv.org/abs/2101.09260"
         }
@@ -10385,7 +10385,7 @@
         }
       ],
       "landscapeExplanation": {
-        "text": "Six planets occupy this system, and five have linked orbital rhythms. The lineup highlights that architecture and the planets’ differing sizes. Their colours and cloud patterns are unknown, and the lineup is not their actual spacing.",
+        "text": "Six planets circle this star, and the outer five follow linked orbital rhythms. Their densities vary sharply despite this regular pattern. The lineup shows the family, not their actual spacing.",
         "sources": [
           {
             "title": "Six transiting planets and a chain of Laplace resonances in TOI-178",
@@ -10406,7 +10406,7 @@
       "question": null,
       "answer": "",
       "interior": "",
-      "evidence": "Kepler’s repeated transit dips revealed a small planet with a year shorter than a day. Measurements of the star’s motion supplied a mass, making a rocky composition plausible. Later observations refined the system and revealed a more complicated family of outer companions. The short orbit makes b an extreme case for studying what happens to rock under sustained stellar heating.",
+      "evidence": "Kepler’s repeated transit dips revealed a small planet with a year shorter than a day. Measurements of the star’s motion supplied a mass, making a rocky composition plausible. Later observations refined the system and revealed a more complicated family of outer companions. Its surface receives intense starlight throughout each orbit.",
       "sources": [
         {
           "title": "In-depth characterization of the Kepler-10 three-planet system with HARPS-N radial velocities and Kepler transit timing variations",
@@ -10550,7 +10550,7 @@
       "story": [
         {
           "title": "A small shadow and a stellar wobble",
-          "text": "Kepler’s repeated transit dips revealed a small planet with a year shorter than a day. Measurements of the star’s motion supplied a mass, making a rocky composition plausible. Later observations refined the system and revealed a more complicated family of outer companions. The short orbit makes b an extreme case for studying what happens to rock under sustained stellar heating.",
+          "text": "Kepler’s repeated transit dips revealed a small planet with a year shorter than a day. Measurements of the star’s motion supplied a mass, making a rocky composition plausible. Later observations refined the system and revealed a more complicated family of outer companions. Its surface receives intense starlight throughout each orbit.",
           "citation": "In-depth characterization of the Kepler-10 three-planet system with HARPS-N radial velocities and Kepler transit timing variations",
           "url": "https://arxiv.org/abs/2502.07996"
         }
@@ -10656,7 +10656,7 @@
         }
       ],
       "landscapeExplanation": {
-        "text": "A rocky composition and intense starlight make a molten dayside plausible. The glowing cracks explore partly molten ground. Neither the positions of lava flows nor the fraction of the surface that is molten has been measured.",
+        "text": "Intense starlight could melt the day-side surface of this rocky planet. Its mass and radius favour a body dominated by silicate rock. How much of the surface is molten remains unknown.",
         "sources": [
           {
             "title": "In-depth characterization of the Kepler-10 three-planet system with HARPS-N radial velocities and Kepler transit timing variations",
@@ -10991,7 +10991,7 @@
         }
       ],
       "landscapeExplanation": {
-        "text": "The measured density supports a rocky planet, while its close neighbour is much less dense. The ground and neighbouring globe illustrate that contrast. Its cliffs and craters are imagined, and the companion is not a discovered moon.",
+        "text": "This dense rocky planet has a much larger, less dense neighbour on the next orbit out. Their orbital distances differ by only about ten percent. The nearby world is planet c, not a moon.",
         "sources": [
           {
             "title": "Kepler-36: A Pair of Planets with Neighboring Orbits and Dissimilar Densities",
@@ -11008,11 +11008,11 @@
       "order": 31,
       "kind": "Neptune-like",
       "hook": "A large neighbour on a close orbit",
-      "intro": "Kepler-36 c carries a substantial envelope of gas around a denser interior. Its neighbour b is much smaller and rockier, despite travelling on an orbit just inside its own. Their close approaches make this a striking pair.",
+      "intro": "Kepler-36 c carries a substantial envelope of gas around a denser interior. Its neighbour b is much smaller and rockier, despite travelling on an orbit just inside its own.",
       "question": "How close is the neighbouring orbit?",
       "answer": "The discovery study found orbital distances differing by only about ten percent. Transit timing measures their mutual gravitational pulls and helps establish their very different densities.",
       "interior": "",
-      "evidence": "Kepler-36 c is much less dense than b, even though their orbital distances differ by only about ten percent. Their mutual gravitational pull changes when each planet crosses the star. Modelling those timing shifts established the density contrast. The pair helps researchers explore how initial growth and later gas loss can separate the histories of neighbouring planets.",
+      "evidence": "Kepler-36 c is much less dense than b, even though their orbital distances differ by only about ten percent. Their mutual gravitational pull changes when each planet crosses the star. Modelling those timing shifts established the density contrast. Models suggest that c retained a gas envelope while b lost most of its gas.",
       "sources": [
         {
           "title": "Kepler-36: A Pair of Planets with Neighboring Orbits and Dissimilar Densities",
@@ -11178,7 +11178,7 @@
       "story": [
         {
           "title": "The neighbour that kept its gas",
-          "text": "Kepler-36 c is much less dense than b, even though their orbital distances differ by only about ten percent. Their mutual gravitational pull changes when each planet crosses the star. Modelling those timing shifts established the density contrast. The pair helps researchers explore how initial growth and later gas loss can separate the histories of neighbouring planets.",
+          "text": "Kepler-36 c is much less dense than b, even though their orbital distances differ by only about ten percent. Their mutual gravitational pull changes when each planet crosses the star. Modelling those timing shifts established the density contrast. Models suggest that c retained a gas envelope while b lost most of its gas.",
           "citation": "Kepler-36: A Pair of Planets with Neighboring Orbits and Dissimilar Densities",
           "url": "https://arxiv.org/abs/1206.4718"
         }
@@ -11243,7 +11243,7 @@
       "layers": [
         {
           "name": "Atmosphere",
-          "text": "Kepler-36 c carries a substantial envelope of gas around a denser interior. Its neighbour b is much smaller and rockier, despite travelling on an orbit just inside its own. Their close approaches make this a striking pair.",
+          "text": "Kepler-36 c carries a substantial envelope of gas around a denser interior. Its neighbour b is much smaller and rockier, despite travelling on an orbit just inside its own.",
           "colour": "#82a4ac",
           "source": {
             "title": "Kepler-36: A Pair of Planets with Neighboring Orbits and Dissimilar Densities",
@@ -11330,7 +11330,7 @@
         }
       ],
       "landscapeExplanation": {
-        "text": "Its low density points to a substantial light envelope, unlike the dense inner planet b. The two different-looking globes highlight that contrast. Their colours and atmospheric patterns are illustrative rather than observed.",
+        "text": "A substantial gas envelope makes planet c larger and less dense than its rocky neighbour b. Models suggest that its more massive dense interior helped it retain gas that b lost.",
         "sources": [
           {
             "title": "Kepler-36: A Pair of Planets with Neighboring Orbits and Dissimilar Densities",
@@ -11679,7 +11679,7 @@
         }
       ],
       "landscapeExplanation": {
-        "text": "Transit depths give a large apparent radius while timing measurements give a very small mass. A diffuse-looking globe reflects that low density. High-altitude aerosols are possible, but these colours and bands are not a measured cloud map.",
+        "text": "Transit measurements reveal a huge planet, while gravitational timing measurements give a very small mass. An extended gas envelope accounts for its low density. High-altitude particles could also increase its apparent size.",
         "sources": [
           {
             "title": "A Fourth Planet in the Kepler-51 System Revealed by Transit Timing Variations",
@@ -11698,7 +11698,7 @@
       "hook": "Water may fill much of its interior",
       "intro": "Kepler-138 d could contain a deep layer of water above its rocky interior. Its small size overlaps with rocky planets, but its density suggests a lighter composition. High pressure would make its deep water very different from an Earth ocean.",
       "question": "Could a small planet contain that much water?",
-      "answer": "Models of the measured mass and radius allow water to occupy a large part of the planet’s volume. Kepler-138 c has similar inferred properties. These are interior constraints, not pictures of oceans.",
+      "answer": "Models of the measured mass and radius allow water to occupy a large part of the planet’s volume. Kepler-138 c has similar inferred properties. An ocean surface has not been detected.",
       "interior": "",
       "evidence": "Piaulet and colleagues combined Hubble and Spitzer transits, stellar velocities and changes in transit timing to constrain Kepler-138 d. Its mass and radius fit a planet with a substantial layer of water above rock and metal. In their model, water occupies about half the volume. Its deep water would experience pressures far beyond an Earth ocean, and an exposed liquid surface is not established.",
       "sources": [
@@ -11938,7 +11938,7 @@
         }
       ],
       "landscapeExplanation": {
-        "text": "A detailed mass-and-radius study supports a thick water-rich layer above rock. The dark ocean explores a liquid upper boundary beneath an atmosphere. A deep hot fluid without an Earth-like sea surface is also possible, and waves have not been observed.",
+        "text": "Its mass and radius fit a thick layer of water above rock and metal. The upper water could form an ocean beneath an atmosphere. A hot, dense fluid without an Earth-like sea surface is also possible.",
         "sources": [
           {
             "title": "Evidence for the volatile-rich composition of a 1.5-Earth-radius planet",
@@ -12105,7 +12105,7 @@
         }
       ],
       "landscapeExplanation": {
-        "text": "Its measured size lies between the Moon and Mercury, making a small rocky body plausible. Cratered terrain is an analogy with those worlds. Its surface composition, crater distribution and exact colour are unknown.",
+        "text": "This planet is between the Moon and Mercury in size. A rocky, cratered surface is plausible by comparison with those worlds, but its surface composition and geology remain unknown.",
         "sources": [
           {
             "title": "Barclay et al. 2013",
@@ -12126,7 +12126,7 @@
       "question": null,
       "answer": "",
       "interior": "",
-      "evidence": "K2-141 b’s short orbit subjects its day side to intense heating. Optical and infrared phase observations can be compared with models of bare rock and a thin atmosphere supplied by a magma ocean. Rock vapour could move away from the hottest region and condense elsewhere. The observations motivate this possibility without mapping individual lava flows or a weather pattern.",
+      "evidence": "K2-141 b’s short orbit subjects its day side to intense heating. Optical and infrared phase observations can be compared with models of bare rock and a thin atmosphere supplied by a magma ocean. Rock vapour could move away from the hottest region and condense elsewhere. The lava flows and atmospheric circulation have not been mapped.",
       "sources": [
         {
           "title": "K2 and Spitzer phase curves of the rocky ultra-short-period planet K2-141 b hint at a tenuous rock vapor atmosphere",
@@ -12263,7 +12263,7 @@
       "story": [
         {
           "title": "A possible cycle of vaporised rock",
-          "text": "K2-141 b’s short orbit subjects its day side to intense heating. Optical and infrared phase observations can be compared with models of bare rock and a thin atmosphere supplied by a magma ocean. Rock vapour could move away from the hottest region and condense elsewhere. The observations motivate this possibility without mapping individual lava flows or a weather pattern.",
+          "text": "K2-141 b’s short orbit subjects its day side to intense heating. Optical and infrared phase observations can be compared with models of bare rock and a thin atmosphere supplied by a magma ocean. Rock vapour could move away from the hottest region and condense elsewhere. The lava flows and atmospheric circulation have not been mapped.",
           "citation": "K2 and Spitzer phase curves of the rocky ultra-short-period planet K2-141 b hint at a tenuous rock vapor atmosphere",
           "url": "https://arxiv.org/abs/2203.00370"
         }
@@ -12341,7 +12341,7 @@
         }
       ],
       "landscapeExplanation": {
-        "text": "The permanent dayside is hot enough for molten rock, and models couple a magma ocean to a thin rock-vapour atmosphere. The lava field explores that setting. Individual cliffs, channels and volcanic vents are not resolved.",
+        "text": "The day side is hot enough for a magma ocean. Vaporised rock could form a thin atmosphere, move toward cooler regions and condense there. The extent and depth of the molten rock depend on the model.",
         "sources": [
           {
             "title": "K2 and Spitzer phase curves of the rocky ultra-short-period planet K2-141 b hint at a tenuous rock vapor atmosphere",
@@ -12996,7 +12996,7 @@
         }
       ],
       "landscapeExplanation": {
-        "text": "The measured low density suggests a light atmosphere around a denser interior. The smooth globe represents that gas-covered world. No detailed spectrum yet establishes these particular bands or the blue colour.",
+        "text": "Its low density suggests gas surrounding a denser interior. The atmosphere’s composition, cloud cover and visible colour have not been established.",
         "sources": [
           {
             "title": "A resonant sextuplet of sub-Neptunes transiting the bright star HD 110067",
@@ -13013,11 +13013,11 @@
       "order": 37,
       "kind": "Neptune-like",
       "hook": "A young world around an active star",
-      "intro": "A year on AU Mic b lasts 8.5 days. It is about 4.8 times as wide as Earth. Its young red-dwarf star produces flares and strong magnetic activity. Such outbursts change the radiation reaching the planet’s atmosphere. The planets are still early in their evolution.",
+      "intro": "A year on AU Mic b lasts 8.5 days. It is about 4.8 times as wide as Earth. Its young red-dwarf star produces flares and strong magnetic activity. Such outbursts change the radiation reaching the planet’s atmosphere.",
       "question": "What does a stellar flare change?",
       "answer": "Flares increase energetic radiation from the star. That can change upper-atmosphere chemistry and escape. AU Mic’s observed activity is part of the environment its planets experience.",
       "interior": "",
-      "evidence": "AU Mic b crosses a young red-dwarf star surrounded by a debris disc. Plavchan and colleagues used TESS transits and follow-up observations to establish the planet. Stellar spots and flares complicate measurements while also shaping the radiation reaching the atmosphere. This system lets astronomers study planets early in their evolution.",
+      "evidence": "AU Mic b crosses a young red-dwarf star surrounded by a debris disc. Plavchan and colleagues used TESS transits and follow-up observations to establish the planet. Stellar spots and flares complicate measurements while also shaping the radiation reaching the atmosphere.",
       "sources": [
         {
           "title": "Broadband 12-26 GHz Radio Radiation Reveals Evidence for Micro-flares on AU Mic",
@@ -13141,7 +13141,7 @@
       "story": [
         {
           "title": "Growing up around an active star",
-          "text": "AU Mic b crosses a young red-dwarf star surrounded by a debris disc. Plavchan and colleagues used TESS transits and follow-up observations to establish the planet. Stellar spots and flares complicate measurements while also shaping the radiation reaching the atmosphere. This system lets astronomers study planets early in their evolution.",
+          "text": "AU Mic b crosses a young red-dwarf star surrounded by a debris disc. Plavchan and colleagues used TESS transits and follow-up observations to establish the planet. Stellar spots and flares complicate measurements while also shaping the radiation reaching the atmosphere.",
           "citation": "Plavchan et al. 2020",
           "url": "https://ui.adsabs.harvard.edu/abs/2020Natur.582..497P/abstract"
         }
@@ -13165,7 +13165,7 @@
       "layers": [
         {
           "name": "Atmosphere",
-          "text": "A year on AU Mic b lasts 8.5 days. It is about 4.8 times as wide as Earth. Its young red-dwarf star produces flares and strong magnetic activity. Such outbursts change the radiation reaching the planet’s atmosphere. The planets are still early in their evolution.",
+          "text": "A year on AU Mic b lasts 8.5 days. It is about 4.8 times as wide as Earth. Its young red-dwarf star produces flares and strong magnetic activity. Such outbursts change the radiation reaching the planet’s atmosphere.",
           "colour": "#82a4ac",
           "source": {
             "title": "Broadband 12-26 GHz Radio Radiation Reveals Evidence for Micro-flares on AU Mic",
@@ -13211,7 +13211,7 @@
         }
       ],
       "landscapeExplanation": {
-        "text": "Its young star is active and produces powerful flares, while the planet retains an extended atmosphere. The scene pairs those two observed properties. The prominence, planet colour and apparent separation are illustrative.",
+        "text": "The young star produces powerful flares that expose the planet’s extended atmosphere to bursts of energetic radiation. This can alter the gases and help drive atmospheric escape. The star–planet separation is not to scale.",
         "sources": [
           {
             "title": "Plavchan et al. 2020",
@@ -13232,7 +13232,7 @@
       "question": null,
       "answer": "",
       "interior": "",
-      "evidence": "ALMA detected compact dust emission around PDS 70 c, separate from the much larger disc surrounding its star. Benisty and colleagues interpreted it as a circumplanetary disc, the kind of environment that could supply material for moons. Infrared observations follow the young planet and its orbit. Seeing this system now offers a glimpse of planet building while it is still under way.",
+      "evidence": "ALMA detected compact dust emission around PDS 70 c, separate from the much larger disc surrounding its star. Benisty and colleagues interpreted it as a circumplanetary disc, the kind of environment that could supply material for moons. Infrared observations follow the young planet and its orbit.",
       "sources": [
         {
           "url": "https://arxiv.org/abs/2108.07123",
@@ -13351,7 +13351,7 @@
       "story": [
         {
           "title": "A disc around a growing planet",
-          "text": "ALMA detected compact dust emission around PDS 70 c, separate from the much larger disc surrounding its star. Benisty and colleagues interpreted it as a circumplanetary disc, the kind of environment that could supply material for moons. Infrared observations follow the young planet and its orbit. Seeing this system now offers a glimpse of planet building while it is still under way.",
+          "text": "ALMA detected compact dust emission around PDS 70 c, separate from the much larger disc surrounding its star. Benisty and colleagues interpreted it as a circumplanetary disc, the kind of environment that could supply material for moons. Infrared observations follow the young planet and its orbit.",
           "citation": "Benisty et al. (2021) · A circumplanetary disk around PDS 70 c",
           "url": "https://arxiv.org/abs/2108.07123"
         }
@@ -13394,7 +13394,7 @@
         }
       ],
       "landscapeExplanation": {
-        "text": "ALMA resolves a compact dust disk around this growing planet, a potential reservoir for forming moons. The surrounding disk is therefore the main feature of the scene. Its orange glow and fine ring structure are artistic choices, and no moons are confirmed.",
+        "text": "ALMA resolved a compact dust disk around this growing planet. It could supply material for moons, although none have been confirmed. The disk’s fine ring structure has not been resolved.",
         "sources": [
           {
             "title": "Benisty et al. (2021) · A circumplanetary disk around PDS 70 c",
@@ -13710,7 +13710,7 @@
         }
       ],
       "landscapeExplanation": {
-        "text": "Its short orbit places a gas giant close to a Sun-like star. The atmospheric horizon imagines that hot setting. The planet does not transit, so even its radius is uncertain, and no observation establishes the orange bands.",
+        "text": "This hot giant circles a Sun-like star in just over four days. Spectra reveal gases in its atmosphere, but its clouds and visible colour remain unknown. Because it does not transit, its radius is also uncertain.",
         "sources": [
           {
             "title": "Mayor & Queloz 1995",
@@ -13731,7 +13731,7 @@
       "question": null,
       "answer": "",
       "interior": "",
-      "evidence": "Proxima Centauri’s small, repeating velocity changes revealed a planet on an eleven-day orbit. That wobble gives a minimum mass because the orbit’s tilt is uncertain. The planet receives a level of starlight compatible with liquid water under suitable atmospheric conditions, but its atmosphere and radius have not been measured. Its proximity makes those unanswered questions especially compelling.",
+      "evidence": "Proxima Centauri’s small, repeating velocity changes revealed a planet on an eleven-day orbit. That wobble gives a minimum mass because the orbit’s tilt is uncertain. The planet receives a level of starlight compatible with liquid water under suitable atmospheric conditions, but its atmosphere and radius have not been measured.",
       "sources": [
         {
           "title": "Calculated Value",
@@ -13843,7 +13843,7 @@
       "story": [
         {
           "title": "A world around the nearest star",
-          "text": "Proxima Centauri’s small, repeating velocity changes revealed a planet on an eleven-day orbit. That wobble gives a minimum mass because the orbit’s tilt is uncertain. The planet receives a level of starlight compatible with liquid water under suitable atmospheric conditions, but its atmosphere and radius have not been measured. Its proximity makes those unanswered questions especially compelling.",
+          "text": "Proxima Centauri’s small, repeating velocity changes revealed a planet on an eleven-day orbit. That wobble gives a minimum mass because the orbit’s tilt is uncertain. The planet receives a level of starlight compatible with liquid water under suitable atmospheric conditions, but its atmosphere and radius have not been measured.",
           "citation": "Anglada-Escudé et al. 2016",
           "url": "https://ui.adsabs.harvard.edu/abs/2016Natur.536..437A/abstract"
         }
@@ -13885,7 +13885,7 @@
         }
       ],
       "landscapeExplanation": {
-        "text": "The radial-velocity signal establishes a low-mass planet around our nearest stellar neighbour. A rocky world is plausible, motivating this rough surface. Its radius, atmosphere and water content are unknown, so a dry landscape is only one possibility.",
+        "text": "The nearest star to the Sun hosts this low-mass planet. A rocky surface is plausible, but its radius, atmosphere and water content remain unknown. A dry world is one possibility.",
         "sources": [
           {
             "title": "Anglada-Escudé et al. 2016",
@@ -13922,7 +13922,7 @@
       "omitted": [],
       "binary": false,
       "stars": 2,
-      "description": "HD 189733 b is the only confirmed planet listed around its host. A distant red-dwarf companion makes the star part of a binary system.",
+      "description": "HD 189733 b is the only confirmed planet currently known in this system. A distant red-dwarf companion makes the star part of a binary system.",
       "descriptionSources": [
         {
           "title": "Stassun et al. 2017",
@@ -13956,8 +13956,12 @@
       "omitted": [],
       "binary": false,
       "stars": 1,
-      "description": "The cited catalogue lists one confirmed planet around HD 209458: HD 209458 b. No additional confirmed planets are included in that record.",
+      "description": "HD 209458 b is the only confirmed planet currently known in this system.",
       "descriptionSources": [
+        {
+          "title": "NASA Exoplanet Archive · HD 209458 b",
+          "url": "https://exoplanetarchive.ipac.caltech.edu/overview/HD%20209458%20b"
+        },
         {
           "title": "Stassun et al. 2017",
           "url": "https://ui.adsabs.harvard.edu/abs/2017AJ....153..136S/abstract"
@@ -13990,8 +13994,12 @@
       "omitted": [],
       "binary": false,
       "stars": 1,
-      "description": "The cited catalogue lists one confirmed planet around WASP-39: WASP-39 b. No additional confirmed planets are included in that record.",
+      "description": "WASP-39 b is the only confirmed planet currently known in this system.",
       "descriptionSources": [
+        {
+          "title": "NASA Exoplanet Archive · WASP-39 b",
+          "url": "https://exoplanetarchive.ipac.caltech.edu/overview/WASP-39%20b"
+        },
         {
           "title": "Mancini et al. 2018",
           "url": "https://ui.adsabs.harvard.edu/abs/2018A&A...613A..41M/abstract"
@@ -14052,7 +14060,7 @@
       "omitted": [],
       "binary": false,
       "stars": 1,
-      "description": "The outer planet WASP-107 c was found through the star’s radial velocity. It is much farther out than b, with an orbit lasting about three years. The pair offers clues to how the inner planet reached its present orbit.",
+      "description": "The outer planet WASP-107 c was found through the star’s radial velocity. It is much farther out than b, with an orbit lasting about three years.",
       "descriptionSources": [
         {
           "title": "Yee & Vissapragada 2026",
@@ -14090,8 +14098,12 @@
       "omitted": [],
       "binary": false,
       "stars": 1,
-      "description": "The cited catalogue lists one confirmed planet around WASP-43: WASP-43 b. No additional confirmed planets are included in that record.",
+      "description": "WASP-43 b is the only confirmed planet currently known in this system.",
       "descriptionSources": [
+        {
+          "title": "NASA Exoplanet Archive · WASP-43 b",
+          "url": "https://exoplanetarchive.ipac.caltech.edu/overview/WASP-43%20b"
+        },
         {
           "title": "Hellier et al. 2011",
           "url": "https://ui.adsabs.harvard.edu/abs/2011arXiv1104.2823H/abstract"
@@ -14124,8 +14136,12 @@
       "omitted": [],
       "binary": false,
       "stars": 1,
-      "description": "The cited catalogue lists one confirmed planet around WASP-121: WASP-121 b. No additional confirmed planets are included in that record.",
+      "description": "WASP-121 b is the only confirmed planet currently known in this system.",
       "descriptionSources": [
+        {
+          "title": "NASA Exoplanet Archive · WASP-121 b",
+          "url": "https://exoplanetarchive.ipac.caltech.edu/overview/WASP-121%20b"
+        },
         {
           "title": "Sing et al. 2024",
           "url": "https://ui.adsabs.harvard.edu/abs/2024AJ....168..231S/abstract"
@@ -14162,8 +14178,12 @@
       "omitted": [],
       "binary": false,
       "stars": 1,
-      "description": "The cited catalogue lists one confirmed planet around WASP-17: WASP-17 b. No additional confirmed planets are included in that record.",
+      "description": "WASP-17 b is the only confirmed planet currently known in this system.",
       "descriptionSources": [
+        {
+          "title": "NASA Exoplanet Archive · WASP-17 b",
+          "url": "https://exoplanetarchive.ipac.caltech.edu/overview/WASP-17%20b"
+        },
         {
           "title": "Stassun et al. 2017",
           "url": "https://ui.adsabs.harvard.edu/abs/2017AJ....153..136S/abstract"
@@ -14196,8 +14216,12 @@
       "omitted": [],
       "binary": false,
       "stars": 1,
-      "description": "The cited catalogue lists one confirmed planet around GJ 1214: GJ 1214 b. No additional confirmed planets are included in that record.",
+      "description": "GJ 1214 b is the only confirmed planet currently known in this system.",
       "descriptionSources": [
+        {
+          "title": "NASA Exoplanet Archive · GJ 1214 b",
+          "url": "https://exoplanetarchive.ipac.caltech.edu/overview/GJ%201214%20b"
+        },
         {
           "title": "Mahajan et al. 2024",
           "url": "https://ui.adsabs.harvard.edu/abs/2024ApJ...963L..37M/abstract"
@@ -14230,8 +14254,12 @@
       "omitted": [],
       "binary": false,
       "stars": 1,
-      "description": "The cited catalogue lists one confirmed planet around LHS 3844: LHS 3844 b. No additional confirmed planets are included in that record.",
+      "description": "LHS 3844 b is the only confirmed planet currently known in this system.",
       "descriptionSources": [
+        {
+          "title": "NASA Exoplanet Archive · LHS 3844 b",
+          "url": "https://exoplanetarchive.ipac.caltech.edu/overview/LHS%203844%20b"
+        },
         {
           "title": "Nagel et al. 2026",
           "url": "https://ui.adsabs.harvard.edu/abs/2026A&A...710A.311N/abstract"
@@ -14324,7 +14352,7 @@
       "omitted": [],
       "binary": false,
       "stars": 1,
-      "description": "Three larger planets orbit beyond the innermost lava world: c, d and e. Their masses and radii allow light envelopes, unlike the compact inner planet. The discovery and follow-up measurements show how differently planets around the same old star can evolve.",
+      "description": "Three larger planets orbit beyond the innermost lava world: c, d and e. Their masses and radii allow light envelopes, unlike the compact inner planet.",
       "descriptionSources": [
         {
           "title": "Piotto et al. 2024",
@@ -14369,7 +14397,7 @@
           "url": "https://arxiv.org/abs/1109.3432"
         }
       },
-      "description": "Planet b orbits both stars together. The stars eclipse each other, and the planet crosses each of them, allowing unusually direct measurements of their sizes and masses. No second planet is confirmed in the cited catalogue.",
+      "description": "Planet b orbits both stars together. The stars eclipse each other, and the planet crosses each of them, allowing unusually direct measurements of their sizes and masses. No second planet is currently confirmed.",
       "descriptionSources": [
         {
           "title": "Doyle et al. 2011",
@@ -14577,7 +14605,7 @@
       "omitted": [],
       "binary": false,
       "stars": 1,
-      "description": "The inner planet c has a much shorter year than b and receives more starlight. Comparing these two small transiting planets helps separate the effects of composition and heating. Planet b is the cooler, larger world and the stronger water-world candidate.",
+      "description": "The inner planet c has a much shorter year than b and receives more starlight. Planet b is the cooler, larger world and the stronger water-world candidate.",
       "descriptionSources": [
         {
           "title": "Cadieux et al. 2024",
@@ -14631,7 +14659,7 @@
       "omitted": [],
       "binary": false,
       "stars": 1,
-      "description": "The inner companion c is detected through radial velocities and has an orbit of about nine days. Planet b transits every 33 days, allowing its size and atmospheric spectrum to be measured. The two worlds therefore have very different observational constraints.",
+      "description": "The inner companion c is detected through radial velocities and has an orbit of about nine days. Planet b transits every 33 days, allowing its size and atmospheric spectrum to be measured.",
       "descriptionSources": [
         {
           "title": "Cloutier et al. 2017",
@@ -14871,8 +14899,12 @@
       "omitted": [],
       "binary": false,
       "stars": 2,
-      "description": "The cited catalogue lists one confirmed planet around WASP-76: WASP-76 b. No additional confirmed planets are included in that record.",
+      "description": "WASP-76 b is the only confirmed planet currently known in this system.",
       "descriptionSources": [
+        {
+          "title": "NASA Exoplanet Archive · WASP-76 b",
+          "url": "https://exoplanetarchive.ipac.caltech.edu/overview/WASP-76%20b"
+        },
         {
           "title": "Ehrenreich et al. 2020",
           "url": "https://ui.adsabs.harvard.edu/abs/2020Natur.580..597E/abstract"
@@ -14905,8 +14937,12 @@
       "omitted": [],
       "binary": false,
       "stars": 1,
-      "description": "The cited catalogue lists one confirmed planet around WASP-103: WASP-103 b. No additional confirmed planets are included in that record.",
+      "description": "WASP-103 b is the only confirmed planet currently known in this system.",
       "descriptionSources": [
+        {
+          "title": "NASA Exoplanet Archive · WASP-103 b",
+          "url": "https://exoplanetarchive.ipac.caltech.edu/overview/WASP-103%20b"
+        },
         {
           "title": "Gillon et al. 2014",
           "url": "https://ui.adsabs.harvard.edu/abs/2014A%26A...562L...3G/abstract"
@@ -14939,8 +14975,12 @@
       "omitted": [],
       "binary": false,
       "stars": 2,
-      "description": "The cited catalogue lists one confirmed planet around KELT-9: KELT-9 b. No additional confirmed planets are included in that record.",
+      "description": "KELT-9 b is the only confirmed planet currently known in this system.",
       "descriptionSources": [
+        {
+          "title": "NASA Exoplanet Archive · KELT-9 b",
+          "url": "https://exoplanetarchive.ipac.caltech.edu/overview/KELT-9%20b"
+        },
         {
           "title": "Borsa et al. 2019",
           "url": "https://ui.adsabs.harvard.edu/abs/2019A&A...631A..34B/abstract"
@@ -15007,8 +15047,12 @@
       "omitted": [],
       "binary": false,
       "stars": 1,
-      "description": "The cited catalogue lists one confirmed planet around GJ 436: GJ 436 b. No additional confirmed planets are included in that record.",
+      "description": "GJ 436 b is the only confirmed planet currently known in this system.",
       "descriptionSources": [
+        {
+          "title": "NASA Exoplanet Archive · GJ 436 b",
+          "url": "https://exoplanetarchive.ipac.caltech.edu/overview/GJ%20436%20b"
+        },
         {
           "title": "Maciejewski et al. 2014",
           "url": "https://ui.adsabs.harvard.edu/abs/2014AcA....64..323M/abstract"
@@ -15081,7 +15125,7 @@
       "omitted": [],
       "binary": false,
       "stars": 1,
-      "description": "The three transiting planets span a useful contrast: b and c have densities compatible with rocky compositions, while d is larger and less dense. Webb’s steam detection on d adds atmospheric evidence to that mass-and-radius comparison.",
+      "description": "Of the three transiting planets, b and c have densities compatible with rocky compositions, while d is larger and less dense. Webb’s steam detection on d adds atmospheric evidence to that mass-and-radius comparison.",
       "descriptionSources": [
         {
           "title": "Passegger et al. 2024",
@@ -15119,8 +15163,12 @@
       "omitted": [],
       "binary": false,
       "stars": 1,
-      "description": "The cited catalogue lists one confirmed planet around LTT 9779: LTT 9779 b. No additional confirmed planets are included in that record.",
+      "description": "LTT 9779 b is the only confirmed planet currently known in this system.",
       "descriptionSources": [
+        {
+          "title": "NASA Exoplanet Archive · LTT 9779 b",
+          "url": "https://exoplanetarchive.ipac.caltech.edu/overview/LTT%209779%20b"
+        },
         {
           "title": "Jenkins et al. 2020",
           "url": "https://ui.adsabs.harvard.edu/abs/2020NatAs...4.1148J/abstract"
@@ -15193,7 +15241,7 @@
       "omitted": [],
       "binary": false,
       "stars": 1,
-      "description": "The compact inner planet b is smaller than c and d. Those two outer planets are sub-Neptunes, with room for light envelopes. They share the same star, making the system useful for comparing atmospheric retention across planet sizes.",
+      "description": "The compact inner planet b is smaller than c and d. Those two outer planets are sub-Neptunes, with room for light envelopes.",
       "descriptionSources": [
         {
           "title": "Kaye et al. 2022",
@@ -15803,7 +15851,7 @@
       "omitted": [],
       "binary": false,
       "stars": 1,
-      "description": "The tiny-orbit lava world b has a larger, Neptune-sized companion c farther out. Their very different exposure to starlight makes this pair useful for studying which planets lose their atmospheres.",
+      "description": "The tiny-orbit lava world b has a larger, Neptune-sized companion c farther out. Planet c receives much less starlight than b.",
       "descriptionSources": [
         {
           "title": "Bonomo et al. 2023",
@@ -16135,8 +16183,12 @@
       "omitted": [],
       "binary": false,
       "stars": 1,
-      "description": "The cited catalogue lists one confirmed planet around 51 Peg: 51 Peg b. No additional confirmed planets are included in that record.",
+      "description": "51 Peg b is the only confirmed planet currently known in this system.",
       "descriptionSources": [
+        {
+          "title": "NASA Exoplanet Archive · 51 Peg b",
+          "url": "https://exoplanetarchive.ipac.caltech.edu/overview/51%20Peg%20b"
+        },
         {
           "title": "Cont et al. 2026",
           "url": "https://ui.adsabs.harvard.edu/abs/2026A&A...710A.345C/abstract"
