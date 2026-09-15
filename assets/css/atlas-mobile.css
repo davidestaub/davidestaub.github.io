@@ -1,0 +1,92 @@
+/* Phone and small-tablet layout; desktop rules stay in the existing stylesheets. */
+@media (max-width: 800px) {
+ .site-nav{padding:16px;gap:12px;font-size:11px}
+ .site-nav div{gap:16px}
+ .terminal{width:calc(100% - 16px);margin:6px auto 24px;padding:12px 14px 24px;border-radius:24px;min-width:0}
+ .handle{display:none}
+ .console{grid-template-columns:minmax(0,1fr);gap:12px}
+ .nameplate{padding:12px 14px}
+ .nameplate h1{font-size:16px;letter-spacing:1.5px;line-height:1.5}
+ .nameplate h1 br{display:none}
+ .nameplate hr{display:none}
+ .filters{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px 8px;padding:14px 8px}
+ .filter{padding:0;min-width:0}
+ .filter:nth-child(4),.filter:nth-child(5){grid-column:auto;border-top:0}
+ .filter-title{font-size:11px;line-height:1.4;letter-spacing:0;margin:0 0 4px}
+ .dial-wrap{width:128px;max-width:100%;height:124px}
+ .dial{width:76px;height:76px;top:24px;left:50%;margin-left:-38px;border-width:5px}
+ .dial:after{top:7px;height:20px;width:4px;left:calc(50% - 2px);transform-origin:50% 26px}
+ .tick-ring{display:none}
+ .dial-tick{width:24px;height:24px;left:calc(50% - 12px);top:50px;transform:rotate(var(--tick)) translateY(-51px)}
+ .dial-tick span{height:8px;width:3px}
+ .dial-end{top:108px;font-size:9px;line-height:14px}
+ .dial-end.start{left:2px}.dial-end.end{right:2px}
+ .filter output{font-size:12px;line-height:1.45;min-height:35px;padding:4px 2px;overflow-wrap:anywhere}
+ .serial{grid-column:1;flex-direction:row;gap:12px;padding:10px 12px;text-align:left;min-width:0}
+ .serial p{display:block;font-size:9px;letter-spacing:.4px}
+ .serial .button{flex-shrink:0;min-height:44px;font-size:11px}
+ .display{padding:18px 12px;border-radius:16px;min-height:0;min-width:0}
+ .display-header{gap:10px;margin-bottom:16px;flex-wrap:wrap}
+ .display-header h2{font-size:17px}.counter{font-size:10px}
+ .searchbox{min-height:46px;padding:8px 10px}
+ .searchbox input{min-width:0;font-size:16px}
+ .archive-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:18px}
+ .planet-card{min-width:0;min-height:198px;padding:14px 7px;gap:8px}
+ .planet-card strong{font-size:14px;line-height:1.4;overflow-wrap:anywhere}
+ .planet-card small,.card-year{font-size:10px;line-height:1.5;overflow-wrap:anywhere}
+ .mini.atlas-mini{width:min(100%,108px);height:108px;margin-bottom:4px}
+ .card-arrow{top:8px;right:10px;font-size:15px}
+ .dossier-grid{grid-template-columns:minmax(0,1fr);gap:24px}
+ .identity{grid-template-columns:minmax(0,1fr);gap:12px;min-width:0}
+ .identity h2{grid-column:1;grid-row:1;font-size:32px;letter-spacing:-.6px;overflow-wrap:anywhere;margin:0}
+ .identity .subtitle{grid-column:1;grid-row:2;font-size:14px;margin:0}
+ .identity .globe{grid-column:1;grid-row:3;height:230px;width:100%;max-width:280px;justify-self:center}
+ .identity .prose{grid-column:1;grid-row:4;font-size:14px;line-height:1.8}
+ .identity .actions{grid-column:1;grid-row:5;display:grid;grid-template-columns:1fr 1fr;margin-top:4px;gap:8px}
+ .button{min-height:44px;padding:10px;font-size:12px}
+ .identity .facts{grid-column:1;grid-row:6;gap:8px;margin:4px 0 0;padding-top:16px}
+ .facts dt{font-size:10px}.facts dd{font-size:13px;line-height:1.5}
+ .dossier-grid .visuals{min-width:0;grid-column:1;grid-row:auto}
+ .view-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px}
+ .view-tabs button{min-height:44px;font-size:12px;padding:10px 6px}
+ .view-panel{min-height:0}
+ .landscape-explanation,.system-copy{padding:16px;font-size:14px;line-height:1.8}
+ .landscape-explanation a,.system-copy a,.layer-copy a,.diamond-note a{font-size:12px;overflow-wrap:anywhere}
+ .cutaway{height:auto;min-height:0}
+ .layer-controls{padding:10px;gap:6px}
+ .layer-controls button{min-height:44px;min-width:80px;font-size:12px;padding:9px 5px}
+ .layer-copy{padding:10px 14px 16px;min-height:0}
+ .layer-copy p,.diamond-note p{font-size:14px;line-height:1.8}
+ .galaxy-controls{padding:12px 10px;gap:8px}
+ .galaxy-controls button{min-width:44px;min-height:44px}
+ .galaxy-focus{display:grid;grid-template-columns:1fr 1fr;padding:0 10px 12px;gap:8px}
+ .galaxy-focus .button{font-size:11px}
+ .galaxy-readout{overflow-wrap:anywhere}
+ .poster-strip{margin-top:0;grid-column:1;display:block;border-top:1px solid #51412a;padding-top:20px;max-width:330px;width:100%;justify-self:center}
+ .poster-thumb{width:100%}.poster-strip .button{font-size:12px;min-height:44px}
+ .footer-line{gap:16px;line-height:1.6;font-size:9px;letter-spacing:.4px}
+ .filter-help{padding:0 20px;font-size:12px}.filter-help summary{max-width:100%;min-height:44px}
+ .dialog{width:calc(100% - 20px);max-width:none;max-height:92dvh;padding:16px;overflow-wrap:anywhere}
+ .dialog header{gap:12px;margin-bottom:18px}.dialog h2{font-size:21px}
+ .dialog .close{width:44px;height:44px}
+ .dialog p,.dialog li{font-size:14px;line-height:1.75}
+ .parameter-table{font-size:12px;min-width:430px}.parameter-scroll{max-width:100%;overflow-x:auto}
+ .poster-dialog{padding:12px}.poster-dialog h2{font-size:15px}
+ .poster-dialog footer{display:flex;flex-direction:column;align-items:stretch;gap:12px}
+}
+@media (max-width: 480px) {
+ .filters{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 10px}
+ .filters .filter:last-child{grid-column:1/-1;width:50%;justify-self:center}
+}
+@media (max-width: 350px) {
+ .terminal{padding:10px 10px 22px}
+ .display{padding:16px 9px}
+ .filters{padding:12px 4px;column-gap:2px}
+ .filter-title{font-size:10px}
+ .dial-wrap{width:118px}
+ .planet-card{padding:12px 5px;min-height:185px}
+ .planet-card strong{font-size:12px}
+ .mini.atlas-mini{width:90px;height:90px}
+ .identity .actions{grid-template-columns:1fr}
+ .identity h2{font-size:28px}
+}
