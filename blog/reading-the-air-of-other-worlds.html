@@ -10,11 +10,11 @@
   <meta property="og:image" content="https://davidestaub.github.io/assets/img/og-card.png">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="canonical" href="https://davidestaub.github.io/blog/reading-the-air-of-other-worlds.html">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪐</text></svg>">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%23E2AA3B'/%3E%3Ccircle cx='21' cy='12.5' r='5' fill='%230D0E10'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/css/site.css">
+  <link rel="stylesheet" href="../assets/css/site.css?v=quiet3">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -31,16 +31,15 @@
 </head>
 <body class="page-blog">
   <a class="skip-link" href="#main">Skip to content</a>
-  <canvas id="starfield" aria-hidden="true"></canvas>
 
-  <nav class="nav">
+  <nav class="nav" aria-label="Main">
     <div class="nav-inner">
       <a class="nav-name" href="../index.html">Davide Staub</a>
-      <canvas class="nav-transit" width="120" height="26" aria-hidden="true"></canvas>
       <div class="nav-links">
         <a href="../research.html">Research</a>
         <a href="../teaching.html">Teaching</a>
         <a href="index.html" class="active" aria-current="page">Blog</a>
+        <a href="exoplanet-archive.html">Exoplanet Archive</a>
         <a href="../CV_Davide_Staub.pdf">CV</a>
       </div>
     </div>
@@ -53,25 +52,22 @@
       <h1>Reading the air of other worlds</h1>
       <p class="lede">
         We cannot visit a planet 300 light-years away, and only a few dozen exoplanets have
-        ever been photographed directly. Still, we know what some of their skies are made of.
-        This post explains how, and lets you try each step yourself.
+        ever been photographed directly. For some of them, we still know what their air is made of.
+        This post explains how, with demos you can try at each step.
       </p>
       <p class="post-meta">Davide Staub · August 2026 · ~8 min</p>
 
       <div class="stat-strip">
         <div class="stat"><div class="num" id="count-worlds">0</div><div class="lbl">confirmed planets</div></div>
         <div class="stat"><div class="num">1995</div><div class="lbl">first planet around a Sun-like star</div></div>
-        <div class="stat"><div class="num">300+</div><div class="lbl">light-years to some of them</div></div>
+        <div class="stat"><div class="num">~700</div><div class="lbl">light-years to WASP-39 b</div></div>
       </div>
     </section>
 
-    <div class="bubble gold">
-      <div class="dot" aria-hidden="true">🔭</div>
-      <div class="say">
-        Every bright dot in the night sky is a sun, and on average
-        <strong>every star hosts at least one planet</strong>.
-      </div>
-    </div>
+    <aside class="note">
+        Most dots in the night sky are stars like the Sun, and on average
+        <strong>each star has at least one planet</strong>.
+      </aside>
 
     <!-- ============================ census ============================ -->
 
@@ -135,18 +131,15 @@
       <div class="world-chips" id="world-chips"></div>
       <div id="world-card" class="target-card"></div>
 
-      <div class="bubble">
-        <div class="dot" aria-hidden="true">🔭</div>
-        <div class="say">
-          <strong>Atmospheric observations</strong> can identify gases and clouds on some of these planets.
-        </div>
-      </div>
+      <aside class="note">
+        <strong>Atmospheric observations</strong> can identify gases and clouds on some of these planets.
+      </aside>
     </section>
 
     <!-- ============================ history ============================ -->
 
     <section class="section chapter">
-      <p class="eyebrow cyan">02 · The hunt</p>
+      <p class="eyebrow">02 · The hunt</p>
       <h2>From the first discoveries to atmospheric spectra</h2>
       <div class="prose">
         <p>
@@ -158,7 +151,7 @@
         <div class="tl-item">
           <div class="tl-year">1990 · Hubble launches</div>
           <h3>Hubble enters orbit</h3>
-          <p>Hubble was not built for exoplanets, since none were known at launch. It ended up playing a big role in this field anyway.</p>
+          <p>Hubble was not built for exoplanets; none were known when it launched. It later made the first detection of an exoplanet atmosphere (see 2001).</p>
           <div class="tl-media frame"><video src="../assets/video/hubble.mp4" autoplay muted loop playsinline aria-label="Rotating render of the Hubble Space Telescope"></video></div>
         </div>
         <div class="tl-item">
@@ -169,7 +162,7 @@
         <div class="tl-item">
           <div class="tl-year">1995 · 51 Pegasi b</div>
           <h3>51 Pegasi b: a giant on a four-day orbit</h3>
-          <p>The ELODIE spectrograph caught the star 51 Pegasi wobbling, tugged by an unseen giant planet racing around it every 4.2 days. From Earth the planet never passes in front of its star, so its discovery relied on this wobble, seen as spectral lines shifting back and forth between blue and red. The discovery earned a Nobel Prize.</p>
+          <p>The ELODIE spectrograph caught the star 51 Pegasi wobbling, tugged by an unseen giant planet racing around it every 4.2 days. From Earth the planet never passes in front of its star, so its discovery relied on this wobble, seen as spectral lines shifting back and forth between blue and red. Michel Mayor and Didier Queloz shared the 2019 Nobel Prize in Physics for it.</p>
           <div class="tl-media frame anim-pane" style="max-width:460px">
             <svg viewBox="0 0 460 260" aria-label="A star wobbling in a small circle as an unseen planet orbits it, while the star's spectral line shifts between blue and red">
               <defs>
@@ -248,7 +241,7 @@
     <!-- ============================ transit demo ============================ -->
 
     <section class="section chapter">
-      <p class="eyebrow purple">03 · The trick</p>
+      <p class="eyebrow">03 · The trick</p>
       <h2>Watch a planet cross its star</h2>
       <div class="prose">
         <p>
@@ -258,13 +251,10 @@
         </p>
       </div>
 
-      <div class="bubble gold">
-        <div class="dot" aria-hidden="true">🔭</div>
-        <div class="say">
-          Drag the sliders. A bigger planet blocks more light, so the depth of
+      <aside class="note">
+        Drag the sliders. A bigger planet blocks more light, so the depth of
           the dip tells us the planet's <strong>size</strong>.
-        </div>
-      </div>
+      </aside>
 
       <div class="demo">
         <span class="live-badge"><span class="live-dot" aria-hidden="true"></span>Interactive</span>
@@ -305,29 +295,23 @@
         </div>
       </div>
 
-      <div class="bubble">
-        <div class="dot" aria-hidden="true">🔭</div>
-        <div class="say">
-          A planet's atmosphere is <strong>opaque at some colours and transparent at
+      <aside class="note">
+        A planet's atmosphere is <strong>opaque at some colours and transparent at
           others</strong>. Water vapour absorbs strongly around 1.4 and 1.9 microns.
           At those colours the planet looks slightly <em>bigger</em>, so the dip is slightly deeper.
-        </div>
-      </div>
+      </aside>
 
-      <div class="bubble right">
-        <div class="dot" aria-hidden="true">🔭</div>
-        <div class="say">
-          Press <strong>“Scan the rainbow”</strong> to measure the transit depth at every colour.
-          Depth plotted against wavelength is a <strong>transmission spectrum</strong>, a chemical
-          fingerprint of the planet's air.
-        </div>
-      </div>
+      <aside class="note">
+        Press <strong>“Scan the rainbow”</strong> to measure the transit depth at every colour.
+          Depth plotted against wavelength is a <strong>transmission spectrum</strong>. Its shape
+          tells us which gases are in the planet's air.
+      </aside>
     </section>
 
     <!-- ============================ inside the telescope ============================ -->
 
     <section class="section chapter">
-      <p class="eyebrow purple">04 · Inside the telescope</p>
+      <p class="eyebrow">04 · Inside the telescope</p>
       <h2>One stripe of starlight</h2>
       <div class="prose">
         <p>
@@ -354,26 +338,23 @@
         </p>
       </div>
 
-      <div class="bubble gold">
-        <div class="dot" aria-hidden="true">🔭</div>
-        <div class="say">
-          That uneven dimming <strong>is</strong> the transmission spectrum. Recording this one
-          stripe through one transit is enough to capture the chemistry of the planet's air.
-        </div>
-      </div>
+      <aside class="note">
+        That uneven dimming <strong>is</strong> the transmission spectrum. One transit recorded
+          on this one stripe gives the spectrum at all of these wavelengths at once.
+      </aside>
     </section>
 
     <!-- ============================ real spectrum ============================ -->
 
     <section class="section chapter">
-      <p class="eyebrow teal">05 · The real thing</p>
+      <p class="eyebrow">05 · The real thing</p>
       <h2>What JWST actually sees</h2>
       <div class="prose">
         <p>
           This is a stylised version of a real measurement: the transmission spectrum of
           <strong>WASP-39&nbsp;b</strong>, a hot Saturn observed by JWST in its first year.
-          Every bump is a molecule in the planet's sky, and this single spectrum shows
-          water, sodium, carbon monoxide, carbon dioxide and even sulphur dioxide.
+          The bumps are where molecules in the planet's atmosphere absorb light. This one
+          spectrum shows water, sodium, carbon monoxide, carbon dioxide and sulphur dioxide.
         </p>
       </div>
 
@@ -466,14 +447,11 @@
         formation on Earth. Methane, on the other hand, was not detected.
       </p>
 
-      <div class="bubble gold">
-        <div class="dot" aria-hidden="true">🔭</div>
-        <div class="say">
-          One transit of a typical hot giant planet changes the starlight by <strong>about 1%</strong>,
-          and the molecular fingerprint on top of that is another <strong>hundred times smaller</strong>.
-          Instrumental changes must be accounted for to measure a signal this small.
-        </div>
-      </div>
+      <aside class="note">
+        During a transit, a typical hot giant planet blocks <strong>about 1%</strong> of the starlight.
+          The features of its atmosphere on top of that are about a <strong>hundred times smaller</strong>,
+          so even small changes in the instrument matter.
+      </aside>
     </section>
 
     <!-- ============================ outro ============================ -->
@@ -483,24 +461,22 @@
       <h2>Checking the measurements</h2>
       <div class="prose">
         <p>
-          Signals this small put enormous weight on the analysis: subtle instrument
-          systematics and modelling choices can shift the answer by more than the atmospheric
-          signal itself. My PhD research at Imperial College London develops physics-based,
-          differentiable methods to make these measurements, and the conclusions drawn from
-          them, more trustworthy.
+          At this level, small instrument effects and choices made in the analysis can change
+          the result by more than the atmospheric signal itself. That analysis is what my PhD
+          at Imperial College London is about.
         </p>
       </div>
       <div class="post-end">
         <svg class="dip-divider" viewBox="0 0 600 44" aria-hidden="true"><path d="M0 12 H205 C225 12 232 32 258 32 H342 C368 32 375 12 395 12 H600" fill="none" stroke="rgba(245,179,36,0.75)" stroke-width="1.5"/></svg>
-        <div class="hero-links" style="justify-content:center; margin-top:1.6rem">
-          <a class="btn primary" href="../research.html">Research</a>
-          <a class="btn" href="mailto:dds25@ic.ac.uk">Get in touch</a>
+        <div class="hero-links">
+          <a class="btn primary" href="exoplanet-archive.html">Exoplanet Archive</a>
+          <a class="btn" href="../research.html">Research</a>
           <a class="btn" href="index.html">All posts</a>
         </div>
       </div>
     </section>
 
-    <p class="small" style="color:var(--faint); margin-top:3rem; text-align:center">
+    <p class="credits">
       Telescope animations and planet renders: NASA. Spectrum stylised after public NASA/ESA/CSA/STScI releases.
     </p>
 
@@ -509,10 +485,11 @@
   <footer>
     <div class="wrap">
       <span>© 2026 Davide Staub</span>
-      <span>
-        <a href="mailto:dds25@ic.ac.uk">Email</a> ·
-        <a href="https://www.linkedin.com/in/davide-staub/" target="_blank" rel="noopener">LinkedIn</a> ·
+      <span class="foot-links">
+        <a href="mailto:dds25@ic.ac.uk">Email</a>
+        <a href="https://scholar.google.com/citations?user=wVVLcFsAAAAJ" target="_blank" rel="noopener">Google Scholar</a>
         <a href="https://github.com/davidestaub" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://www.linkedin.com/in/davide-staub/" target="_blank" rel="noopener">LinkedIn</a>
       </span>
     </div>
   </footer>

@@ -12,3 +12,11 @@
 @media(max-width:600px){#galaxy-map{height:330px}.view-tabs button{font-size:11px;padding:10px}.mini.atlas-mini{width:100px;height:100px}}
 
 .landscape-explanation,.system-copy{padding:20px 22px;color:#d5c6a6;font-size:14px;line-height:1.8}.landscape-explanation p{margin:0 0 12px}.landscape-explanation a,.system-copy a{color:#cdb681;font-size:12px}.system-copy h3{font-size:20px}.system-members{border-top:1px solid #655335;margin-top:20px;padding-top:10px}.system-members p{margin:10px 0}.galaxy-focus{display:flex;flex-wrap:wrap;gap:8px;padding:0 16px 12px}.galaxy-focus .button{font-size:11px}.galaxy-controls{min-width:0}.galaxy-controls input{min-width:30px;width:100%}.galaxy-readout strong{display:block} .interior-overview:empty{display:none}
+
+/* website menu: same look as the other pages */
+.site-nav{max-width:1060px;padding:13px 20px;flex-wrap:wrap;align-items:baseline;gap:6px 24px;font-family:"Source Serif 4",Georgia,serif;font-size:16px;color:#A9A59C}
+.site-nav>a{color:#ECE9E2;font-weight:600}
+.site-nav div{gap:4px 21px;flex-wrap:wrap}
+.site-nav div a:hover,.site-nav>a:hover{color:#ECE9E2}
+.site-nav a[aria-current=page]{color:#ECE9E2;text-decoration:underline;text-decoration-color:#E2AA3B;text-underline-offset:.35em}
+@media(max-width:570px){.site-nav{padding:11px 16px;font-size:15px}.site-nav div{gap:4px 16px}}

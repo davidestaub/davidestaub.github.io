@@ -10,90 +10,83 @@
   <meta property="og:image" content="https://davidestaub.github.io/assets/img/og-card.png">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="canonical" href="https://davidestaub.github.io/teaching.html">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪐</text></svg>">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%23E2AA3B'/%3E%3Ccircle cx='21' cy='12.5' r='5' fill='%230D0E10'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/site.css">
+  <link rel="stylesheet" href="assets/css/site.css?v=quiet3">
 </head>
 <body class="page-teaching">
   <a class="skip-link" href="#main">Skip to content</a>
-  <canvas id="starfield" aria-hidden="true"></canvas>
 
-  <nav class="nav">
+  <nav class="nav" aria-label="Main">
     <div class="nav-inner">
       <a class="nav-name" href="index.html">Davide Staub</a>
       <div class="nav-links">
         <a href="research.html">Research</a>
         <a href="teaching.html" class="active" aria-current="page">Teaching</a>
         <a href="blog/index.html">Blog</a>
+        <a href="blog/exoplanet-archive.html">Exoplanet Archive</a>
         <a href="CV_Davide_Staub.pdf">CV</a>
       </div>
     </div>
   </nav>
 
-  <main class="wrap" id="main">
+  <main class="wrap page" id="main">
 
-    <section class="section">
-      <p class="eyebrow cyan">Teaching</p>
-      <h1>What I teach</h1>
-      <p class="lede">
-        I teach deep learning, from the fundamentals to applications on real
-        scientific data, including images of the Moon.
-      </p>
-    </section>
+    <header class="page-head column">
+      <h1>Teaching</h1>
+      <p class="lede">I teach deep learning at Imperial College London and ETH Zürich.</p>
+    </header>
 
-    <section class="section">
-      <div class="card">
-        <p class="eyebrow">Imperial College London</p>
-        <h3>Graduate Teaching Assistant, MSc Deep Learning</h3>
+    <article class="entry">
+      <h2>MSc Deep Learning</h2>
+      <p class="meta">Graduate teaching assistant · Imperial College London</p>
+      <div class="column">
         <p>
-          I help deliver the MSc Deep Learning course at Imperial College London:
-          running tutorials, answering students' questions and supporting practical
-          exercises on neural network fundamentals, optimisation and modern architectures.
+          I run tutorials, answer students' questions and help with the practical exercises:
+          neural network basics, optimisation and modern architectures.
         </p>
       </div>
+    </article>
 
-      <div class="card" style="--glow:169,112,255">
-        <p class="eyebrow purple">ETH Zürich</p>
-        <h3>Lecturer, Space Data (Master in Space Systems)</h3>
-        <div class="split">
-          <div>
-            <p>
-              I teach the final third of the
-              <a href="https://eaps.ethz.ch/en/studies/master/space-systems.html" target="_blank" rel="noopener">Space Data course</a>
-              in the Master in Space Systems programme at ETH Zürich. My block introduces
-              convolutional neural networks and U-Net architectures for denoising images of
-              the Moon's permanently shadowed regions (PSRs).
-            </p>
-            <p>
-              These techniques build on the HORUS framework developed by Ben Moseley and
-              Valentin Bickel, and are key to reliable resource mapping and landing-site
-              planning. Students learn the foundations of deep learning (MLPs, CNNs,
-              U-Nets) and then apply them to clean up real PSR imagery.
-            </p>
-          </div>
-          <figure>
-            <div class="frame"><img src="assets/img/psr_crater.jpg" alt="Lunar crater with a dark permanently shadowed region"></div>
-            <figcaption>Permanently shadowed regions on the Moon, imaged in near darkness and recovered with machine learning.</figcaption>
-          </figure>
+    <article class="entry">
+      <h2>Space Data</h2>
+      <p class="meta">Lecturer · Master in Space Systems · ETH Zürich</p>
+      <div class="split">
+        <div>
+          <p>
+            I teach the last third of the
+            <a href="https://eaps.ethz.ch/en/studies/master/space-systems.html" target="_blank" rel="noopener">Space Data course</a>.
+            My block covers the basics of deep learning (MLPs, CNNs and U-Nets) and then applies
+            them to a real problem: removing noise from images of the Moon's permanently shadowed
+            regions, crater floors that never get direct sunlight.
+          </p>
+          <p>
+            The exercises build on HORUS, a method by Ben Moseley and Valentin Bickel for these
+            images. Clearer images of the shadowed regions help with mapping resources and planning
+            landing sites.
+          </p>
         </div>
+        <figure>
+          <div class="frame"><img src="assets/img/psr_crater.jpg" alt="Lunar crater with a dark permanently shadowed region"></div>
+          <figcaption>A permanently shadowed region on the Moon, imaged in near darkness and cleaned up with machine learning.</figcaption>
+        </figure>
       </div>
-    </section>
+    </article>
 
   </main>
 
   <footer>
     <div class="wrap">
       <span>© 2026 Davide Staub</span>
-      <span>
-        <a href="mailto:dds25@ic.ac.uk">Email</a> ·
-        <a href="https://www.linkedin.com/in/davide-staub/" target="_blank" rel="noopener">LinkedIn</a> ·
+      <span class="foot-links">
+        <a href="mailto:dds25@ic.ac.uk">Email</a>
+        <a href="https://scholar.google.com/citations?user=wVVLcFsAAAAJ" target="_blank" rel="noopener">Google Scholar</a>
         <a href="https://github.com/davidestaub" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://www.linkedin.com/in/davide-staub/" target="_blank" rel="noopener">LinkedIn</a>
       </span>
     </div>
   </footer>
-
-  <script src="assets/js/starfield.js"></script>
 </body>
 </html>
